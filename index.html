@@ -1,1 +1,524 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>EasySell - Marketplace</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background-color: #f3f4f6;
+        }
+
+        /* Header */
+        .header {
+            background-color: #059669;
+            color: white;
+            padding: 16px 20px;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .sell-btn {
+            background-color: white;
+            color: #059669;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 12px;
+            font-weight: bold;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .sell-btn:hover {
+            background-color: #f0fdf4;
+            transform: scale(1.02);
+        }
+
+        /* Main Container */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* Products Grid */
+        .products-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+        }
+
+        /* Product Card */
+        .product-card {
+            background: white;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            transition: transform 0.2s, box-shadow 0.2s;
+            cursor: pointer;
+        }
+
+        .product-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+        }
+
+        .product-image {
+            width: 100%;
+            height: 180px;
+            object-fit: cover;
+            background-color: #e5e7eb;
+        }
+
+        .product-info {
+            padding: 16px;
+        }
+
+        .product-name {
+            font-weight: bold;
+            font-size: 18px;
+            margin-bottom: 4px;
+        }
+
+        .product-price {
+            color: #059669;
+            font-weight: bold;
+            font-size: 20px;
+            margin-bottom: 8px;
+        }
+
+        .product-description {
+            color: #6b7280;
+            font-size: 14px;
+            margin-bottom: 12px;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .product-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 12px;
+            color: #9ca3af;
+            margin-bottom: 12px;
+        }
+
+        .delete-btn {
+            background-color: #fee2e2;
+            color: #dc2626;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-size: 12px;
+            cursor: pointer;
+            width: 100%;
+        }
+
+        .delete-btn:hover {
+            background-color: #fecaca;
+        }
+
+        .details-btn {
+            background-color: #f3f4f6;
+            border: none;
+            padding: 8px;
+            border-radius: 10px;
+            width: 100%;
+            margin-top: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            color: #374151;
+        }
+
+        .details-btn:hover {
+            background-color: #e5e7eb;
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #6b7280;
+        }
+
+        .empty-state p {
+            margin-bottom: 16px;
+            font-size: 18px;
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            padding: 16px;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 24px;
+            max-width: 500px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            padding: 24px;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .modal-header h2 {
+            font-size: 24px;
+        }
+
+        .close-modal {
+            font-size: 28px;
+            cursor: pointer;
+            color: #9ca3af;
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 6px;
+            font-weight: 500;
+            color: #374151;
+        }
+
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 12px;
+            font-size: 14px;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #059669;
+        }
+
+        .submit-btn {
+            background-color: #059669;
+            color: white;
+            border: none;
+            padding: 14px;
+            border-radius: 12px;
+            font-weight: bold;
+            font-size: 16px;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 8px;
+        }
+
+        .detail-image {
+            width: 100%;
+            height: 250px;
+            object-fit: cover;
+            border-radius: 16px;
+            margin-bottom: 16px;
+        }
+
+        .contact-btn {
+            background-color: #059669;
+            color: white;
+            border: none;
+            padding: 12px;
+            border-radius: 12px;
+            width: 100%;
+            margin-top: 16px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        @media (max-width: 640px) {
+            .products-grid {
+                grid-template-columns: 1fr;
+            }
+            .logo {
+                font-size: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <div class="header-content">
+            <div class="logo">
+                🛍️ EasySell
+            </div>
+            <button class="sell-btn" onclick="openSellModal()">+ Sell Product</button>
+        </div>
+    </div>
+
+    <div class="container">
+        <div id="productsContainer" class="products-grid">
+            <!-- Products will be loaded here -->
+        </div>
+    </div>
+
+    <!-- Sell Product Modal -->
+    <div id="sellModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Sell a Product</h2>
+                <span class="close-modal" onclick="closeSellModal()">&times;</span>
+            </div>
+            <div class="form-group">
+                <label>Product Name *</label>
+                <input type="text" id="productName" placeholder="e.g., iPhone 13">
+            </div>
+            <div class="form-group">
+                <label>Price (₦) *</label>
+                <input type="number" id="productPrice" placeholder="e.g., 250000">
+            </div>
+            <div class="form-group">
+                <label>Image URL (optional)</label>
+                <input type="text" id="productImage" placeholder="https://...">
+            </div>
+            <div class="form-group">
+                <label>Description</label>
+                <textarea id="productDesc" rows="3" placeholder="Describe your product..."></textarea>
+            </div>
+            <div class="form-group">
+                <label>Your Name *</label>
+                <input type="text" id="productSeller" placeholder="Your name or username">
+            </div>
+            <button class="submit-btn" onclick="addProduct()">Post Product</button>
+        </div>
+    </div>
+
+    <!-- Product Details Modal -->
+    <div id="detailModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="detailName"></h2>
+                <span class="close-modal" onclick="closeDetailModal()">&times;</span>
+            </div>
+            <img id="detailImage" class="detail-image" src="" alt="">
+            <p id="detailPrice" style="font-size: 28px; font-weight: bold; color: #059669; margin-bottom: 12px;"></p>
+            <p id="detailDesc" style="color: #4b5563; margin-bottom: 16px;"></p>
+            <p><strong>Seller:</strong> <span id="detailSeller"></span></p>
+            <p><strong>Posted:</strong> <span id="detailDate"></span></p>
+            <button class="contact-btn" onclick="contactSeller()">Contact Seller</button>
+        </div>
+    </div>
+
+    <script>
+        // Load products from localStorage or use default products
+        let products = [];
+
+        function loadProducts() {
+            const saved = localStorage.getItem('easysell_products');
+            if (saved) {
+                products = JSON.parse(saved);
+            } else {
+                // Default products
+                products = [
+                    { id: 1, name: 'iPhone 12', price: 250000, image: 'https://picsum.photos/id/0/300/200', description: 'Good condition iPhone 12, 128GB, comes with charger', seller: 'John Doe', date: '2024-01-15' },
+                    { id: 2, name: 'Nike Air Max', price: 35000, image: 'https://picsum.photos/id/20/300/200', description: 'Size 42, never worn, original box included', seller: 'Sarah Smith', date: '2024-01-14' },
+                    { id: 3, name: 'MacBook Pro', price: 850000, image: 'https://picsum.photos/id/0/300/200', description: '2023 model, 16GB RAM, 512GB SSD, warranty until 2025', seller: 'Mike Johnson', date: '2024-01-13' }
+                ];
+                saveProducts();
+            }
+            renderProducts();
+        }
+
+        function saveProducts() {
+            localStorage.setItem('easysell_products', JSON.stringify(products));
+        }
+
+        function renderProducts() {
+            const container = document.getElementById('productsContainer');
+            if (!container) return;
+
+            if (products.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <p>📭 No products yet</p>
+                        <p>Be the first to sell something!</p>
+                        <button class="sell-btn" onclick="openSellModal()" style="background-color: #059669; color: white;">+ Post a Product</button>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = products.map(product => `
+                <div class="product-card" onclick="openDetailModal(${product.id})">
+                    <img class="product-image" src="${product.image}" alt="${product.name}" onerror="this.src='https://picsum.photos/id/20/300/200'">
+                    <div class="product-info">
+                        <div class="product-name">${escapeHtml(product.name)}</div>
+                        <div class="product-price">₦${product.price.toLocaleString()}</div>
+                        <div class="product-description">${escapeHtml(product.description)}</div>
+                        <div class="product-meta">
+                            <span>👤 ${escapeHtml(product.seller)}</span>
+                            <span>📅 ${product.date}</span>
+                        </div>
+                        <button class="delete-btn" onclick="event.stopPropagation(); deleteProduct(${product.id})">🗑️ Delete</button>
+                        <button class="details-btn" onclick="event.stopPropagation(); openDetailModal(${product.id})">View Details</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function openSellModal() {
+            document.getElementById('sellModal').style.display = 'flex';
+        }
+
+        function closeSellModal() {
+            document.getElementById('sellModal').style.display = 'none';
+            // Clear form
+            document.getElementById('productName').value = '';
+            document.getElementById('productPrice').value = '';
+            document.getElementById('productImage').value = '';
+            document.getElementById('productDesc').value = '';
+            document.getElementById('productSeller').value = '';
+        }
+
+        function addProduct() {
+            const name = document.getElementById('productName').value.trim();
+            const price = parseFloat(document.getElementById('productPrice').value);
+            const image = document.getElementById('productImage').value.trim();
+            const description = document.getElementById('productDesc').value.trim();
+            const seller = document.getElementById('productSeller').value.trim();
+
+            if (!name) {
+                alert('Please enter product name');
+                return;
+            }
+            if (isNaN(price) || price <= 0) {
+                alert('Please enter a valid price');
+                return;
+            }
+            if (!seller) {
+                alert('Please enter your name');
+                return;
+            }
+
+            const newProduct = {
+                id: Date.now(),
+                name: name,
+                price: price,
+                image: image || 'https://picsum.photos/id/' + Math.floor(Math.random() * 100) + '/300/200',
+                description: description || 'No description provided',
+                seller: seller,
+                date: new Date().toISOString().split('T')[0]
+            };
+
+            products.unshift(newProduct);
+            saveProducts();
+            renderProducts();
+            closeSellModal();
+            alert('Product posted successfully!');
+        }
+
+        function deleteProduct(id) {
+            if (confirm('Are you sure you want to delete this product?')) {
+                products = products.filter(p => p.id !== id);
+                saveProducts();
+                renderProducts();
+                closeDetailModal();
+            }
+        }
+
+        function openDetailModal(id) {
+            const product = products.find(p => p.id === id);
+            if (!product) return;
+
+            document.getElementById('detailName').textContent = product.name;
+            document.getElementById('detailImage').src = product.image;
+            document.getElementById('detailPrice').textContent = `₦${product.price.toLocaleString()}`;
+            document.getElementById('detailDesc').textContent = product.description;
+            document.getElementById('detailSeller').textContent = product.seller;
+            document.getElementById('detailDate').textContent = product.date;
+            
+            // Store current product id for contact
+            document.getElementById('detailModal').setAttribute('data-product-id', id);
+            document.getElementById('detailModal').style.display = 'flex';
+        }
+
+        function closeDetailModal() {
+            document.getElementById('detailModal').style.display = 'none';
+        }
+
+        function contactSeller() {
+            const modal = document.getElementById('detailModal');
+            const productId = parseInt(modal.getAttribute('data-product-id'));
+            const product = products.find(p => p.id === productId);
+            if (product) {
+                alert(`📞 Contact ${product.seller} to buy "${product.name}"\n\n🚀 This is a demo. In a real app, this would connect you directly with the seller via WhatsApp or phone call.`);
+            }
+            closeDetailModal();
+        }
+
+        function escapeHtml(str) {
+            if (!str) return '';
+            return str.replace(/[&<>]/g, function(m) {
+                if (m === '&') return '&amp;';
+                if (m === '<') return '&lt;';
+                if (m === '>') return '&gt;';
+                return m;
+            });
+        }
+
+        // Close modals when clicking outside
+        window.onclick = function(event) {
+            const sellModal = document.getElementById('sellModal');
+            const detailModal = document.getElementById('detailModal');
+            if (event.target === sellModal) closeSellModal();
+            if (event.target === detailModal) closeDetailModal();
+        }
+
+        // Initialize
+        loadProducts();
+    </script>
+</body>
+</html>
