@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>EasySell - Marketplace</title>
+    <title>EasySell - Sell & Buy Locally</title>
     <style>
         * {
             margin: 0;
@@ -13,18 +13,103 @@
 
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-            background-color: #f3f4f6;
+            background: linear-gradient(135deg, #059669 0%, #047857 100%);
+            min-height: 100vh;
+        }
+
+        /* Login Container */
+        .login-container {
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .login-card {
+            background: white;
+            border-radius: 32px;
+            padding: 40px 28px;
+            max-width: 400px;
+            width: 100%;
+            text-align: center;
+            box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25);
+        }
+
+        .login-logo {
+            width: 100px;
+            height: 100px;
+            background: linear-gradient(135deg, #059669 0%, #047857 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            box-shadow: 0 10px 25px rgba(5,150,105,0.3);
+        }
+
+        .login-logo span {
+            font-size: 55px;
+        }
+
+        .login-card h1 {
+            font-size: 28px;
+            color: #1f2937;
+            margin-bottom: 8px;
+        }
+
+        .login-card p {
+            color: #6b7280;
+            margin-bottom: 32px;
+            font-size: 14px;
+        }
+
+        .login-input {
+            width: 100%;
+            padding: 16px;
+            border: 2px solid #e5e7eb;
+            border-radius: 60px;
+            font-size: 16px;
+            margin-bottom: 20px;
+            transition: all 0.2s;
+        }
+
+        .login-input:focus {
+            outline: none;
+            border-color: #059669;
+        }
+
+        .login-btn {
+            width: 100%;
+            background: linear-gradient(135deg, #059669 0%, #047857 100%);
+            color: white;
+            border: none;
+            padding: 16px;
+            border-radius: 60px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .login-btn:hover {
+            transform: scale(1.02);
+        }
+
+        /* Main App (hidden until login) */
+        .main-app {
+            display: none;
         }
 
         /* Header */
         .header {
-            background-color: #059669;
+            background: linear-gradient(135deg, #059669 0%, #047857 100%);
             color: white;
             padding: 16px 20px;
             position: sticky;
             top: 0;
-            z-index: 10;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            z-index: 100;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
         }
 
         .header-content {
@@ -34,61 +119,119 @@
             justify-content: space-between;
             align-items: center;
             flex-wrap: wrap;
-            gap: 10px;
+            gap: 12px;
         }
 
         .logo {
-            font-size: 24px;
-            font-weight: bold;
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 10px;
+            background: rgba(255,255,255,0.1);
+            padding: 6px 16px 6px 12px;
+            border-radius: 60px;
+        }
+
+        .logo-icon {
+            width: 36px;
+            height: 36px;
+            background: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+        }
+
+        .logo-text {
+            font-size: 20px;
+            font-weight: 700;
+        }
+
+        .logo-text small {
+            font-size: 10px;
+            font-weight: normal;
+            opacity: 0.8;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: rgba(255,255,255,0.15);
+            padding: 6px 16px 6px 12px;
+            border-radius: 60px;
+        }
+
+        .user-name {
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .logout-btn {
+            background: rgba(255,255,255,0.2);
+            border: none;
+            color: white;
+            padding: 6px 12px;
+            border-radius: 60px;
+            font-size: 12px;
+            cursor: pointer;
         }
 
         .sell-btn {
-            background-color: white;
+            background: white;
             color: #059669;
             border: none;
-            padding: 10px 20px;
-            border-radius: 12px;
-            font-weight: bold;
+            padding: 10px 22px;
+            border-radius: 40px;
+            font-weight: 700;
             font-size: 14px;
             cursor: pointer;
             transition: all 0.2s;
         }
 
         .sell-btn:hover {
-            background-color: #f0fdf4;
             transform: scale(1.02);
+            background: #f0fdf4;
         }
 
-        /* Main Container */
+        /* Container */
         .container {
             max-width: 1200px;
             margin: 0 auto;
-            padding: 20px;
+            padding: 24px 20px;
+        }
+
+        /* Section Title */
+        .section-title {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 20px;
+            color: #1f2937;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
 
         /* Products Grid */
         .products-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-            gap: 20px;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 24px;
         }
 
         /* Product Card */
         .product-card {
             background: white;
-            border-radius: 16px;
+            border-radius: 20px;
             overflow: hidden;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-            transition: transform 0.2s, box-shadow 0.2s;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            transition: all 0.2s;
             cursor: pointer;
         }
 
         .product-card:hover {
             transform: translateY(-4px);
-            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+            box-shadow: 0 12px 24px rgba(0,0,0,0.12);
         }
 
         .product-image {
@@ -103,21 +246,21 @@
         }
 
         .product-name {
-            font-weight: bold;
+            font-weight: 700;
             font-size: 18px;
             margin-bottom: 4px;
         }
 
         .product-price {
             color: #059669;
-            font-weight: bold;
+            font-weight: 700;
             font-size: 20px;
             margin-bottom: 8px;
         }
 
         .product-description {
             color: #6b7280;
-            font-size: 14px;
+            font-size: 13px;
             margin-bottom: 12px;
             display: -webkit-box;
             -webkit-line-clamp: 2;
@@ -138,11 +281,12 @@
             background-color: #fee2e2;
             color: #dc2626;
             border: none;
-            padding: 6px 12px;
-            border-radius: 8px;
-            font-size: 12px;
+            padding: 8px;
+            border-radius: 12px;
+            font-size: 13px;
             cursor: pointer;
             width: 100%;
+            font-weight: 500;
         }
 
         .delete-btn:hover {
@@ -153,7 +297,7 @@
             background-color: #f3f4f6;
             border: none;
             padding: 8px;
-            border-radius: 10px;
+            border-radius: 12px;
             width: 100%;
             margin-top: 8px;
             cursor: pointer;
@@ -161,20 +305,12 @@
             color: #374151;
         }
 
-        .details-btn:hover {
-            background-color: #e5e7eb;
-        }
-
         /* Empty State */
         .empty-state {
             text-align: center;
             padding: 60px 20px;
-            color: #6b7280;
-        }
-
-        .empty-state p {
-            margin-bottom: 16px;
-            font-size: 18px;
+            background: white;
+            border-radius: 24px;
         }
 
         /* Modal */
@@ -194,48 +330,50 @@
 
         .modal-content {
             background: white;
-            border-radius: 24px;
+            border-radius: 28px;
             max-width: 500px;
             width: 100%;
             max-height: 90vh;
             overflow-y: auto;
-            padding: 24px;
+            padding: 28px;
         }
 
         .modal-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 20px;
+            margin-bottom: 24px;
         }
 
         .modal-header h2 {
             font-size: 24px;
+            color: #1f2937;
         }
 
         .close-modal {
-            font-size: 28px;
+            font-size: 32px;
             cursor: pointer;
             color: #9ca3af;
         }
 
         .form-group {
-            margin-bottom: 16px;
+            margin-bottom: 18px;
         }
 
         .form-group label {
             display: block;
             margin-bottom: 6px;
-            font-weight: 500;
+            font-weight: 600;
             color: #374151;
+            font-size: 14px;
         }
 
         .form-group input,
         .form-group textarea {
             width: 100%;
-            padding: 12px;
-            border: 1px solid #d1d5db;
-            border-radius: 12px;
+            padding: 14px;
+            border: 1px solid #e5e7eb;
+            border-radius: 16px;
             font-size: 14px;
         }
 
@@ -246,12 +384,12 @@
         }
 
         .submit-btn {
-            background-color: #059669;
+            background: linear-gradient(135deg, #059669 0%, #047857 100%);
             color: white;
             border: none;
             padding: 14px;
-            border-radius: 12px;
-            font-weight: bold;
+            border-radius: 60px;
+            font-weight: 700;
             font-size: 16px;
             cursor: pointer;
             width: 100%;
@@ -260,21 +398,22 @@
 
         .detail-image {
             width: 100%;
-            height: 250px;
+            height: 240px;
             object-fit: cover;
-            border-radius: 16px;
-            margin-bottom: 16px;
+            border-radius: 20px;
+            margin-bottom: 20px;
         }
 
         .contact-btn {
-            background-color: #059669;
+            background: linear-gradient(135deg, #25D366 0%, #128C7E 100%);
             color: white;
             border: none;
-            padding: 12px;
-            border-radius: 12px;
+            padding: 14px;
+            border-radius: 60px;
             width: 100%;
-            margin-top: 16px;
-            font-weight: bold;
+            margin-top: 20px;
+            font-weight: 700;
+            font-size: 16px;
             cursor: pointer;
         }
 
@@ -282,26 +421,58 @@
             .products-grid {
                 grid-template-columns: 1fr;
             }
-            .logo {
-                font-size: 20px;
+            .header-content {
+                flex-direction: column;
+                text-align: center;
+            }
+            .logo-text {
+                font-size: 16px;
             }
         }
     </style>
 </head>
 <body>
 
-    <div class="header">
-        <div class="header-content">
-            <div class="logo">
-                🛍️ EasySell
+    <!-- Login Screen -->
+    <div id="loginScreen" class="login-container">
+        <div class="login-card">
+            <div class="login-logo">
+                <span>🛍️</span>
             </div>
-            <button class="sell-btn" onclick="openSellModal()">+ Sell Product</button>
+            <h1>EasySell</h1>
+            <p>Enter your name to start buying and selling</p>
+            <input type="text" id="loginName" class="login-input" placeholder="Your name" maxlength="30">
+            <button class="login-btn" onclick="login()">Continue →</button>
         </div>
     </div>
 
-    <div class="container">
-        <div id="productsContainer" class="products-grid">
-            <!-- Products will be loaded here -->
+    <!-- Main App (hidden until login) -->
+    <div id="mainApp" class="main-app">
+        <div class="header">
+            <div class="header-content">
+                <div class="logo">
+                    <div class="logo-icon">🛍️</div>
+                    <div class="logo-text">
+                        EasySell
+                        <small>marketplace</small>
+                    </div>
+                </div>
+                <div class="user-info">
+                    <span>👤</span>
+                    <span class="user-name" id="displayName"></span>
+                    <button class="logout-btn" onclick="logout()">Logout</button>
+                </div>
+                <button class="sell-btn" onclick="openSellModal()">+ Sell Product</button>
+            </div>
+        </div>
+
+        <div class="container">
+            <div class="section-title">
+                🔥 Latest Products
+            </div>
+            <div id="productsContainer" class="products-grid">
+                <!-- Products will be loaded here -->
+            </div>
         </div>
     </div>
 
@@ -309,7 +480,7 @@
     <div id="sellModal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
-                <h2>Sell a Product</h2>
+                <h2>Sell an Item</h2>
                 <span class="close-modal" onclick="closeSellModal()">&times;</span>
             </div>
             <div class="form-group">
@@ -321,16 +492,17 @@
                 <input type="number" id="productPrice" placeholder="e.g., 250000">
             </div>
             <div class="form-group">
+                <label>WhatsApp Number * (with country code)</label>
+                <input type="tel" id="productPhone" placeholder="e.g., 2348012345678">
+                <small style="color: #6b7280; font-size: 11px;">Buyers will contact you here via WhatsApp</small>
+            </div>
+            <div class="form-group">
                 <label>Image URL (optional)</label>
                 <input type="text" id="productImage" placeholder="https://...">
             </div>
             <div class="form-group">
                 <label>Description</label>
                 <textarea id="productDesc" rows="3" placeholder="Describe your product..."></textarea>
-            </div>
-            <div class="form-group">
-                <label>Your Name *</label>
-                <input type="text" id="productSeller" placeholder="Your name or username">
             </div>
             <button class="submit-btn" onclick="addProduct()">Post Product</button>
         </div>
@@ -345,27 +517,37 @@
             </div>
             <img id="detailImage" class="detail-image" src="" alt="">
             <p id="detailPrice" style="font-size: 28px; font-weight: bold; color: #059669; margin-bottom: 12px;"></p>
-            <p id="detailDesc" style="color: #4b5563; margin-bottom: 16px;"></p>
-            <p><strong>Seller:</strong> <span id="detailSeller"></span></p>
-            <p><strong>Posted:</strong> <span id="detailDate"></span></p>
-            <button class="contact-btn" onclick="contactSeller()">Contact Seller</button>
+            <p id="detailDesc" style="color: #4b5563; margin-bottom: 16px; line-height: 1.5;"></p>
+            <p style="margin-bottom: 8px;"><strong>👤 Seller:</strong> <span id="detailSeller"></span></p>
+            <p style="margin-bottom: 8px;"><strong>📅 Posted:</strong> <span id="detailDate"></span></p>
+            <p><strong>📞 WhatsApp:</strong> <span id="detailPhone"></span></p>
+            <button class="contact-btn" onclick="contactSeller()">📱 Contact on WhatsApp</button>
         </div>
     </div>
 
     <script>
-        // Load products from localStorage or use default products
+        let currentUser = null;
         let products = [];
 
-        function loadProducts() {
-            const saved = localStorage.getItem('easysell_products');
-            if (saved) {
-                products = JSON.parse(saved);
+        // Load from localStorage
+        function loadData() {
+            const savedUser = localStorage.getItem('easysell_user');
+            if (savedUser) {
+                currentUser = savedUser;
+                document.getElementById('loginScreen').style.display = 'none';
+                document.getElementById('mainApp').style.display = 'block';
+                document.getElementById('displayName').textContent = currentUser;
+            }
+            
+            const savedProducts = localStorage.getItem('easysell_products');
+            if (savedProducts) {
+                products = JSON.parse(savedProducts);
             } else {
                 // Default products
                 products = [
-                    { id: 1, name: 'iPhone 12', price: 250000, image: 'https://picsum.photos/id/0/300/200', description: 'Good condition iPhone 12, 128GB, comes with charger', seller: 'John Doe', date: '2024-01-15' },
-                    { id: 2, name: 'Nike Air Max', price: 35000, image: 'https://picsum.photos/id/20/300/200', description: 'Size 42, never worn, original box included', seller: 'Sarah Smith', date: '2024-01-14' },
-                    { id: 3, name: 'MacBook Pro', price: 850000, image: 'https://picsum.photos/id/0/300/200', description: '2023 model, 16GB RAM, 512GB SSD, warranty until 2025', seller: 'Mike Johnson', date: '2024-01-13' }
+                    { id: 1, name: 'iPhone 12', price: 250000, phone: '2348012345678', image: 'https://picsum.photos/id/0/300/200', description: 'Good condition iPhone 12, 128GB, comes with charger', seller: 'John Doe', date: '2024-01-15' },
+                    { id: 2, name: 'Nike Air Max', price: 35000, phone: '2348023456789', image: 'https://picsum.photos/id/20/300/200', description: 'Size 42, never worn, original box included', seller: 'Sarah Smith', date: '2024-01-14' },
+                    { id: 3, name: 'MacBook Pro', price: 850000, phone: '2348034567890', image: 'https://picsum.photos/id/0/300/200', description: '2023 model, 16GB RAM, 512GB SSD', seller: 'Mike Johnson', date: '2024-01-13' }
                 ];
                 saveProducts();
             }
@@ -374,6 +556,28 @@
 
         function saveProducts() {
             localStorage.setItem('easysell_products', JSON.stringify(products));
+        }
+
+        function login() {
+            const name = document.getElementById('loginName').value.trim();
+            if (!name) {
+                alert('Please enter your name');
+                return;
+            }
+            currentUser = name;
+            localStorage.setItem('easysell_user', currentUser);
+            document.getElementById('loginScreen').style.display = 'none';
+            document.getElementById('mainApp').style.display = 'block';
+            document.getElementById('displayName').textContent = currentUser;
+            renderProducts();
+        }
+
+        function logout() {
+            currentUser = null;
+            localStorage.removeItem('easysell_user');
+            document.getElementById('loginScreen').style.display = 'flex';
+            document.getElementById('mainApp').style.display = 'none';
+            document.getElementById('loginName').value = '';
         }
 
         function renderProducts() {
@@ -385,28 +589,31 @@
                     <div class="empty-state">
                         <p>📭 No products yet</p>
                         <p>Be the first to sell something!</p>
-                        <button class="sell-btn" onclick="openSellModal()" style="background-color: #059669; color: white;">+ Post a Product</button>
+                        <button class="sell-btn" onclick="openSellModal()" style="background-color: #059669; color: white; margin-top: 12px;">+ Post a Product</button>
                     </div>
                 `;
                 return;
             }
 
-            container.innerHTML = products.map(product => `
-                <div class="product-card" onclick="openDetailModal(${product.id})">
-                    <img class="product-image" src="${product.image}" alt="${product.name}" onerror="this.src='https://picsum.photos/id/20/300/200'">
-                    <div class="product-info">
-                        <div class="product-name">${escapeHtml(product.name)}</div>
-                        <div class="product-price">₦${product.price.toLocaleString()}</div>
-                        <div class="product-description">${escapeHtml(product.description)}</div>
-                        <div class="product-meta">
-                            <span>👤 ${escapeHtml(product.seller)}</span>
-                            <span>📅 ${product.date}</span>
+            container.innerHTML = products.map(product => {
+                const isOwner = (product.seller === currentUser);
+                return `
+                    <div class="product-card">
+                        <img class="product-image" src="${product.image}" alt="${product.name}" onerror="this.src='https://picsum.photos/id/20/300/200'">
+                        <div class="product-info">
+                            <div class="product-name">${escapeHtml(product.name)}</div>
+                            <div class="product-price">₦${product.price.toLocaleString()}</div>
+                            <div class="product-description">${escapeHtml(product.description)}</div>
+                            <div class="product-meta">
+                                <span>👤 ${escapeHtml(product.seller)}</span>
+                                <span>📅 ${product.date}</span>
+                            </div>
+                            ${isOwner ? `<button class="delete-btn" onclick="deleteProduct(${product.id})">🗑️ Delete</button>` : ''}
+                            <button class="details-btn" onclick="openDetailModal(${product.id})">View Details</button>
                         </div>
-                        <button class="delete-btn" onclick="event.stopPropagation(); deleteProduct(${product.id})">🗑️ Delete</button>
-                        <button class="details-btn" onclick="event.stopPropagation(); openDetailModal(${product.id})">View Details</button>
                     </div>
-                </div>
-            `).join('');
+                `;
+            }).join('');
         }
 
         function openSellModal() {
@@ -415,20 +622,19 @@
 
         function closeSellModal() {
             document.getElementById('sellModal').style.display = 'none';
-            // Clear form
             document.getElementById('productName').value = '';
             document.getElementById('productPrice').value = '';
+            document.getElementById('productPhone').value = '';
             document.getElementById('productImage').value = '';
             document.getElementById('productDesc').value = '';
-            document.getElementById('productSeller').value = '';
         }
 
         function addProduct() {
             const name = document.getElementById('productName').value.trim();
             const price = parseFloat(document.getElementById('productPrice').value);
+            const phone = document.getElementById('productPhone').value.trim();
             const image = document.getElementById('productImage').value.trim();
             const description = document.getElementById('productDesc').value.trim();
-            const seller = document.getElementById('productSeller').value.trim();
 
             if (!name) {
                 alert('Please enter product name');
@@ -438,8 +644,8 @@
                 alert('Please enter a valid price');
                 return;
             }
-            if (!seller) {
-                alert('Please enter your name');
+            if (!phone) {
+                alert('Please enter your WhatsApp number with country code (e.g., 2348012345678)');
                 return;
             }
 
@@ -447,9 +653,10 @@
                 id: Date.now(),
                 name: name,
                 price: price,
+                phone: phone,
                 image: image || 'https://picsum.photos/id/' + Math.floor(Math.random() * 100) + '/300/200',
                 description: description || 'No description provided',
-                seller: seller,
+                seller: currentUser,
                 date: new Date().toISOString().split('T')[0]
             };
 
@@ -457,10 +664,15 @@
             saveProducts();
             renderProducts();
             closeSellModal();
-            alert('Product posted successfully!');
+            alert('✅ Product posted successfully! Buyers will contact you on WhatsApp.');
         }
 
         function deleteProduct(id) {
+            const product = products.find(p => p.id === id);
+            if (product && product.seller !== currentUser) {
+                alert('You can only delete your own products');
+                return;
+            }
             if (confirm('Are you sure you want to delete this product?')) {
                 products = products.filter(p => p.id !== id);
                 saveProducts();
@@ -479,8 +691,8 @@
             document.getElementById('detailDesc').textContent = product.description;
             document.getElementById('detailSeller').textContent = product.seller;
             document.getElementById('detailDate').textContent = product.date;
+            document.getElementById('detailPhone').textContent = product.phone || 'Not provided';
             
-            // Store current product id for contact
             document.getElementById('detailModal').setAttribute('data-product-id', id);
             document.getElementById('detailModal').style.display = 'flex';
         }
@@ -493,8 +705,18 @@
             const modal = document.getElementById('detailModal');
             const productId = parseInt(modal.getAttribute('data-product-id'));
             const product = products.find(p => p.id === productId);
-            if (product) {
-                alert(`📞 Contact ${product.seller} to buy "${product.name}"\n\n🚀 This is a demo. In a real app, this would connect you directly with the seller via WhatsApp or phone call.`);
+            if (product && product.phone) {
+                let phone = product.phone.replace(/\D/g, '');
+                if (!phone.startsWith('234') && !phone.startsWith('+234')) {
+                    if (phone.startsWith('0')) {
+                        phone = '234' + phone.substring(1);
+                    }
+                }
+                phone = phone.replace(/^\+/, '');
+                const message = encodeURIComponent(`Hi ${product.seller}, I'm interested in buying your "${product.name}" for ₦${product.price.toLocaleString()}. Is it still available?`);
+                window.open(`https://wa.me/${phone}?text=${message}`, '_blank');
+            } else {
+                alert('Seller phone number not available.');
             }
             closeDetailModal();
         }
@@ -518,7 +740,7 @@
         }
 
         // Initialize
-        loadProducts();
+        loadData();
     </script>
 </body>
 </html>
