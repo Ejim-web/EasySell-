@@ -1,10 +1,10 @@
 {
-  "start_url": "/EasySell-/",
-  "scope": "/EasySell-/",
   "name": "EasySell",
   "short_name": "EasySell",
   "id": "easysell-app",
   "description": "Buy and sell items easily with EasySell",
+  "start_url": "/EasySell-/",
+  "scope": "/EasySell-/",
   "display": "standalone",
   "theme_color": "#4CAF50",
   "background_color": "#FFFFFF",
