@@ -1,1 +1,17 @@
-
+{
+  "name": "EasySell",
+  "short_name": "EasySell",
+  "id": "easysell-app",
+  "description": "Buy and sell items easily with EasySell",
+  "start_url": "/",
+  "display": "standalone",
+  "theme_color": "#4CAF50",
+  "background_color": "#FFFFFF",
+  "icons": [
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
