@@ -1,1 +1,61 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EasySell - Login Test</title>
+    <style>
+        body { font-family: Arial; background: #059669; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+        .card { background: white; padding: 30px; border-radius: 20px; width: 300px; text-align: center; }
+        input { width: 100%; padding: 10px; margin: 8px 0; border-radius: 30px; border: 1px solid #ddd; }
+        button { background: #059669; color: white; border: none; padding: 10px 20px; border-radius: 30px; width: 100%; cursor: pointer; }
+        .error { color: red; margin-top: 10px; }
+    </style>
+</head>
+<body>
+<div class="card">
+    <h2>EasySell</h2>
+    <p>Test Login</p>
+    <input type="email" id="email" placeholder="Email" value="ejimlinda1@gmail.com">
+    <input type="password" id="password" placeholder="Password">
+    <button id="loginBtn">Login</button>
+    <div id="msg" class="error"></div>
+</div>
 
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-app.js";
+    import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-auth.js";
+
+    const firebaseConfig = {
+        apiKey: "AIzaSyAAWF9XukiN4nuA7LlbsaU2qiZgzTGM3FE",
+        authDomain: "easysell-75318.firebaseapp.com",
+        projectId: "easysell-75318",
+        storageBucket: "easysell-75318.firebasestorage.app",
+        messagingSenderId: "81916821182",
+        appId: "1:81916821182:web:46064186708cec62eba8ef",
+        measurementId: "G-3Y4T118FJK"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+
+    document.getElementById('loginBtn').onclick = async () => {
+        const email = document.getElementById('email').value;
+        const password = document.getElementById('password').value;
+        const msgDiv = document.getElementById('msg');
+        if (!email || !password) {
+            msgDiv.innerText = "Enter email and password";
+            return;
+        }
+        try {
+            await signInWithEmailAndPassword(auth, email, password);
+            msgDiv.innerText = "✅ Login successful! Redirecting...";
+            msgDiv.style.color = "green";
+            setTimeout(() => { window.location.href = "/EasySell/"; }, 1500);
+        } catch (err) {
+            msgDiv.innerText = err.message;
+        }
+    };
+</script>
+</body>
+</html>
