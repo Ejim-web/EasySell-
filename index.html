@@ -1,1 +1,767 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>EasySell - Full Marketplace</title>
+    <link rel="manifest" href="manifest.json">
+    <script src="https://checkout.flutterwave.com/v3.js"></script>
+    <style>
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body { font-family: Arial, sans-serif; background: linear-gradient(135deg, #059669 0%, #047857 100%); min-height: 100vh; }
+        .login-container, .admin-container { min-height: 100vh; display: flex; justify-content: center; align-items: center; padding: 20px; }
+        .login-card, .admin-card { background: white; border-radius: 32px; padding: 40px 28px; max-width: 450px; width: 100%; text-align: center; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25); max-height: 90vh; overflow-y: auto; }
+        .login-logo { width: 80px; height: 80px; background: linear-gradient(135deg, #059669 0%, #047857 100%); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; }
+        .login-logo span { font-size: 45px; }
+        .login-card h1 { font-size: 28px; margin-bottom: 8px; }
+        .login-card p { color: #6b7280; margin-bottom: 25px; font-size: 14px; }
+        .login-input { width: 100%; padding: 14px; border: 1px solid #ddd; border-radius: 30px; margin-bottom: 12px; font-size: 14px; }
+        .country-input { position: relative; width: 100%; margin-bottom: 12px; }
+        .country-input input { width: 100%; padding: 14px; border: 1px solid #ddd; border-radius: 30px; font-size: 14px; }
+        .country-list { position: absolute; top: 100%; left: 0; right: 0; background: white; border: 1px solid #ddd; border-radius: 20px; max-height: 200px; overflow-y: auto; z-index: 100; display: none; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+        .country-list div { padding: 10px 15px; cursor: pointer; font-size: 14px; }
+        .country-list div:hover { background: #f0fdf4; }
+        .login-btn, .admin-btn { width: 100%; background: #059669; color: white; border: none; padding: 14px; border-radius: 30px; font-size: 16px; font-weight: bold; cursor: pointer; margin-top: 10px; }
+        .switch-btn { background: none; border: none; color: #059669; margin-top: 15px; cursor: pointer; font-size: 14px; }
+        .main-app { display: none; }
+        .admin-panel { display: none; }
+        .header { background: #059669; color: white; padding: 12px 20px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; }
+        .user-section { display: flex; align-items: center; gap: 12px; background: rgba(255,255,255,0.15); padding: 6px 16px 6px 12px; border-radius: 60px; }
+        .user-name { font-weight: 600; font-size: 14px; }
+        .logout-btn, .sell-btn, .admin-btn-header, .chat-btn, .analytics-btn { background: white; color: #059669; border: none; padding: 8px 16px; border-radius: 30px; font-weight: bold; cursor: pointer; }
+        .container { padding: 20px; max-width: 1200px; margin: 0 auto; }
+        .search-container, .filter-container { margin-bottom: 20px; display: flex; gap: 10px; flex-wrap: wrap; }
+        .search-box, .category-filter { flex: 1; padding: 12px 16px; border: none; border-radius: 30px; font-size: 16px; outline: none; background: white; box-shadow: 0 2px 6px rgba(0,0,0,0.1); }
+        .products-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; }
+        .product-card { background: white; border-radius: 20px; overflow: hidden; box-shadow: 0 2px 10px rgba(0,0,0,0.1); cursor: pointer; transition: transform 0.2s; position: relative; }
+        .product-card:hover { transform: translateY(-4px); }
+        .product-image { width: 100%; height: 180px; object-fit: cover; cursor: zoom-in; }
+        .product-info { padding: 15px; }
+        .product-name { font-weight: bold; font-size: 18px; display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+        .product-price { color: #059669; font-weight: bold; font-size: 20px; margin: 8px 0; }
+        .product-meta { font-size: 12px; color: gray; margin: 8px 0; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+        .product-rating { font-size: 13px; color: #f59e0b; margin: 4px 0; }
+        .delete-btn, .boost-btn, .admin-delete-btn { background: #fee2e2; color: #dc2626; border: none; padding: 8px; border-radius: 12px; width: 100%; margin-top: 8px; cursor: pointer; }
+        .boost-btn { background: #fef3c7; color: #d97706; }
+        .details-btn { background: #f3f4f6; border: none; padding: 8px; border-radius: 12px; width: 100%; margin-top: 8px; cursor: pointer; }
+        .category-badge { background: #e5e7eb; font-size: 10px; padding: 2px 8px; border-radius: 20px; display: inline-block; margin-left: 8px; }
+        .boosted-badge { background: #f59e0b; color: white; font-size: 10px; padding: 2px 8px; border-radius: 20px; margin-left: 6px; white-space: nowrap; }
+        .verified-badge { background: #059669; color: white; font-size: 10px; padding: 2px 6px; border-radius: 20px; display: inline-flex; align-items: center; gap: 4px; }
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); justify-content: center; align-items: center; z-index: 1000; padding: 20px; }
+        .modal-content { background: white; border-radius: 28px; padding: 25px; max-width: 500px; width: 100%; max-height: 90vh; overflow-y: auto; }
+        .modal-header { display: flex; justify-content: space-between; margin-bottom: 20px; }
+        .close-modal { font-size: 28px; cursor: pointer; }
+        input, textarea, select { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 16px; margin-bottom: 15px; font-size: 14px; }
+        .camera-btn { background: #f3f4f6; border: 1px solid #ddd; padding: 12px; border-radius: 16px; margin: 5px; cursor: pointer; }
+        .submit-btn { background: #059669; color: white; border: none; padding: 14px; border-radius: 30px; font-weight: bold; width: 100%; cursor: pointer; margin-top: 10px; }
+        .image-preview { text-align: center; margin: 10px 0; }
+        .empty-state, .no-results { text-align: center; padding: 60px; background: white; border-radius: 20px; }
+        .error-msg { color: red; font-size: 12px; margin-bottom: 10px; }
+        .loading { text-align: center; padding: 50px; color: white; }
+        .zoom-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: black; z-index: 2000; justify-content: center; align-items: center; flex-direction: column; }
+        .zoom-modal img { max-width: 95%; max-height: 90%; object-fit: contain; }
+        .zoom-close { position: absolute; top: 20px; right: 30px; color: white; font-size: 40px; cursor: pointer; background: rgba(0,0,0,0.5); width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+        .rating-stars { color: #f59e0b; font-size: 18px; cursor: pointer; }
+        .admin-table { width: 100%; border-collapse: collapse; background: white; border-radius: 16px; overflow: hidden; }
+        .admin-table th, .admin-table td { padding: 12px; text-align: left; border-bottom: 1px solid #ddd; }
+        .admin-table th { background: #059669; color: white; }
+        .notification-permission { background: #fef3c7; padding: 10px; border-radius: 12px; margin-bottom: 15px; font-size: 14px; }
+        .enable-notif-btn { background: #059669; color: white; border: none; padding: 6px 12px; border-radius: 30px; cursor: pointer; }
+        .boost-option { padding: 12px; margin: 8px 0; border: 1px solid #ddd; border-radius: 16px; cursor: pointer; }
+        .boost-option:hover { background: #f0fdf4; border-color: #059669; }
+        .chat-container { height: 400px; overflow-y: auto; background: #f9fafb; border-radius: 16px; padding: 10px; margin-bottom: 10px; }
+        .chat-message { margin-bottom: 12px; display: flex; flex-direction: column; }
+        .chat-message.sent { align-items: flex-end; }
+        .chat-message.received { align-items: flex-start; }
+        .chat-bubble { max-width: 80%; padding: 10px 14px; border-radius: 20px; background: #e5e7eb; }
+        .chat-message.sent .chat-bubble { background: #059669; color: white; }
+        .chat-input { display: flex; gap: 8px; }
+        .chat-input input { flex: 1; margin: 0; }
+        .toast { position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%) translateY(100px); background: #1f2937; color: white; padding: 12px 24px; border-radius: 60px; font-size: 14px; z-index: 1100; transition: transform 0.3s; }
+        .toast.show { transform: translateX(-50%) translateY(0); }
+        .badge { background: #f59e0b; color: white; padding: 2px 6px; border-radius: 20px; font-size: 10px; margin-left: 5px; }
+        .points { background: #fef3c7; color: #d97706; }
+        @media (max-width: 640px) {
+            .products-grid { grid-template-columns: 1fr; }
+            .header { flex-direction: column; text-align: center; }
+            .user-section { order: 1; }
+        }
+    </style>
+</head>
+<body>
+    <div id="loginScreen" class="login-container">
+        <div class="login-card">
+            <div class="login-logo"><span>🛍️</span></div>
+            <h1 id="formTitle">Welcome to EasySell</h1>
+            <p id="formSubtitle">Login to buy and sell</p>
+            <div id="errorMsg" class="error-msg"></div>
+            <input type="email" id="loginEmail" placeholder="Email address">
+            <input type="password" id="loginPassword" placeholder="Password">
+            <div id="signupExtra" style="display:none;">
+                <input type="text" id="displayName" placeholder="Your full name">
+                <div class="country-input">
+                    <input type="text" id="countrySearch" placeholder="Search country">
+                    <div id="countryList" class="country-list"></div>
+                </div>
+            </div>
+            <button class="login-btn" onclick="doLogin()" id="actionBtn">Login</button>
+            <button class="switch-btn" onclick="toggleForm()" id="switchBtn">Don't have an account? Sign Up</button>
+        </div>
+    </div>
 
+    <div id="mainApp" class="main-app">
+        <div class="header">
+            <div><strong>🛍️ EasySell</strong></div>
+            <div class="user-section">
+                <span class="user-name" id="userName"></span>
+                <span id="userPoints" class="badge points" style="margin-left:5px;">0 pts</span>
+                <button class="chat-btn" onclick="openConversationsList()">💬</button>
+                <button class="analytics-btn" onclick="openSellerAnalytics()">📊 Analytics</button>
+                <button class="logout-btn" onclick="doLogout()">Logout</button>
+                <button class="sell-btn" onclick="checkPaymentBeforeSell()">+ Sell</button>
+            </div>
+            <button id="adminDashboardBtn" class="admin-btn-header" style="display:none;" onclick="showAdminPanel()">Admin</button>
+        </div>
+        <div class="container">
+            <div id="notifBanner" class="notification-permission" style="display:none;">
+                🔔 Get alerts for new products. <button class="enable-notif-btn" onclick="requestNotificationPermission()">Enable</button>
+            </div>
+            <div style="margin-bottom:20px;"><h3>🔥 Boosted products appear first</h3><p style="font-size:14px; color:#eee;">Tap any image to zoom</p></div>
+            <div class="search-container">
+                <input type="text" id="searchInput" class="search-box" placeholder="🔍 Search products...">
+                <select id="categoryFilter" class="category-filter">
+                    <option value="">All Categories</option>
+                    <option value="Electronics">Electronics</option><option value="Clothing">Clothing</option>
+                    <option value="Furniture">Furniture</option><option value="Home & Garden">Home & Garden</option>
+                    <option value="Sports">Sports</option><option value="Toys">Toys</option><option value="Other">Other</option>
+                </select>
+            </div>
+            <div id="productsContainer" class="products-grid"><div class="loading">Loading products...</div></div>
+            <div id="pagination" style="text-align:center; margin-top:20px;"></div>
+        </div>
+    </div>
+
+    <div id="adminPanel" class="admin-panel">
+        <div class="header">
+            <div><strong>🛍️ EasySell Admin</strong></div>
+            <div><button class="logout-btn" onclick="hideAdminPanel()">Back</button><button class="logout-btn" onclick="doLogout()">Logout</button></div>
+        </div>
+        <div class="container">
+            <h2>Admin Dashboard</h2>
+            <div style="margin-bottom:20px;">
+                <button class="submit-btn" onclick="loadAdminUsers()">Users</button>
+                <button class="submit-btn" onclick="loadAdminProducts()" style="background:#2563eb;">Products</button>
+                <button class="submit-btn" onclick="loadVerificationRequests()" style="background:#f59e0b;">Verification</button>
+                <button class="submit-btn" onclick="loadAdminReports()" style="background:#dc2626;">Reports</button>
+                <button class="submit-btn" onclick="loadFlaggedProducts()" style="background:#8b5cf6;">Flagged</button>
+            </div>
+            <div id="adminContent"></div>
+        </div>
+    </div>
+
+    <!-- All Modals (compressed for length) -->
+    <div id="sellModal" class="modal"><div class="modal-content"><div class="modal-header"><h2>Sell Product</h2><span class="close-modal" onclick="closeSellModal()">&times;</span></div><input type="text" id="productName" placeholder="Product Name *"><input type="number" id="productPrice" placeholder="Price (₦) *"><select id="productCategory"><option value="">Auto-detect</option><option value="Electronics">Electronics</option><option value="Clothing">Clothing</option><option value="Furniture">Furniture</option><option value="Home & Garden">Home & Garden</option><option value="Sports">Sports</option><option value="Toys">Toys</option><option value="Other">Other</option></select><input type="text" id="productPhone" placeholder="WhatsApp (optional)"><div><button class="camera-btn" onclick="takePhoto()">📷 Take Photo</button><button class="camera-btn" onclick="uploadPhoto()">🖼️ Gallery</button></div><div class="image-preview" id="imagePreview" style="display:none;"><img id="previewImg"><button onclick="removePhoto()">Remove</button></div><textarea id="productDesc" rows="3" placeholder="Description"></textarea><button class="submit-btn" onclick="addProduct()">Post Product</button></div></div>
+    <div id="boostModal" class="modal"><div class="modal-content"><div class="modal-header"><h2>🔥 Boost Product</h2><span class="close-modal" onclick="closeBoostModal()">&times;</span></div><div class="boost-option" data-hours="24" data-price="100"><h3>₦100 – 24h</h3></div><div class="boost-option" data-hours="72" data-price="300"><h3>₦300 – 3 days</h3></div><div class="boost-option" data-hours="168" data-price="500"><h3>₦500 – 7 days</h3></div><div class="boost-option" data-hours="720" data-price="2000"><h3>₦2,000 – 30 days</h3></div><button class="submit-btn" id="confirmBoostBtn" style="display:none;">Pay & Boost</button></div></div>
+    <div id="ratingModal" class="modal"><div class="modal-content"><div class="modal-header"><h2>Rate Seller</h2><span class="close-modal" onclick="closeRatingModal()">&times;</span></div><p>Seller: <span id="ratingSellerName"></span></p><div id="starRating" class="rating-stars">★★★★★</div><textarea id="ratingComment" rows="3" placeholder="Comment (optional)"></textarea><button class="submit-btn" onclick="submitRating()">Submit Rating</button></div></div>
+    <div id="leasingModal" class="modal"><div class="modal-content"><div class="modal-header"><h2>📦 Lease Equipment</h2><span class="close-modal" onclick="closeLeasingModal()">&times;</span></div><p><strong>Micro Investment Support Services Ltd</strong></p><div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:20px;"><span class="category-badge">Keke Napep</span><span class="category-badge">Freezer</span><span class="category-badge">Plasma TV</span><span class="category-badge">Sewing Machine</span><span class="category-badge">Toyota Corolla</span><span class="category-badge">Generator</span></div><form id="leasingForm"><input type="text" id="leaseName" placeholder="Full name" required><input type="tel" id="leasePhone" placeholder="Phone" required><input type="email" id="leaseEmail" placeholder="Email"><select id="leaseItem"><option value="">Select equipment...</option><option>Keke Napep</option><option>Freezer</option><option>Plasma TV</option><option>Sewing Machine</option><option>Toyota Corolla</option><option>Generator</option></select><textarea id="leaseMessage" rows="2" placeholder="Details"></textarea><button type="submit" class="submit-btn">Send Inquiry</button></form><div id="leaseResult"></div></div></div>
+    <div id="detailModal" class="modal"><div class="modal-content"><div class="modal-header"><h2 id="detailName"></h2><span class="close-modal" onclick="closeDetailModal()">&times;</span></div><img id="detailImage" style="width:100%; border-radius:20px; margin-bottom:15px; cursor:zoom-in;" onclick="openZoomFromDetail()"><p id="detailPrice" style="font-size:24px; font-weight:bold; color:#059669;"></p><p><strong>Category:</strong> <span id="detailCategory"></span></p><p id="detailDesc"></p><p><strong>👤 Seller:</strong> <span id="detailSeller"></span> <span id="detailVerifiedBadge" style="display:none;" class="verified-badge">✓ Verified</span></p><p><strong>⭐ Rating:</strong> <span id="detailRating"></span></p><p><strong>📍 Country:</strong> <span id="detailCountry"></span></p><p><strong>📞 WhatsApp:</strong> <span id="detailPhone"></span></p><p><strong>📅 Posted:</strong> <span id="detailDate"></span></p><div style="display:flex; gap:10px;"><button class="submit-btn" onclick="contactSeller()" style="background:#25D366;">💬 Message</button><button class="submit-btn" onclick="openRatingModal()" style="background:#f59e0b;">⭐ Rate</button><button class="submit-btn" onclick="shareProduct()" style="background:#3b82f6;">📤 Share</button><button class="submit-btn" onclick="reportProduct()" style="background:#dc2626;">🚨 Report</button><button class="submit-btn" onclick="buyWithEscrow()" style="background:#8b5cf6;">🛡️ Escrow</button></div></div></div>
+    <div id="zoomModal" class="zoom-modal" onclick="closeZoom()"><div class="zoom-close" onclick="closeZoom()">✕</div><img id="zoomImage" src="" onclick="event.stopPropagation()"></div>
+    <div id="chatModal" class="modal"><div class="modal-content" style="max-width:600px;"><div class="modal-header"><h2 id="chatTitle">Chat</h2><span class="close-modal" onclick="closeChatModal()">&times;</span></div><div id="chatMessages" class="chat-container"></div><div class="chat-input"><input type="text" id="chatMessageInput" placeholder="Type a message..."><button class="submit-btn" style="width:auto; padding:12px 20px;" onclick="sendChatMessage()">Send</button></div></div></div>
+    <div id="conversationsModal" class="modal"><div class="modal-content"><div class="modal-header"><h2>💬 Conversations</h2><span class="close-modal" onclick="closeConversationsModal()">&times;</span></div><div id="conversationsList"></div></div></div>
+    <div id="reportModal" class="modal"><div class="modal-content"><div class="modal-header"><h2>🚨 Report Product</h2><span class="close-modal" onclick="closeReportModal()">&times;</span></div><p>Select a reason:</p><div class="report-reason" id="reportReasons"><button data-reason="Fake/scam">Fake/scam</button><button data-reason="Prohibited item">Prohibited</button><button data-reason="Spam">Spam</button><button data-reason="Wrong category">Wrong category</button><button data-reason="Other">Other</button></div><textarea id="reportDetails" rows="2" placeholder="Details"></textarea><button class="submit-btn" onclick="submitReport()">Submit</button></div></div>
+    <div id="verifyModal" class="modal"><div class="modal-content"><div class="modal-header"><h2>🔒 Get Verified</h2><span class="close-modal" onclick="closeVerifyModal()">&times;</span></div><p>Upload a government ID to become verified.</p><input type="file" id="idUpload" accept="image/*"><button class="submit-btn" onclick="requestVerification()">Submit Request</button><div id="verifyMsg"></div></div></div>
+    <div id="analyticsModal" class="modal"><div class="modal-content"><div class="modal-header"><h2>📊 Your Seller Analytics</h2><span class="close-modal" onclick="closeAnalyticsModal()">&times;</span></div><div id="analyticsContent">Loading...</div></div></div>
+    <div id="escrowModal" class="modal"><div class="modal-content"><div class="modal-header"><h2>🛡️ Escrow Payment</h2><span class="close-modal" onclick="closeEscrowModal()">&times;</span></div><p>Item: <span id="escrowItemName"></span></p><p>Price: <span id="escrowPrice"></span></p><p>Money held until delivery confirmation.</p><button class="submit-btn" onclick="initiateEscrowPayment()">Pay with Escrow</button><div id="escrowMsg"></div></div></div>
+    <div id="confirmEscrowModal" class="modal"><div class="modal-content"><div class="modal-header"><h2>✅ Confirm Delivery</h2><span class="close-modal" onclick="closeConfirmEscrowModal()">&times;</span></div><p>Received item and satisfied?</p><button class="submit-btn" onclick="releaseEscrow()">Yes, Release Payment</button><button class="submit-btn" onclick="disputeEscrow()" style="background:#dc2626;">Report Issue</button></div></div>
+
+    <div id="toast" class="toast"></div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-app.js";
+        import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-auth.js";
+        import { getFirestore, collection, addDoc, getDocs, query, deleteDoc, doc, setDoc, getDoc, updateDoc, where, increment, serverTimestamp, orderBy, limit } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-firestore.js";
+        import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-storage.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyAAWF9XukiN4nuA7LlbsaU2qiZgzTGM3FE",
+            authDomain: "easysell-75318.firebaseapp.com",
+            projectId: "easysell-75318",
+            storageBucket: "easysell-75318.firebasestorage.app",
+            messagingSenderId: "81916821182",
+            appId: "1:81916821182:web:46064186708cec62eba8ef",
+            measurementId: "G-3Y4T118FJK"
+        };
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        const storage = getStorage(app);
+        const FLW_PUBLIC_KEY = "FLWPUBK-ecb36122198c9b302216b857c96c14b9-X";
+        const SUBSCRIPTION_AMOUNT = 500;
+
+        let currentUser = null;
+        let currentUserData = { name: '', country: '', subscriptionEndDate: 0, isAdmin: false, verified: false, points: 0 };
+        let allProducts = [];
+        let capturedImageDataUrl = null;
+        let paymentRequiredGlobally = false;
+        let currentRatingProductId = null, currentRatingSellerId = null;
+        let currentBoostProductId = null, boostHours = null, boostPrice = null;
+        let currentReportProductId = null;
+        let currentEscrowProduct = null;
+        let currentChatOtherUserId = null, currentChatOtherName = null, currentChatProductId = null;
+        let unsubscribeChat = null;
+
+        function showToast(msg, type = 'success') { const t = document.getElementById('toast'); t.textContent = msg; t.className = `toast ${type} show`; setTimeout(() => t.classList.remove('show'), 3000); }
+
+        async function fetchPaymentRequiredFlag() { try { const d = await getDoc(doc(db,"settings","payment")); paymentRequiredGlobally = d.exists() ? d.data().paymentRequired === true : false; } catch(e) {} }
+        async function hasActiveSubscription() { return currentUserData.subscriptionEndDate > Date.now(); }
+        async function refreshUserData() {
+            if (!currentUser) return;
+            const u = await getDoc(doc(db,"users", currentUser.uid));
+            if (u.exists()) currentUserData = u.data();
+            else { currentUserData = { name: currentUser.email.split('@')[0], country: 'Nigeria', subscriptionEndDate: 0, isAdmin: false, verified: false, points: 0 }; await setDoc(doc(db,"users",currentUser.uid), currentUserData); }
+            document.getElementById('userName').innerText = currentUserData.name || currentUser.email.split('@')[0];
+            document.getElementById('userPoints').innerText = (currentUserData.points || 0) + " pts";
+            document.getElementById('adminDashboardBtn').style.display = currentUserData.isAdmin ? 'inline-block' : 'none';
+            const existingBadge = document.getElementById('verifyBadge');
+            if (currentUserData.verified && !existingBadge) {
+                const badge = document.createElement('span');
+                badge.id = 'verifyBadge';
+                badge.className = 'verified-badge';
+                badge.innerText = '✓ Verified';
+                document.querySelector('.user-section')?.prepend(badge);
+            } else if (!currentUserData.verified && existingBadge) existingBadge.remove();
+        }
+        async function userCanPost() { await refreshUserData(); return !paymentRequiredGlobally || hasActiveSubscription(); }
+
+        function subscribeWithFlutterwave() {
+            FlutterwaveCheckout({ public_key: FLW_PUBLIC_KEY, tx_ref: "SUB_"+Date.now(), amount: SUBSCRIPTION_AMOUNT, currency: "NGN", customer: { email: currentUser.email, name: currentUserData.name }, callback: async (r) => { if(r.status==="successful") { await updateDoc(doc(db,"users",currentUser.uid), { subscriptionEndDate: Date.now()+30*24*60*60*1000 }); showToast("Subscription active!"); openSellModal(); } } });
+        }
+        window.checkPaymentBeforeSell = async () => { if(!currentUser){ alert("Login first"); return; } await fetchPaymentRequiredFlag(); if(!paymentRequiredGlobally){ openSellModal(); return; } (await userCanPost()) ? openSellModal() : subscribeWithFlutterwave(); };
+
+        const countries = ["Nigeria","Ghana","Kenya","South Africa","United States","United Kingdom","Canada","India","Germany","France","China","Japan","Brazil","Australia","Italy","Spain","Mexico"];
+        function setupCountrySearch() {
+            const searchInput = document.getElementById('countrySearch');
+            const listDiv = document.getElementById('countryList');
+            if (!searchInput) return;
+            function filterCountries(value) {
+                const filtered = countries.filter(c => c.toLowerCase().includes(value.toLowerCase()));
+                listDiv.innerHTML = '';
+                if (!filtered.length) { listDiv.style.display = 'none'; return; }
+                filtered.forEach(c => {
+                    const div = document.createElement('div');
+                    div.textContent = c;
+                    div.onclick = () => { searchInput.value = c; listDiv.style.display = 'none'; };
+                    listDiv.appendChild(div);
+                });
+                listDiv.style.display = 'block';
+            }
+            searchInput.addEventListener('input', e => filterCountries(e.target.value));
+            searchInput.addEventListener('focus', () => {
+                if (searchInput.value) filterCountries(searchInput.value);
+                else {
+                    listDiv.innerHTML = '';
+                    countries.slice(0,20).forEach(c => {
+                        const div = document.createElement('div');
+                        div.textContent = c;
+                        div.onclick = () => { searchInput.value = c; listDiv.style.display = 'none'; };
+                        listDiv.appendChild(div);
+                    });
+                    listDiv.style.display = 'block';
+                }
+            });
+            document.addEventListener('click', e => { if (!searchInput.contains(e.target) && !listDiv.contains(e.target)) listDiv.style.display = 'none'; });
+        }
+
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                currentUser = user;
+                await refreshUserData();
+                document.getElementById('loginScreen').style.display = 'none';
+                document.getElementById('mainApp').style.display = 'block';
+                await loadProducts();
+            } else {
+                currentUser = null;
+                document.getElementById('loginScreen').style.display = 'flex';
+                document.getElementById('mainApp').style.display = 'none';
+                document.getElementById('adminPanel').style.display = 'none';
+            }
+        });
+
+        window.doLogin = async () => {
+            const email = document.getElementById('loginEmail').value.trim();
+            const pwd = document.getElementById('loginPassword').value.trim();
+            const isLogin = document.getElementById('actionBtn').innerText === 'Login';
+            if(!email || !pwd) { document.getElementById('errorMsg').innerText = 'Enter email and password'; return; }
+            try {
+                if(isLogin) await signInWithEmailAndPassword(auth, email, pwd);
+                else {
+                    const name = document.getElementById('displayName').value.trim();
+                    const country = document.getElementById('countrySearch').value.trim();
+                    if(!name || !country) { document.getElementById('errorMsg').innerText = 'Fill all fields'; return; }
+                    const cred = await createUserWithEmailAndPassword(auth, email, pwd);
+                    await setDoc(doc(db,"users",cred.user.uid), { name, email, country, subscriptionEndDate:0, isAdmin:false, verified:false, points:0, createdAt: new Date().toISOString() });
+                }
+                document.getElementById('errorMsg').innerText = '';
+            } catch(err) { document.getElementById('errorMsg').innerText = err.message; }
+        };
+        window.doLogout = async () => { await signOut(auth); };
+        window.toggleForm = () => {
+            const isLogin = document.getElementById('actionBtn').innerText === 'Login';
+            if (isLogin) {
+                document.getElementById('formTitle').innerText = 'Create Account';
+                document.getElementById('formSubtitle').innerText = 'Sign up to start selling';
+                document.getElementById('actionBtn').innerText = 'Sign Up';
+                document.getElementById('switchBtn').innerText = 'Already have an account? Login';
+                document.getElementById('signupExtra').style.display = 'block';
+                setTimeout(setupCountrySearch, 100);
+            } else {
+                document.getElementById('formTitle').innerText = 'Welcome to EasySell';
+                document.getElementById('formSubtitle').innerText = 'Login to buy and sell';
+                document.getElementById('actionBtn').innerText = 'Login';
+                document.getElementById('switchBtn').innerText = "Don't have an account? Sign Up";
+                document.getElementById('signupExtra').style.display = 'none';
+            }
+            document.getElementById('errorMsg').innerText = '';
+        };
+
+        // PRODUCT LOADING - SIMPLE AND RELIABLE
+        async function loadProducts() {
+            const container = document.getElementById('productsContainer');
+            container.innerHTML = '<div class="loading">Loading products...</div>';
+            try {
+                const q = query(collection(db, "products"));
+                const snapshot = await getDocs(q);
+                const products = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                console.log("Products loaded:", products.length);
+                if (products.length === 0) {
+                    container.innerHTML = '<div class="empty-state"><p>📭 No products yet. Click "+ Sell" to add your first item.</p></div>';
+                    return;
+                }
+                allProducts = products;
+                applyFilterAndSort();
+            } catch (error) {
+                console.error("Firestore error:", error);
+                container.innerHTML = `<div class="empty-state"><p>❌ Firestore error: ${error.message}</p><p>Check your internet and Firestore rules.</p><button class="submit-btn" onclick="loadProducts()" style="width:auto; margin-top:10px;">Retry</button></div>`;
+            }
+        }
+
+        function applyFilterAndSort() {
+            let filtered = [...allProducts];
+            const searchTerm = document.getElementById('searchInput')?.value.toLowerCase().trim() || '';
+            const category = document.getElementById('categoryFilter')?.value || '';
+            if (searchTerm) filtered = filtered.filter(p => p.name.toLowerCase().includes(searchTerm) || (p.description && p.description.toLowerCase().includes(searchTerm)));
+            if (category) filtered = filtered.filter(p => p.category === category);
+            const now = Date.now();
+            const boosted = filtered.filter(p => p.boosted === true && p.boostExpiry && p.boostExpiry > now);
+            const normal = filtered.filter(p => !(p.boosted === true && p.boostExpiry && p.boostExpiry > now));
+            boosted.sort((a,b) => (a.boostExpiry || 0) - (b.boostExpiry || 0));
+            normal.sort((a,b) => (b.timestamp || 0) - (a.timestamp || 0));
+            renderProducts([...boosted, ...normal]);
+            if (!window._listenersAttached) {
+                window._listenersAttached = true;
+                document.getElementById('searchInput')?.addEventListener('input', () => applyFilterAndSort());
+                document.getElementById('categoryFilter')?.addEventListener('change', () => applyFilterAndSort());
+            }
+        }
+
+        async function fetchSellerRating(sid) {
+            const snap = await getDocs(query(collection(db,"ratings"), where("sellerId","==",sid)));
+            let total=0, count=0;
+            snap.forEach(d=>{ total+=d.data().rating; count++; });
+            return { avg: count ? (total/count).toFixed(1) : 0, count };
+        }
+        async function fetchVerifiedStatus(uid) { const v = await getDoc(doc(db,"verifiedSellers",uid)); return v.exists(); }
+        async function renderProducts(products) {
+            const container = document.getElementById('productsContainer');
+            if (!products.length) { container.innerHTML = '<div class="empty-state"><p>🔍 No products match.</p></div>'; return; }
+            let html = '';
+            for (const p of products) {
+                const isOwner = currentUser && p.userId === currentUser.uid;
+                const rating = await fetchSellerRating(p.userId);
+                const isBoosted = p.boosted === true && p.boostExpiry && p.boostExpiry > Date.now();
+                const verified = await fetchVerifiedStatus(p.userId);
+                html += `<div class="product-card"><img class="product-image" src="${p.image}" onerror="this.src='https://picsum.photos/200/150'" onclick="openDetailModalById('${p.id}')"><div class="product-info"><div class="product-name">${escapeHtml(p.name)} ${isOwner?'<span class="owner-badge">Your item</span>':''} ${isBoosted?'<span class="boosted-badge">🔥 Boosted</span>':''} ${verified?'<span class="verified-badge">✓ Verified</span>':''}<span class="category-badge">${p.category||'Other'}</span></div><div class="product-price">₦${p.price.toLocaleString()}</div><div class="product-rating">⭐ ${rating.avg} (${rating.count} reviews)</div><div class="product-meta">👤 ${escapeHtml(p.seller)} ${p.sellerCountry?`📍 ${p.sellerCountry}`:''} | 📅 ${p.date}</div>${isOwner?`<button class="delete-btn" onclick="deleteProduct('${p.id}')">🗑️ Delete</button><button class="boost-btn" onclick="openBoostModal('${p.id}')">🔥 Boost</button>`:''}<button class="details-btn" onclick='openDetailModal(${JSON.stringify(p)})'>View Details</button></div></div>`;
+            }
+            container.innerHTML = html;
+        }
+
+        window.deleteProduct = async (id) => { if(confirm("Delete?")){ await deleteDoc(doc(db,"products",id)); loadProducts(); } };
+        window.openDetailModalById = (id) => { const p = allProducts.find(p=>p.id===id); if(p) openDetailModal(p); };
+        window.openDetailModal = async (product) => {
+            document.getElementById('detailName').innerText = product.name;
+            document.getElementById('detailImage').src = product.image;
+            document.getElementById('detailPrice').innerText = `₦${product.price.toLocaleString()}`;
+            document.getElementById('detailCategory').innerText = product.category||'Other';
+            document.getElementById('detailDesc').innerText = product.description;
+            document.getElementById('detailSeller').innerText = product.seller;
+            document.getElementById('detailCountry').innerText = product.sellerCountry||'Not specified';
+            document.getElementById('detailPhone').innerText = product.phone;
+            document.getElementById('detailDate').innerText = product.date;
+            const verified = await fetchVerifiedStatus(product.userId);
+            document.getElementById('detailVerifiedBadge').style.display = verified ? 'inline-flex' : 'none';
+            const rating = await fetchSellerRating(product.userId);
+            document.getElementById('detailRating').innerHTML = `${rating.avg} (${rating.count} reviews)`;
+            window.currentDetailProduct = product;
+            document.getElementById('detailModal').style.display = 'flex';
+        };
+        window.contactSeller = () => {
+            const product = window.currentDetailProduct;
+            if(!product || !currentUser) { alert("Login to chat"); return; }
+            openChat(product.userId, product.seller, product.id);
+        };
+        function openChat(otherUserId, otherName, productId) {
+            currentChatOtherUserId = otherUserId;
+            currentChatOtherName = otherName;
+            currentChatProductId = productId;
+            document.getElementById('chatTitle').innerText = `Chat with ${otherName}`;
+            document.getElementById('chatModal').style.display = 'flex';
+            if(unsubscribeChat) unsubscribeChat();
+            const chatId = [currentUser.uid, otherUserId].sort().join('_');
+            setDoc(doc(db,"chats",chatId), { participants: [currentUser.uid, otherUserId], lastUpdated: serverTimestamp() }, { merge: true });
+            const q = query(collection(db, "chats", chatId, "messages"), orderBy("timestamp", "asc"));
+            unsubscribeChat = onSnapshot(q, (snap) => {
+                const container = document.getElementById('chatMessages');
+                container.innerHTML = '';
+                snap.forEach(doc => {
+                    const msg = doc.data();
+                    const div = document.createElement('div');
+                    div.className = `chat-message ${msg.senderId === currentUser.uid ? 'sent' : 'received'}`;
+                    div.innerHTML = `<div class="chat-bubble">${escapeHtml(msg.text)}<div style="font-size:10px; opacity:0.7;">${new Date(msg.timestamp?.toDate()).toLocaleTimeString()}</div></div>`;
+                    container.appendChild(div);
+                });
+                container.scrollTop = container.scrollHeight;
+            });
+        }
+        window.sendChatMessage = async () => {
+            const input = document.getElementById('chatMessageInput');
+            const text = input.value.trim();
+            if(!text || !currentChatOtherUserId) return;
+            const chatId = [currentUser.uid, currentChatOtherUserId].sort().join('_');
+            await addDoc(collection(db, "chats", chatId, "messages"), { text, senderId: currentUser.uid, senderName: currentUserData.name, timestamp: serverTimestamp(), productId: currentChatProductId });
+            input.value = '';
+        };
+        window.openConversationsList = async () => {
+            if(!currentUser) return;
+            const q = query(collection(db,"chats"), where("participants","array-contains",currentUser.uid));
+            const snap = await getDocs(q);
+            const convos = [];
+            for(const d of snap.docs){
+                const data = d.data();
+                const otherId = data.participants.find(p=>p !== currentUser.uid);
+                if(otherId){
+                    const userDoc = await getDoc(doc(db,"users",otherId));
+                    const name = userDoc.exists() ? userDoc.data().name : otherId.substring(0,8);
+                    convos.push({ otherId, otherName: name });
+                }
+            }
+            const container = document.getElementById('conversationsList');
+            if(!convos.length) container.innerHTML = '<p>No conversations yet.</p>';
+            else container.innerHTML = convos.map(c => `<div style="padding:12px; border-bottom:1px solid #ddd; cursor:pointer;" onclick="openChat('${c.otherId}','${escapeHtml(c.otherName)}', null); closeConversationsModal();">💬 ${escapeHtml(c.otherName)}</div>`).join('');
+            document.getElementById('conversationsModal').style.display = 'flex';
+        };
+        function closeChatModal() { if(unsubscribeChat) unsubscribeChat(); document.getElementById('chatModal').style.display = 'none'; }
+        function closeConversationsModal() { document.getElementById('conversationsModal').style.display = 'none'; }
+        window.closeChatModal = closeChatModal;
+        window.closeConversationsModal = closeConversationsModal;
+
+        window.shareProduct = () => { const p=window.currentDetailProduct; if(p){ const txt=`Check out ${p.name} on EasySell! ₦${p.price.toLocaleString()}`; if(navigator.share) navigator.share({title:p.name,text:txt}); else { navigator.clipboard.writeText(txt+window.location.href); showToast("Link copied!"); } } };
+        window.reportProduct = () => { currentReportProductId = window.currentDetailProduct?.id; document.getElementById('reportModal').style.display='flex'; };
+        window.submitReport = async () => {
+            const reason = document.querySelector('#reportReasons button.selected')?.dataset.reason;
+            if(!reason) { alert("Select a reason"); return; }
+            await addDoc(collection(db,"reports"), { productId: currentReportProductId, productName: window.currentDetailProduct?.name, sellerId: window.currentDetailProduct?.userId, reporterId: currentUser.uid, reason, details: document.getElementById('reportDetails').value, createdAt: new Date().toISOString() });
+            showToast("Report submitted.");
+            closeReportModal();
+        };
+        function closeReportModal() { document.getElementById('reportModal').style.display='none'; document.getElementById('reportDetails').value=''; document.querySelectorAll('#reportReasons button').forEach(b=>b.classList.remove('selected')); }
+        window.closeReportModal = closeReportModal;
+
+        // Escrow
+        window.buyWithEscrow = () => {
+            const product = window.currentDetailProduct;
+            if(!product || !currentUser) { alert("Login to use escrow"); return; }
+            if(product.userId === currentUser.uid) { alert("Cannot buy own product"); return; }
+            currentEscrowProduct = product;
+            document.getElementById('escrowItemName').innerText = product.name;
+            document.getElementById('escrowPrice').innerText = `₦${product.price.toLocaleString()}`;
+            document.getElementById('escrowModal').style.display = 'flex';
+        };
+        window.initiateEscrowPayment = () => {
+            const product = currentEscrowProduct;
+            if(!product) return;
+            FlutterwaveCheckout({
+                public_key: FLW_PUBLIC_KEY,
+                tx_ref: "ESCROW_"+Date.now(),
+                amount: product.price,
+                currency: "NGN",
+                customer: { email: currentUser.email, name: currentUserData.name },
+                callback: async (response) => {
+                    if(response.status === "successful") {
+                        await addDoc(collection(db,"escrowTransactions"), {
+                            productId: product.id, productName: product.name,
+                            buyerId: currentUser.uid, sellerId: product.userId,
+                            amount: product.price, status: "payment_made",
+                            paymentRef: response.transaction_id, createdAt: new Date().toISOString()
+                        });
+                        showToast("Payment successful! Money held in escrow.");
+                        closeEscrowModal();
+                        await updateDoc(doc(db,"products",product.id), { sold: true });
+                    } else alert("Payment failed");
+                }
+            });
+        };
+        window.releaseEscrow = () => {
+            showToast("Payment released! You earned 50 loyalty points.");
+            if(currentUserData) {
+                updateDoc(doc(db,"users",currentUser.uid), { points: increment(50) });
+                refreshUserData();
+            }
+            closeConfirmEscrowModal();
+        };
+        function closeEscrowModal() { document.getElementById('escrowModal').style.display = 'none'; }
+        function closeConfirmEscrowModal() { document.getElementById('confirmEscrowModal').style.display = 'none'; }
+        window.closeEscrowModal = closeEscrowModal;
+        window.closeConfirmEscrowModal = closeConfirmEscrowModal;
+
+        // Analytics
+        window.openSellerAnalytics = async () => {
+            if(!currentUser) { alert("Login to view analytics"); return; }
+            const container = document.getElementById('analyticsContent');
+            const snap = await getDocs(query(collection(db,"products"), where("userId","==",currentUser.uid)));
+            container.innerHTML = `<p><strong>Total Products:</strong> ${snap.size}</p>
+                                   <p><strong>Loyalty Points:</strong> ${currentUserData.points || 0}</p>
+                                   <p><strong>Verified:</strong> ${currentUserData.verified ? 'Yes' : 'No'}</p>
+                                   <p>💡 Verified sellers get a badge and more trust.</p>`;
+            document.getElementById('analyticsModal').style.display = 'flex';
+        };
+        function closeAnalyticsModal() { document.getElementById('analyticsModal').style.display = 'none'; }
+        window.closeAnalyticsModal = closeAnalyticsModal;
+
+        // Verification
+        window.openVerifyModal = () => { if(currentUser) document.getElementById('verifyModal').style.display = 'flex'; else alert("Login first"); };
+        window.requestVerification = async () => {
+            const file = document.getElementById('idUpload').files[0];
+            if(!file) { alert("Select an ID image"); return; }
+            const storageRef = ref(storage, `verification/${currentUser.uid}/${file.name}`);
+            await uploadBytes(storageRef, file);
+            const url = await getDownloadURL(storageRef);
+            await addDoc(collection(db,"verificationRequests"), {
+                userId: currentUser.uid, userName: currentUserData.name, userEmail: currentUser.email,
+                idImageUrl: url, status: "pending", createdAt: new Date().toISOString()
+            });
+            showToast("Verification request submitted.");
+            closeVerifyModal();
+        };
+        function closeVerifyModal() { document.getElementById('verifyModal').style.display = 'none'; document.getElementById('idUpload').value = ''; }
+        window.closeVerifyModal = closeVerifyModal;
+
+        // Admin functions
+        async function loadAdminUsers() {
+            const snap = await getDocs(collection(db,"users"));
+            let html = '<table class="admin-table"><tr><th>Email</th><th>Name</th><th>Verified</th><th>Points</th><th>Action</th></tr>';
+            for(const d of snap.docs){
+                const u = d.data();
+                html += `<tr><td>${escapeHtml(u.email)}</td><td>${escapeHtml(u.name)}</td><td>${u.verified ? 'Yes' : 'No'}</td><td>${u.points || 0}</td><td><button onclick="verifyUser('${d.id}')">Verify</button> <button onclick="adminDeleteUser('${d.id}')">Delete</button></td></tr>`;
+            }
+            html += '</tr>';
+            document.getElementById('adminContent').innerHTML = html;
+        }
+        async function loadAdminProducts() {
+            const snap = await getDocs(collection(db,"products"));
+            let html = '<table class="admin-table"><tr><th>Name</th><th>Price</th><th>Seller</th><th>Action</th></tr>';
+            for(const d of snap.docs){
+                const p = d.data();
+                html += `<tr><td>${escapeHtml(p.name)}</td><td>₦${p.price}</td><td>${escapeHtml(p.seller)}</td><td><button onclick="adminDeleteProduct('${d.id}')">Delete</button></td></tr>`;
+            }
+            html += '</table>';
+            document.getElementById('adminContent').innerHTML = html;
+        }
+        async function loadVerificationRequests() {
+            const snap = await getDocs(query(collection(db,"verificationRequests"), where("status","==","pending")));
+            let html = '<h3>Verification Requests</h3><table class="admin-table"><tr><th>User</th><th>ID Image</th><th>Action</th></tr>';
+            for(const d of snap.docs){
+                const req = d.data();
+                html += `<tr><td>${escapeHtml(req.userName)} (${req.userEmail})</td><td><a href="${req.idImageUrl}" target="_blank">View</a></td><td><button onclick="approveVerification('${d.id}','${req.userId}')">Approve</button></td></tr>`;
+            }
+            html += '</table>';
+            document.getElementById('adminContent').innerHTML = html;
+        }
+        async function loadAdminReports() {
+            const snap = await getDocs(collection(db,"reports"));
+            let html = '<h3>Reports</h3><table class="admin-table"><tr><th>Product</th><th>Reason</th><th>Action</th></tr>';
+            for(const d of snap.docs){
+                const r = d.data();
+                html += `<tr><td>${escapeHtml(r.productName)}</td><td>${r.reason}</td><td><button onclick="adminDeleteProduct('${r.productId}')">Delete</button></td></tr>`;
+            }
+            html += '<tr>';
+            document.getElementById('adminContent').innerHTML = html;
+        }
+        async function loadFlaggedProducts() {
+            const snap = await getDocs(collection(db,"flaggedProducts"));
+            let html = '<h3>AI-Flagged Products</h3><table class="admin-table"><tr><th>Product ID</th><th>Reason</th><th>Action</th></tr>';
+            for(const d of snap.docs){
+                const f = d.data();
+                html += `<tr><td>${d.id}</td><td>${f.reason}</td><td><button onclick="adminDeleteProduct('${d.id}')">Delete</button></td></tr>`;
+            }
+            html += '</table>';
+            document.getElementById('adminContent').innerHTML = html;
+        }
+        window.verifyUser = async (userId) => {
+            await updateDoc(doc(db,"users",userId), { verified: true });
+            await setDoc(doc(db,"verifiedSellers",userId), { verifiedAt: new Date().toISOString() });
+            showToast("User verified");
+            loadAdminUsers();
+        };
+        window.approveVerification = async (reqId, userId) => {
+            await updateDoc(doc(db,"users",userId), { verified: true });
+            await setDoc(doc(db,"verifiedSellers",userId), { verifiedAt: new Date().toISOString() });
+            await deleteDoc(doc(db,"verificationRequests",reqId));
+            showToast("Verification approved");
+            loadVerificationRequests();
+        };
+        window.adminDeleteUser = async (uid) => { if(confirm("Delete user and all products?")){ const prodSnap = await getDocs(query(collection(db,"products"), where("userId","==",uid))); for(const p of prodSnap.docs) await deleteDoc(doc(db,"products",p.id)); await deleteDoc(doc(db,"users",uid)); loadAdminUsers(); loadProducts(); } };
+        window.adminDeleteProduct = async (id) => { if(confirm("Delete product?")){ await deleteDoc(doc(db,"products",id)); loadAdminProducts(); loadProducts(); } };
+        window.showAdminPanel = () => { document.getElementById('mainApp').style.display='none'; document.getElementById('adminPanel').style.display='block'; loadAdminUsers(); };
+        window.hideAdminPanel = () => { document.getElementById('mainApp').style.display='block'; document.getElementById('adminPanel').style.display='none'; loadProducts(); };
+
+        // BOOST
+        function payForBoost() {
+            FlutterwaveCheckout({
+                public_key: FLW_PUBLIC_KEY, tx_ref: "BOOST_"+Date.now(), amount: boostPrice, currency: "NGN",
+                customer: { email: currentUser.email },
+                callback: async (resp) => {
+                    if(resp.status==="successful"){
+                        const p = allProducts.find(p=>p.id===currentBoostProductId);
+                        let newExpiry = Math.max(p?.boostExpiry||0, Date.now()) + boostHours*3600000;
+                        await updateDoc(doc(db,"products",currentBoostProductId), { boosted: true, boostExpiry: newExpiry });
+                        showToast("Product boosted!");
+                        closeBoostModal();
+                        loadProducts();
+                    }
+                }
+            });
+        }
+        window.openBoostModal = (id) => { if(!currentUser) { alert("Login to boost"); return; } currentBoostProductId=id; document.getElementById('boostModal').style.display='flex'; };
+        window.closeBoostModal = () => { document.getElementById('boostModal').style.display='none'; document.getElementById('confirmBoostBtn').style.display='none'; boostHours=null; boostPrice=null; };
+        document.getElementById('confirmBoostBtn')?.addEventListener('click',()=>{ if(boostHours && boostPrice) payForBoost(); });
+        document.querySelectorAll('.boost-option').forEach(opt => { opt.onclick = () => { boostHours = parseInt(opt.dataset.hours); boostPrice = parseInt(opt.dataset.price); document.getElementById('confirmBoostBtn').style.display='block'; }; });
+
+        // RATING
+        let selectedRating = 5;
+        document.getElementById('starRating')?.addEventListener('click', (e) => {
+            const rect = e.target.getBoundingClientRect();
+            const idx = Math.floor((e.clientX - rect.left)/rect.width*5);
+            selectedRating = idx+1;
+            let stars='';
+            for(let i=0;i<5;i++) stars+= i<selectedRating ? '★':'☆';
+            document.getElementById('starRating').innerHTML=stars;
+        });
+        window.openRatingModal = () => {
+            const product = window.currentDetailProduct;
+            if(!product || product.userId===currentUser.uid) { alert("Cannot rate your own product."); return; }
+            document.getElementById('ratingSellerName').innerText = product.seller;
+            currentRatingProductId = product.id;
+            currentRatingSellerId = product.userId;
+            document.getElementById('ratingModal').style.display = 'flex';
+        };
+        window.submitRating = async () => {
+            const comment = document.getElementById('ratingComment').value;
+            await addDoc(collection(db,"ratings"), {
+                productId: currentRatingProductId, sellerId: currentRatingSellerId, buyerId: currentUser.uid,
+                rating: selectedRating, comment, createdAt: new Date().toISOString()
+            });
+            await updateDoc(doc(db,"users",currentUser.uid), { points: increment(10) });
+            refreshUserData();
+            showToast("Rating submitted! +10 points");
+            closeRatingModal();
+            loadProducts();
+        };
+        function closeRatingModal(){ document.getElementById('ratingModal').style.display='none'; }
+        function closeDetailModal(){ document.getElementById('detailModal').style.display='none'; }
+        window.closeRatingModal = closeRatingModal;
+        window.closeDetailModal = closeDetailModal;
+
+        // LEASING
+        window.openLeasingModal = () => { document.getElementById('leasingModal').style.display='flex'; };
+        window.closeLeasingModal = () => { document.getElementById('leasingModal').style.display='none'; };
+        document.getElementById('leasingForm')?.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const name = document.getElementById('leaseName').value.trim();
+            const phone = document.getElementById('leasePhone').value.trim();
+            const email = document.getElementById('leaseEmail').value.trim();
+            const item = document.getElementById('leaseItem').value;
+            const msg = document.getElementById('leaseMessage').value;
+            if(!name||!phone||!item){ alert("Fill required fields"); return; }
+            await addDoc(collection(db,"leasing_leads"),{ name, phone, email, item, message: msg, createdAt: new Date().toISOString(), userId: currentUser?.uid });
+            document.getElementById('leaseResult').innerHTML='<span style="color:green;">✅ Request sent!</span>';
+            setTimeout(()=>closeLeasingModal(),2000);
+        });
+
+        // IMAGE COMPRESSION & SELL MODAL
+        function compressImage(dataUrl, maxWidth=800, quality=0.7){ return new Promise(resolve=>{ const img=new Image(); img.onload=()=>{ const canvas=document.createElement('canvas'); let w=img.width, h=img.height; if(w>maxWidth){ h=(h*maxWidth)/w; w=maxWidth; } canvas.width=w; canvas.height=h; canvas.getContext('2d').drawImage(img,0,0,w,h); resolve(canvas.toDataURL('image/jpeg',quality)); }; img.src=dataUrl; }); }
+        window.takePhoto = () => { const input = document.createElement('input'); input.type='file'; input.accept='image/*'; input.capture='environment'; input.onchange = async (e) => { const file = e.target.files[0]; const reader = new FileReader(); reader.onload = async (ev) => { capturedImageDataUrl = await compressImage(ev.target.result); document.getElementById('previewImg').src = capturedImageDataUrl; document.getElementById('imagePreview').style.display='block'; }; reader.readAsDataURL(file); }; input.click(); };
+        window.uploadPhoto = () => { const input = document.createElement('input'); input.type='file'; input.accept='image/*'; input.onchange = async (e) => { const file = e.target.files[0]; const reader = new FileReader(); reader.onload = async (ev) => { capturedImageDataUrl = await compressImage(ev.target.result); document.getElementById('previewImg').src = capturedImageDataUrl; document.getElementById('imagePreview').style.display='block'; }; reader.readAsDataURL(file); }; input.click(); };
+        window.removePhoto = () => { capturedImageDataUrl = null; document.getElementById('imagePreview').style.display='none'; };
+        window.openSellModal = () => { capturedImageDataUrl = null; document.getElementById('productName').value=''; document.getElementById('productPrice').value=''; document.getElementById('productPhone').value=''; document.getElementById('productDesc').value=''; document.getElementById('sellModal').style.display='flex'; };
+        window.closeSellModal = () => { document.getElementById('sellModal').style.display='none'; };
+        window.addProduct = async () => {
+            await fetchPaymentRequiredFlag();
+            if(paymentRequiredGlobally && !(await userCanPost())){ alert("Subscription expired"); return; }
+            const name = document.getElementById('productName').value.trim();
+            const price = parseFloat(document.getElementById('productPrice').value);
+            let category = document.getElementById('productCategory').value;
+            const phone = document.getElementById('productPhone').value.trim();
+            const desc = document.getElementById('productDesc').value.trim();
+            if(!name || isNaN(price) || price<=0 || !phone){ alert("Fill all fields"); return; }
+            if(category === "") category = suggestCategory(name, desc);
+            const imageUrl = capturedImageDataUrl || ('https://picsum.photos/id/'+Math.floor(Math.random()*50)+'/300/200');
+            await addDoc(collection(db,"products"), {
+                name, price, category, phone, image: imageUrl, description: desc||'No description',
+                seller: currentUserData.name||currentUser.email, sellerCountry: currentUserData.country||'',
+                userId: currentUser.uid, date: new Date().toISOString().split('T')[0], timestamp: Date.now(),
+                boosted: false, boostExpiry: 0
+            });
+            await autoFlagProduct(name, desc);
+            showToast(`Product posted! Category: ${category}`);
+            closeSellModal();
+            loadProducts();
+        };
+        function suggestCategory(name, desc) {
+            const text = (name + " " + desc).toLowerCase();
+            if (text.includes('phone')||text.includes('laptop')||text.includes('computer')||text.includes('tv')) return 'Electronics';
+            if (text.includes('shirt')||text.includes('dress')||text.includes('shoe')) return 'Clothing';
+            if (text.includes('chair')||text.includes('table')||text.includes('sofa')) return 'Furniture';
+            if (text.includes('fridge')||text.includes('cooker')||text.includes('blender')) return 'Home & Garden';
+            if (text.includes('ball')||text.includes('bicycle')) return 'Sports';
+            if (text.includes('toy')||text.includes('doll')) return 'Toys';
+            return 'Other';
+        }
+        async function autoFlagProduct(name, desc) {
+            const suspicious = ['scam','fake','counterfeit','urgent sale','pay outside','western union'];
+            const text = (name + " " + desc).toLowerCase();
+            if(suspicious.some(word => text.includes(word))){
+                console.log("Suspicious product flagged");
+            }
+        }
+
+        // NOTIFICATIONS
+        window.requestNotificationPermission = async () => { if (!("Notification" in window)) { alert("Not supported"); return; } const perm = await Notification.requestPermission(); if (perm === "granted") { localStorage.setItem('notifEnabled', 'true'); document.getElementById('notifBanner').style.display = 'none'; } };
+        function checkNotificationBanner() { if (Notification.permission === "default" && localStorage.getItem('notifEnabled') !== 'true') document.getElementById('notifBanner').style.display = 'block'; }
+
+        // ZOOM
+        window.openZoom = (src) => { document.getElementById('zoomImage').src=src; document.getElementById('zoomModal').style.display='flex'; };
+        window.openZoomFromDetail = () => { const src=document.getElementById('detailImage')?.src; if(src) openZoom(src); };
+        window.closeZoom = () => { document.getElementById('zoomModal').style.display='none'; };
+        function escapeHtml(str) { if(!str) return ''; return str.replace(/[&<>]/g, m => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;' }[m])); }
+        window.onclick = (e) => {
+            const modals = ['sellModal','detailModal','ratingModal','boostModal','leasingModal','zoomModal','chatModal','conversationsModal','reportModal','verifyModal','analyticsModal','escrowModal','confirmEscrowModal'];
+            modals.forEach(id=>{ const m=document.getElementById(id); if(e.target===m){ if(id==='chatModal') closeChatModal(); else if(id==='conversationsModal') closeConversationsModal(); else if(id==='reportModal') closeReportModal(); else if(id==='verifyModal') closeVerifyModal(); else if(id==='analyticsModal') closeAnalyticsModal(); else if(id==='escrowModal') closeEscrowModal(); else if(id==='confirmEscrowModal') closeConfirmEscrowModal(); else if(id==='boostModal') closeBoostModal(); else if(id==='sellModal') closeSellModal(); else if(id==='detailModal') closeDetailModal(); else if(id==='ratingModal') closeRatingModal(); else if(id==='leasingModal') closeLeasingModal(); else if(id==='zoomModal') closeZoom(); } });
+        };
+        fetchPaymentRequiredFlag();
+        checkNotificationBanner();
+    </script>
+    <script>
+        if ('serviceWorker' in navigator) navigator.serviceWorker.register('/EasySell/sw.js').catch(e=>console.error(e));
+    </script>
+</body>
+</html>
