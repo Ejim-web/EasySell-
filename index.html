@@ -1,1 +1,1487 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>EasySell · Buy, Sell & Earn</title>
+    
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+    
+    <!-- Monetag Ad Script -->
+    <script type="text/javascript">
+        (function() {
+            var s = document.createElement('script');
+            s.type = 'text/javascript';
+            s.async = true;
+            s.src = 'https://omg10.com/4/11140123';
+            var x = document.getElementsByTagName('script')[0];
+            x.parentNode.insertBefore(s, x);
+        })();
+    </script>
+    
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', -apple-system, sans-serif; }
+        body { background: linear-gradient(135deg, #0f0c29, #302b63, #24243e); min-height: 100vh; padding: 0.8rem; padding-bottom: 4.5rem; }
+        .container { max-width: 600px; width: 100%; margin: 0 auto; background: rgba(15, 20, 34, 0.95); backdrop-filter: blur(10px); border-radius: 2rem; padding: 1.2rem; border: 1px solid rgba(76, 175, 80, 0.3); }
+        
+        /* Login Screen */
+        .login-container { min-height: 100vh; display: flex; justify-content: center; align-items: center; padding: 20px; }
+        .login-card { background: rgba(15, 20, 34, 0.95); border-radius: 32px; padding: 40px 28px; max-width: 400px; width: 100%; text-align: center; border: 1px solid rgba(76, 175, 80, 0.3); box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5); }
+        .login-logo { width: 80px; height: 80px; background: linear-gradient(135deg, #059669 0%, #047857 100%); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; }
+        .login-logo span { font-size: 45px; }
+        .login-card h1 { color: white; font-size: 28px; margin-bottom: 8px; }
+        .login-card p { color: #8aa0bc; margin-bottom: 25px; font-size: 14px; }
+        .login-input { width: 100%; padding: 14px; border: 1px solid #2a2f42; border-radius: 30px; margin-bottom: 12px; font-size: 14px; background: #0f1422; color: white; outline: none; }
+        .login-input:focus { border-color: #4CAF50; }
+        .login-btn { width: 100%; background: linear-gradient(135deg, #059669, #047857); color: white; border: none; padding: 14px; border-radius: 30px; font-size: 16px; font-weight: bold; cursor: pointer; margin-top: 10px; }
+        .login-btn:active { transform: scale(0.97); }
+        .switch-btn { background: none; border: none; color: #4ade80; margin-top: 15px; cursor: pointer; font-size: 14px; }
+        .main-app { display: none; }
+        
+        /* Header */
+        .header { background: linear-gradient(135deg, #059669, #047857); color: white; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; border-radius: 1.5rem; margin-bottom: 1rem; }
+        .logout-btn, .sell-btn { background: white; color: #059669; border: none; padding: 8px 16px; border-radius: 30px; font-weight: bold; cursor: pointer; }
+        .logout-btn:active, .sell-btn:active { transform: scale(0.95); }
+        
+        /* Navigation Tabs */
+        .nav-tabs { display: flex; gap: 0.15rem; margin-bottom: 1rem; background: rgba(26, 31, 48, 0.8); padding: 0.4rem; border-radius: 3rem; flex-wrap: wrap; }
+        .tab-btn { flex: 1; padding: 0.4rem 0.15rem; border: none; background: transparent; color: #8aa0bc; font-weight: 600; border-radius: 2rem; cursor: pointer; font-size: 0.5rem; transition: all 0.3s; }
+        .tab-btn.active { background: linear-gradient(135deg, #4CAF50, #45a049); color: white; }
+        .tab-btn:active { transform: scale(0.95); }
+        
+        h1 { text-align: center; background: linear-gradient(135deg, #4CAF50, #8BC34A); -webkit-background-clip: text; background-clip: text; color: transparent; font-size: 1.3rem; margin-bottom: 0.2rem; }
+        .balance { background: linear-gradient(135deg, #1a1f30, #0f1422); border-radius: 1.5rem; padding: 1rem; text-align: center; margin-bottom: 0.8rem; border: 1px solid rgba(76,175,80,0.2); }
+        .balance h2 { color: #4ade80; font-size: 1.8rem; font-weight: 800; }
+        
+        .btn { width: 100%; padding: 0.7rem; border: none; border-radius: 2rem; font-weight: 600; margin: 0.3rem 0; cursor: pointer; transition: all 0.2s; }
+        .btn:active { transform: scale(0.97); }
+        .btn-daily { background: linear-gradient(135deg, #F57C00, #FF9800); color: white; }
+        .btn-withdraw { background: linear-gradient(135deg, #4CAF50, #45a049); color: white; }
+        .btn-outline { background: transparent; border: 1.5px solid #4CAF50; color: #4CAF50; }
+        .btn-rewarded { background: linear-gradient(135deg, #9C27B0, #7B1FA2); color: white; box-shadow: 0 4px 12px rgba(156,39,176,0.3); }
+        .btn-rewarded:hover { transform: translateY(-2px); }
+        .btn-rewarded:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+        .btn-spin { background: linear-gradient(135deg, #FF6F00, #F57C00); color: white; box-shadow: 0 4px 12px rgba(245,124,0,0.3); }
+        
+        input, textarea, select { width: 100%; padding: 0.7rem; margin: 0.3rem 0; border-radius: 2rem; border: 1px solid #2a2f42; background: #0f1422; color: white; outline: none; font-size: 0.9rem; }
+        input:focus, textarea:focus { border-color: #4CAF50; }
+        
+        .info { color: #8aa0bc; font-size: 0.65rem; text-align: center; margin: 0.3rem 0; }
+        .flex { display: flex; justify-content: space-between; align-items: center; gap: 0.4rem; flex-wrap: wrap; }
+        .green { color: #4ade80; font-weight: 600; }
+        .gold { color: #FFD700; font-weight: 600; }
+        
+        .section-title { font-size: 0.7rem; font-weight: 700; color: #8BC34A; margin: 0.8rem 0 0.3rem; border-left: 3px solid #4CAF50; padding-left: 0.5rem; }
+        
+        .grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.4rem; }
+        .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.4rem; }
+        .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.4rem; }
+        .grid-5 { display: grid; grid-template-columns: repeat(5, 1fr); gap: 0.3rem; }
+        
+        .card { background: linear-gradient(135deg, #0f172a, #0a0f1a); border-radius: 0.8rem; padding: 0.6rem; text-align: center; cursor: pointer; border: 1px solid #2a2f42; transition: all 0.2s; }
+        .card:active { transform: scale(0.95); }
+        .card:hover { border-color: #4CAF50; transform: translateY(-2px); }
+        
+        .opportunity-card { background: linear-gradient(135deg, #1a1f30, #0f1422); border-radius: 1rem; padding: 0.7rem; margin: 0.4rem 0; border-left: 3px solid #4CAF50; }
+        
+        .toast { position: fixed; bottom: 70px; left: 15px; background: linear-gradient(135deg, #1e293b, #0f172a); color: #4ade80; padding: 10px 16px; border-radius: 2rem; z-index: 9999; font-size: 0.75rem; border-left: 3px solid #4CAF50; animation: slideIn 0.3s ease; }
+        @keyframes slideIn { from { opacity: 0; transform: translateX(-50px); } to { opacity: 1; transform: translateX(0); } }
+        
+        .progress-bar { height: 5px; background: #2a2f42; border-radius: 3px; overflow: hidden; margin: 0.3rem 0; }
+        .progress-fill { height: 100%; background: linear-gradient(90deg, #4CAF50, #8BC34A); width: 0%; transition: width 0.3s; }
+        
+        /* Products Grid */
+        .products-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; }
+        .product-card { background: linear-gradient(135deg, #0f172a, #1a1f30); border-radius: 20px; overflow: hidden; border: 1px solid #2a2f42; transition: all 0.3s; }
+        .product-card:hover { border-color: #4CAF50; transform: translateY(-2px); }
+        .product-image { width: 100%; height: 180px; object-fit: cover; }
+        .product-info { padding: 15px; }
+        .product-name { font-weight: bold; font-size: 18px; color: white; }
+        .product-price { color: #4ade80; font-weight: bold; font-size: 20px; margin: 8px 0; }
+        .product-meta { font-size: 12px; color: #8aa0bc; margin: 8px 0; }
+        .delete-btn { background: rgba(239, 68, 68, 0.2); color: #f87171; border: 1px solid #f87171; padding: 8px; border-radius: 12px; width: 100%; margin-top: 8px; cursor: pointer; }
+        .delete-btn:active { transform: scale(0.95); }
+        .details-btn { background: rgba(76, 175, 80, 0.2); color: #4ade80; border: 1px solid #4CAF50; padding: 8px; border-radius: 12px; width: 100%; margin-top: 8px; cursor: pointer; }
+        .details-btn:active { transform: scale(0.95); }
+        .owner-badge { background: rgba(76, 175, 80, 0.3); font-size: 10px; padding: 2px 8px; border-radius: 20px; display: inline-block; margin-left: 8px; color: #4ade80; }
+        
+        /* Modals */
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); justify-content: center; align-items: center; z-index: 1000; padding: 20px; }
+        .modal-content { background: #1a1f30; border-radius: 28px; padding: 25px; max-width: 500px; width: 100%; max-height: 90vh; overflow-y: auto; border: 1px solid rgba(76, 175, 80, 0.3); }
+        .modal-header { display: flex; justify-content: space-between; margin-bottom: 20px; }
+        .modal-header h2 { color: white; }
+        .close-modal { font-size: 28px; cursor: pointer; color: #8aa0bc; }
+        .camera-btn { background: #0f172a; border: 1px solid #2a2f42; color: white; padding: 12px; border-radius: 16px; margin: 5px; cursor: pointer; }
+        .camera-btn:active { transform: scale(0.95); }
+        .submit-btn { background: linear-gradient(135deg, #059669, #047857); color: white; border: none; padding: 14px; border-radius: 30px; font-weight: bold; width: 100%; cursor: pointer; margin-top: 10px; }
+        .submit-btn:active { transform: scale(0.97); }
+        .image-preview { text-align: center; margin: 10px 0; }
+        .image-preview img { max-width: 100%; max-height: 120px; border-radius: 12px; }
+        .empty-state { text-align: center; padding: 60px; background: #0f172a; border-radius: 20px; border: 1px solid #2a2f42; color: #8aa0bc; }
+        .error-msg { color: #f87171; font-size: 12px; margin-bottom: 10px; }
+        .loading { text-align: center; padding: 50px; color: #8aa0bc; }
+        
+        /* Badges */
+        .badge-container { display: flex; gap: 0.4rem; flex-wrap: wrap; justify-content: center; margin: 0.5rem 0; }
+        .badge-item { background: #1a1f30; border-radius: 2rem; padding: 0.2rem 0.6rem; font-size: 0.6rem; border: 1px solid #2a2f42; }
+        .badge-item.unlocked { border-color: #FFD700; background: rgba(255,215,0,0.1); }
+        .badge-item .icon { font-size: 0.8rem; }
+        .badge-item .label { color: #8aa0bc; }
+        .badge-item.unlocked .label { color: #FFD700; }
+        
+        /* Popular Platforms Grid - Dashboard */
+        .popular-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 0.4rem; margin: 0.5rem 0; }
+        .popular-card { background: linear-gradient(135deg, #0f172a, #1a1f30); border-radius: 0.8rem; padding: 0.5rem; text-align: center; cursor: pointer; border: 1px solid #2a2f42; transition: all 0.2s; min-height: 70px; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        .popular-card:active { transform: scale(0.95); }
+        .popular-card:hover { border-color: #4CAF50; transform: translateY(-2px); }
+        .popular-card .icon { font-size: 1.8rem; }
+        .popular-card .name { font-size: 0.5rem; font-weight: 600; color: white; margin-top: 0.2rem; word-break: break-word; }
+        
+        /* Search Bar */
+        .search-bar { display: flex; gap: 0.5rem; margin-bottom: 0.8rem; background: #0f172a; border-radius: 2rem; padding: 0.2rem 0.5rem 0.2rem 1rem; border: 1px solid #2a2f42; }
+        .search-bar input { flex: 1; background: transparent; border: none; padding: 0.7rem 0; color: white; font-size: 0.85rem; outline: none; margin: 0; }
+        .search-bar input::placeholder { color: #5a6a7a; }
+        .search-bar button { background: #4CAF50; border: none; border-radius: 2rem; padding: 0.4rem 1rem; color: white; font-weight: bold; cursor: pointer; }
+        .search-results { max-height: 400px; overflow-y: auto; margin-top: 0.5rem; }
+        .search-results .card { margin: 0.3rem 0; padding: 0.5rem; text-align: left; }
+        .search-results::-webkit-scrollbar { width: 4px; }
+        .search-results::-webkit-scrollbar-track { background: #1a1f30; border-radius: 10px; }
+        .search-results::-webkit-scrollbar-thumb { background: #4CAF50; border-radius: 10px; }
+        .no-results { color: #8aa0bc; text-align: center; padding: 1rem; font-size: 0.85rem; }
+        .result-category { font-size: 0.5rem; color: #5a6a7a; margin-left: 0.5rem; }
+        
+        /* Ad Overlay */
+        .ad-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); display: flex; align-items: center; justify-content: center; z-index: 10000; }
+        .ad-modal { background: #1a1f30; padding: 2rem; border-radius: 1.5rem; text-align: center; max-width: 350px; border: 2px solid #4CAF50; }
+        .ad-modal h2 { color: #4ade80; margin-bottom: 0.5rem; }
+        .ad-modal p { color: #8aa0bc; margin-bottom: 0.5rem; }
+        .ad-modal .spinner { border: 4px solid #2a2f42; border-top: 4px solid #4CAF50; border-radius: 50%; width: 50px; height: 50px; animation: spin 1s linear infinite; margin: 15px auto; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .ad-modal .countdown { font-size: 3rem; font-weight: 700; color: #FFD700; margin: 0.5rem 0; }
+        .ad-modal .skip-btn { background: transparent; border: none; color: #8aa0bc; padding: 8px 20px; margin-top: 5px; cursor: pointer; font-size: 0.8rem; }
+        
+        .return-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); display: flex; align-items: center; justify-content: center; z-index: 10002; }
+        .return-modal { background: linear-gradient(135deg, #1a1f30, #0f1422); padding: 2.5rem; border-radius: 2rem; text-align: center; max-width: 380px; border: 2px solid #4CAF50; box-shadow: 0 20px 60px rgba(0,0,0,0.5); }
+        .return-modal .icon { font-size: 4rem; margin-bottom: 0.5rem; }
+        .return-modal h2 { color: #4ade80; font-size: 1.5rem; margin-bottom: 0.5rem; }
+        .return-modal p { color: #8aa0bc; margin-bottom: 1.5rem; }
+        .return-modal .btn-return { background: linear-gradient(135deg, #4CAF50, #45a049); color: white; border: none; padding: 1rem 2rem; border-radius: 3rem; font-size: 1.2rem; font-weight: 700; cursor: pointer; width: 100%; transition: all 0.3s; box-shadow: 0 4px 15px rgba(76,175,80,0.3); }
+        .return-modal .btn-return:hover { transform: translateY(-3px); box-shadow: 0 6px 25px rgba(76,175,80,0.4); }
+        .return-modal .btn-return:active { transform: scale(0.97); }
+        .return-modal .points-earned { font-size: 2.5rem; color: #FFD700; font-weight: 700; margin: 0.5rem 0; }
+        
+        /* Banner Ad */
+        .banner-ad-container { position: fixed; bottom: 0; left: 0; width: 100%; background: rgba(15, 20, 34, 0.95); padding: 0.3rem 0.5rem; border-top: 1px solid #4CAF50; z-index: 9998; text-align: center; }
+        .banner-ad-container .ad-label { color: #8aa0bc; font-size: 0.5rem; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 0.2rem; }
+        .banner-ad-container .banner-content { background: #0f172a; border-radius: 0.8rem; padding: 0.3rem; min-height: 50px; display: flex; align-items: center; justify-content: center; border: 1px solid #2a2f42; }
+        .banner-ad-container .banner-content span { color: #4ade80; font-size: 0.8rem; }
+        
+        /* Platform Categories */
+        .category-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.4rem; margin: 0.5rem 0; }
+        .category-card { background: linear-gradient(135deg, #1a1f30, #0f172a); border-radius: 0.8rem; padding: 0.8rem; text-align: center; cursor: pointer; border: 1px solid #2a2f42; transition: all 0.3s; }
+        .category-card:active { transform: scale(0.95); }
+        .category-card:hover { border-color: #4CAF50; }
+        .category-card .cat-icon { font-size: 1.8rem; }
+        .category-card .cat-name { font-size: 0.6rem; font-weight: 600; color: white; margin-top: 0.2rem; }
+        .category-card .cat-count { font-size: 0.5rem; color: #5a6a7a; }
+    </style>
+</head>
+<body>
 
+    <!-- Login/Signup Screen -->
+    <div id="loginScreen" class="login-container">
+        <div class="login-card">
+            <div class="login-logo"><span>🛍️</span></div>
+            <h1 id="formTitle">Welcome to EasySell</h1>
+            <p id="formSubtitle">Login to buy, sell & earn rewards</p>
+            <div id="errorMsg" class="error-msg"></div>
+            <input type="email" id="loginEmail" class="login-input" placeholder="Email address">
+            <input type="password" id="loginPassword" class="login-input" placeholder="Password">
+            <button class="login-btn" onclick="doLogin()" id="actionBtn">Login</button>
+            <button class="switch-btn" onclick="toggleForm()" id="switchBtn">Don't have an account? Sign Up</button>
+        </div>
+    </div>
+
+    <!-- Main App -->
+    <div id="mainApp" class="main-app">
+        <div class="container" id="appContainer">
+            <!-- Header -->
+            <div class="header">
+                <div><strong>🛍️ EasySell</strong></div>
+                <div>
+                    <span id="userEmail" style="margin-right: 10px; font-size: 12px;"></span>
+                    <button class="logout-btn" onclick="doLogout()">Logout</button>
+                    <button class="sell-btn" onclick="openSellModal()">+ Sell</button>
+                </div>
+            </div>
+            
+            <!-- Navigation Tabs -->
+            <div class="nav-tabs">
+                <button class="tab-btn active" data-tab="home">🏠</button>
+                <button class="tab-btn" data-tab="market">🛍️</button>
+                <button class="tab-btn" data-tab="earn">💰</button>
+                <button class="tab-btn" data-tab="learn">📚</button>
+                <button class="tab-btn" data-tab="jobs">💼</button>
+                <button class="tab-btn" data-tab="profile">👤</button>
+            </div>
+            
+            <!-- Tab Content -->
+            <div id="tabContent"></div>
+        </div>
+    </div>
+
+    <!-- Sell Modal -->
+    <div id="sellModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Sell Product</h2>
+                <span class="close-modal" onclick="closeSellModal()">&times;</span>
+            </div>
+            <input type="text" id="productName" placeholder="Product Name *">
+            <input type="number" id="productPrice" placeholder="Price (₦) *">
+            <input type="text" id="productPhone" placeholder="WhatsApp (234xxxxxxxxx) *">
+            <div>
+                <button type="button" class="camera-btn" onclick="takePhoto()">📷 Take Photo</button>
+                <button type="button" class="camera-btn" onclick="uploadPhoto()">🖼️ Gallery</button>
+            </div>
+            <div class="image-preview" id="imagePreview" style="display:none;">
+                <img id="previewImg">
+                <button type="button" onclick="removePhoto()" style="margin-top:5px; background:#fee2e2; border:none; padding:5px 10px; border-radius:20px; color:#dc2626;">Remove</button>
+            </div>
+            <textarea id="productDesc" rows="3" placeholder="Description"></textarea>
+            <button class="submit-btn" onclick="addProduct()">Post Product</button>
+        </div>
+    </div>
+
+    <!-- Detail Modal -->
+    <div id="detailModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="detailName"></h2>
+                <span class="close-modal" onclick="closeDetailModal()">&times;</span>
+            </div>
+            <img id="detailImage" style="width:100%; border-radius:20px; margin-bottom:15px;">
+            <p id="detailPrice" style="font-size:24px; font-weight:bold; color:#4ade80;"></p>
+            <p id="detailDesc" style="color:#8aa0bc;"></p>
+            <p style="color:#8aa0bc;"><strong>👤 Seller:</strong> <span id="detailSeller"></span></p>
+            <p style="color:#8aa0bc;"><strong>📞 WhatsApp:</strong> <span id="detailPhone"></span></p>
+            <p style="color:#8aa0bc;"><strong>📅 Posted:</strong> <span id="detailDate"></span></p>
+            <button class="submit-btn" onclick="contactSeller()" style="background:#25D366;">📱 Contact on WhatsApp</button>
+        </div>
+    </div>
+
+    <!-- Bottom Banner Ad -->
+    <div class="banner-ad-container" id="bannerAd">
+        <div class="ad-label">📢 Advertisement</div>
+        <div class="banner-content">
+            <span>📺 Sponsored Content</span>
+        </div>
+    </div>
+
+    <script>
+        // ============================================================
+        // FIREBASE CONFIGURATION
+        // ============================================================
+        const firebaseConfig = {
+            apiKey: "AIzaSyAAWF9XukiN4nuA7LlbsaU2qiZgzTGM3FE",
+            authDomain: "easysell-75318.firebaseapp.com",
+            projectId: "easysell-75318",
+            storageBucket: "easysell-75318.firebasestorage.app",
+            messagingSenderId: "81916821182",
+            appId: "1:81916821182:web:46064186708cec62eba8ef"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+
+        // ============================================================
+        // ALL PLATFORMS - 200+ Websites
+        // ============================================================
+        const allPlatforms = {
+            "🔍 Search & Web": [
+                { name: "Google", icon: "🔍", url: "https://google.com" },
+                { name: "Bing", icon: "🔎", url: "https://bing.com" },
+                { name: "Yahoo", icon: "📧", url: "https://yahoo.com" },
+                { name: "DuckDuckGo", icon: "🦆", url: "https://duckduckgo.com" },
+                { name: "Brave Search", icon: "🦁", url: "https://search.brave.com" },
+                { name: "Yandex", icon: "🌐", url: "https://yandex.com" },
+                { name: "Ask.com", icon: "❓", url: "https://ask.com" },
+                { name: "AOL", icon: "🅰️", url: "https://aol.com" }
+            ],
+            "📱 Social Media": [
+                { name: "Facebook", icon: "📘", url: "https://facebook.com" },
+                { name: "Instagram", icon: "📸", url: "https://instagram.com" },
+                { name: "Twitter/X", icon: "🐦", url: "https://twitter.com" },
+                { name: "TikTok", icon: "🎵", url: "https://tiktok.com" },
+                { name: "YouTube", icon: "▶️", url: "https://youtube.com" },
+                { name: "Snapchat", icon: "👻", url: "https://snapchat.com" },
+                { name: "Pinterest", icon: "📌", url: "https://pinterest.com" },
+                { name: "LinkedIn", icon: "🔗", url: "https://linkedin.com" },
+                { name: "Reddit", icon: "🤖", url: "https://reddit.com" },
+                { name: "Tumblr", icon: "📝", url: "https://tumblr.com" },
+                { name: "Discord", icon: "🎮", url: "https://discord.com" },
+                { name: "Telegram", icon: "✈️", url: "https://web.telegram.org" },
+                { name: "WhatsApp", icon: "💬", url: "https://web.whatsapp.com" },
+                { name: "Signal", icon: "🔒", url: "https://signal.org" },
+                { name: "Messenger", icon: "💬", url: "https://messenger.com" },
+                { name: "WeChat", icon: "💚", url: "https://web.wechat.com" },
+                { name: "Viber", icon: "💜", url: "https://viber.com" },
+                { name: "Slack", icon: "💼", url: "https://slack.com" },
+                { name: "Teams", icon: "💼", url: "https://teams.microsoft.com" },
+                { name: "Zoom", icon: "📹", url: "https://zoom.us" },
+                { name: "Google Meet", icon: "📹", url: "https://meet.google.com" },
+                { name: "Clubhouse", icon: "🎭", url: "https://clubhouse.com" },
+                { name: "Threads", icon: "🧵", url: "https://threads.net" },
+                { name: "Bluesky", icon: "☁️", url: "https://bsky.app" }
+            ],
+            "💰 Finance & Banking": [
+                { name: "Binance", icon: "🟡", url: "https://binance.com" },
+                { name: "Coinbase", icon: "🔵", url: "https://coinbase.com" },
+                { name: "Bybit", icon: "🟣", url: "https://bybit.com" },
+                { name: "OKX", icon: "🟠", url: "https://okx.com" },
+                { name: "KuCoin", icon: "🟢", url: "https://kucoin.com" },
+                { name: "Gate.io", icon: "🔴", url: "https://gate.io" },
+                { name: "PayPal", icon: "🔷", url: "https://paypal.com" },
+                { name: "Payoneer", icon: "🌍", url: "https://payoneer.com" },
+                { name: "Wise", icon: "💷", url: "https://wise.com" },
+                { name: "Flutterwave", icon: "🌊", url: "https://flutterwave.com" },
+                { name: "Stripe", icon: "💳", url: "https://stripe.com" },
+                { name: "GTBank", icon: "🏦", url: "https://gtbank.com" },
+                { name: "UBA", icon: "🏦", url: "https://ubagroup.com" },
+                { name: "Access Bank", icon: "🏦", url: "https://accessbankplc.com" },
+                { name: "First Bank", icon: "🏦", url: "https://firstbanknigeria.com" },
+                { name: "Zenith Bank", icon: "🏦", url: "https://zenithbank.com" },
+                { name: "Kuda Bank", icon: "💜", url: "https://kuda.com" },
+                { name: "OPay", icon: "🟢", url: "https://opayweb.com" },
+                { name: "PalmPay", icon: "🟠", url: "https://palmpay.com" },
+                { name: "MoniePoint", icon: "🔵", url: "https://moniepoint.com" },
+                { name: "CBN", icon: "🏛️", url: "https://cbn.gov.ng" },
+                { name: "NGX", icon: "📈", url: "https://ngxgroup.com" }
+            ],
+            "📺 Entertainment": [
+                { name: "Netflix", icon: "📺", url: "https://netflix.com" },
+                { name: "Amazon Prime", icon: "📦", url: "https://primevideo.com" },
+                { name: "Disney+", icon: "✨", url: "https://disneyplus.com" },
+                { name: "Hulu", icon: "📺", url: "https://hulu.com" },
+                { name: "HBO Max", icon: "🎬", url: "https://hbomax.com" },
+                { name: "Spotify", icon: "🎵", url: "https://spotify.com" },
+                { name: "Apple Music", icon: "🍎", url: "https://music.apple.com" },
+                { name: "Twitch", icon: "🎮", url: "https://twitch.tv" },
+                { name: "Tidal", icon: "🌊", url: "https://tidal.com" },
+                { name: "Deezer", icon: "🎵", url: "https://deezer.com" },
+                { name: "Pandora", icon: "🎵", url: "https://pandora.com" },
+                { name: "SoundCloud", icon: "☁️", url: "https://soundcloud.com" },
+                { name: "Crunchyroll", icon: "🎌", url: "https://crunchyroll.com" },
+                { name: "Funimation", icon: "🎌", url: "https://funimation.com" },
+                { name: "Showmax", icon: "📺", url: "https://showmax.com" }
+            ],
+            "🛒 Shopping": [
+                { name: "Amazon", icon: "📦", url: "https://amazon.com" },
+                { name: "eBay", icon: "🛒", url: "https://ebay.com" },
+                { name: "AliExpress", icon: "📦", url: "https://aliexpress.com" },
+                { name: "Walmart", icon: "🛍️", url: "https://walmart.com" },
+                { name: "Etsy", icon: "🎨", url: "https://etsy.com" },
+                { name: "Shopify", icon: "🛒", url: "https://shopify.com" },
+                { name: "Jumia", icon: "🛍️", url: "https://jumia.com" },
+                { name: "Konga", icon: "🛍️", url: "https://konga.com" },
+                { name: "Alibaba", icon: "🌐", url: "https://alibaba.com" },
+                { name: "Farfetch", icon: "👗", url: "https://farfetch.com" },
+                { name: "Temu", icon: "🛍️", url: "https://temu.com" },
+                { name: "Shein", icon: "👗", url: "https://shein.com" },
+                { name: "Wish", icon: "🎁", url: "https://wish.com" },
+                { name: "Best Buy", icon: "💻", url: "https://bestbuy.com" },
+                { name: "Target", icon: "🎯", url: "https://target.com" }
+            ],
+            "🤖 AI & Tech": [
+                { name: "ChatGPT", icon: "🤖", url: "https://chat.openai.com" },
+                { name: "Claude AI", icon: "🧠", url: "https://claude.ai" },
+                { name: "Gemini", icon: "✨", url: "https://gemini.google.com" },
+                { name: "Perplexity AI", icon: "🔍", url: "https://perplexity.ai" },
+                { name: "Midjourney", icon: "🎨", url: "https://midjourney.com" },
+                { name: "Canva", icon: "🎨", url: "https://canva.com" },
+                { name: "Gamma", icon: "📊", url: "https://gamma.app" },
+                { name: "Notion", icon: "📝", url: "https://notion.so" },
+                { name: "Grammarly", icon: "✍️", url: "https://grammarly.com" },
+                { name: "DeepSeek", icon: "🧠", url: "https://deepseek.com" },
+                { name: "Copilot", icon: "🤖", url: "https://copilot.microsoft.com" },
+                { name: "Hugging Face", icon: "🤗", url: "https://huggingface.co" },
+                { name: "Stability AI", icon: "🎨", url: "https://stability.ai" },
+                { name: "RunwayML", icon: "🎬", url: "https://runwayml.com" },
+                { name: "ElevenLabs", icon: "🎤", url: "https://elevenlabs.io" },
+                { name: "Synthesia", icon: "🎥", url: "https://synthesia.io" }
+            ],
+            "📚 Education": [
+                { name: "Coursera", icon: "🎓", url: "https://coursera.org" },
+                { name: "Udemy", icon: "📚", url: "https://udemy.com" },
+                { name: "freeCodeCamp", icon: "💻", url: "https://freecodecamp.org" },
+                { name: "Khan Academy", icon: "📖", url: "https://khanacademy.org" },
+                { name: "edX", icon: "🎓", url: "https://edx.org" },
+                { name: "Duolingo", icon: "🦉", url: "https://duolingo.com" },
+                { name: "Google Digital Garage", icon: "📚", url: "https://learndigital.withgoogle.com" },
+                { name: "LinkedIn Learning", icon: "🔗", url: "https://linkedin.com/learning" },
+                { name: "MIT OpenCourseWare", icon: "📖", url: "https://ocw.mit.edu" },
+                { name: "Harvard Online", icon: "🏛️", url: "https://harvard.edu" },
+                { name: "Codecademy", icon: "💻", url: "https://codecademy.com" },
+                { name: "DataCamp", icon: "📊", url: "https://datacamp.com" }
+            ],
+            "💼 Work & Jobs": [
+                { name: "Upwork", icon: "💼", url: "https://upwork.com" },
+                { name: "Fiverr", icon: "🎯", url: "https://fiverr.com" },
+                { name: "Freelancer", icon: "⭐", url: "https://freelancer.com" },
+                { name: "Toptal", icon: "🏆", url: "https://toptal.com" },
+                { name: "PeoplePerHour", icon: "⏰", url: "https://peopleperhour.com" },
+                { name: "Indeed", icon: "💼", url: "https://indeed.com" },
+                { name: "LinkedIn Jobs", icon: "🔗", url: "https://linkedin.com/jobs" },
+                { name: "RemoteOK", icon: "🌍", url: "https://remoteok.com" },
+                { name: "We Work Remotely", icon: "🌐", url: "https://weworkremotely.com" },
+                { name: "Glassdoor", icon: "🏢", url: "https://glassdoor.com" },
+                { name: "ZipRecruiter", icon: "📌", url: "https://ziprecruiter.com" },
+                { name: "Monster", icon: "👹", url: "https://monster.com" },
+                { name: "Jobberman", icon: "💼", url: "https://jobberman.com" },
+                { name: "MyJobMag", icon: "📋", url: "https://myjobmag.com" }
+            ],
+            "📰 News & Media": [
+                { name: "BBC News", icon: "📰", url: "https://bbc.com/news" },
+                { name: "CNN", icon: "📺", url: "https://cnn.com" },
+                { name: "Al Jazeera", icon: "📰", url: "https://aljazeera.com" },
+                { name: "Reuters", icon: "📰", url: "https://reuters.com" },
+                { name: "The Guardian", icon: "📰", url: "https://theguardian.com" },
+                { name: "Bloomberg", icon: "📈", url: "https://bloomberg.com" },
+                { name: "TechCrunch", icon: "💻", url: "https://techcrunch.com" },
+                { name: "Punch", icon: "📰", url: "https://punchng.com" },
+                { name: "Vanguard", icon: "📰", url: "https://vanguardngr.com" },
+                { name: "The Nation", icon: "📰", url: "https://thenationonlineng.net" },
+                { name: "Daily Trust", icon: "📰", url: "https://dailytrust.com" },
+                { name: "Premium Times", icon: "📰", url: "https://premiumtimesng.com" }
+            ],
+            "🇳🇬 Nigeria & Africa": [
+                { name: "NYSC", icon: "🇳🇬", url: "https://nysc.gov.ng" },
+                { name: "JAMB", icon: "📚", url: "https://jamb.gov.ng" },
+                { name: "NIMC", icon: "🪪", url: "https://nimc.gov.ng" },
+                { name: "FRSC", icon: "🚗", url: "https://frsc.gov.ng" },
+                { name: "NITDA", icon: "💻", url: "https://nitda.gov.ng" },
+                { name: "CBN", icon: "🏦", url: "https://cbn.gov.ng" },
+                { name: "NGX", icon: "📈", url: "https://ngxgroup.com" },
+                { name: "Nigerian Id", icon: "🪪", url: "https://national-id.gov.ng" },
+                { name: "NAFDAC", icon: "💊", url: "https://nafdac.gov.ng" },
+                { name: "FIRS", icon: "💰", url: "https://firs.gov.ng" },
+                { name: "NIPOST", icon: "📮", url: "https://nipost.gov.ng" },
+                { name: "Nigeria Police", icon: "👮", url: "https://npf.gov.ng" }
+            ],
+            "🚀 Tech & Development": [
+                { name: "GitHub", icon: "🐙", url: "https://github.com" },
+                { name: "GitLab", icon: "🦊", url: "https://gitlab.com" },
+                { name: "Stack Overflow", icon: "📚", url: "https://stackoverflow.com" },
+                { name: "Dev.to", icon: "💻", url: "https://dev.to" },
+                { name: "Medium", icon: "📝", url: "https://medium.com" },
+                { name: "Substack", icon: "📬", url: "https://substack.com" },
+                { name: "Hashnode", icon: "🌐", url: "https://hashnode.com" },
+                { name: "CodePen", icon: "✏️", url: "https://codepen.io" },
+                { name: "Replit", icon: "🔄", url: "https://replit.com" },
+                { name: "Glitch", icon: "💫", url: "https://glitch.com" },
+                { name: "Netlify", icon: "🚀", url: "https://netlify.com" },
+                { name: "Vercel", icon: "▲", url: "https://vercel.com" },
+                { name: "AWS", icon: "☁️", url: "https://aws.amazon.com" },
+                { name: "Google Cloud", icon: "☁️", url: "https://cloud.google.com" },
+                { name: "Azure", icon: "☁️", url: "https://azure.microsoft.com" }
+            ],
+            "📱 Mobile Apps & Tools": [
+                { name: "Google Play", icon: "📱", url: "https://play.google.com" },
+                { name: "App Store", icon: "📱", url: "https://apple.com/app-store" },
+                { name: "ApkPure", icon: "📦", url: "https://apkpure.com" },
+                { name: "APKMirror", icon: "📦", url: "https://apkmirror.com" },
+                { name: "Uptodown", icon: "📦", url: "https://uptodown.com" },
+                { name: "F-Droid", icon: "📦", url: "https://f-droid.org" }
+            ],
+            "🎮 Gaming": [
+                { name: "Steam", icon: "🎮", url: "https://steam.com" },
+                { name: "Epic Games", icon: "🟣", url: "https://epicgames.com" },
+                { name: "Xbox", icon: "🎮", url: "https://xbox.com" },
+                { name: "PlayStation", icon: "🎮", url: "https://playstation.com" },
+                { name: "Nintendo", icon: "🎮", url: "https://nintendo.com" },
+                { name: "Roblox", icon: "🎮", url: "https://roblox.com" },
+                { name: "Minecraft", icon: "⛏️", url: "https://minecraft.net" },
+                { name: "Fortnite", icon: "🎯", url: "https://fortnite.com" }
+            ],
+            "🌐 Domain & Hosting": [
+                { name: "GoDaddy", icon: "🌐", url: "https://godaddy.com" },
+                { name: "Namecheap", icon: "🌐", url: "https://namecheap.com" },
+                { name: "Cloudflare", icon: "☁️", url: "https://cloudflare.com" },
+                { name: "Bluehost", icon: "🔵", url: "https://bluehost.com" },
+                { name: "Hostinger", icon: "🔴", url: "https://hostinger.com" },
+                { name: "SiteGround", icon: "🟢", url: "https://siteground.com" }
+            ],
+            "📧 Email & Productivity": [
+                { name: "Gmail", icon: "📧", url: "https://gmail.com" },
+                { name: "Outlook", icon: "📧", url: "https://outlook.com" },
+                { name: "ProtonMail", icon: "🔒", url: "https://protonmail.com" },
+                { name: "Yahoo Mail", icon: "📧", url: "https://mail.yahoo.com" },
+                { name: "Tutanota", icon: "🔒", url: "https://tutanota.com" },
+                { name: "Google Calendar", icon: "📅", url: "https://calendar.google.com" },
+                { name: "Google Drive", icon: "📁", url: "https://drive.google.com" },
+                { name: "Dropbox", icon: "📁", url: "https://dropbox.com" },
+                { name: "OneDrive", icon: "📁", url: "https://onedrive.com" },
+                { name: "iCloud", icon: "☁️", url: "https://icloud.com" }
+            ],
+            "✈️ Travel & Booking": [
+                { name: "Booking.com", icon: "🏨", url: "https://booking.com" },
+                { name: "Airbnb", icon: "🏠", url: "https://airbnb.com" },
+                { name: "Expedia", icon: "✈️", url: "https://expedia.com" },
+                { name: "Kayak", icon: "✈️", url: "https://kayak.com" },
+                { name: "Skyscanner", icon: "✈️", url: "https://skyscanner.com" },
+                { name: "TripAdvisor", icon: "🗺️", url: "https://tripadvisor.com" }
+            ],
+            "💪 Health & Fitness": [
+                { name: "MyFitnessPal", icon: "💪", url: "https://myfitnesspal.com" },
+                { name: "Strava", icon: "🏃", url: "https://strava.com" },
+                { name: "Fitbit", icon: "⌚", url: "https://fitbit.com" },
+                { name: "Calm", icon: "🧘", url: "https://calm.com" },
+                { name: "Headspace", icon: "🧘", url: "https://headspace.com" },
+                { name: "WebMD", icon: "💊", url: "https://webmd.com" }
+            ],
+            "📊 Crypto & Trading": [
+                { name: "CoinMarketCap", icon: "📊", url: "https://coinmarketcap.com" },
+                { name: "CoinGecko", icon: "🦎", url: "https://coingecko.com" },
+                { name: "TradingView", icon: "📈", url: "https://tradingview.com" },
+                { name: "Binance", icon: "🟡", url: "https://binance.com" },
+                { name: "Coinbase", icon: "🔵", url: "https://coinbase.com" },
+                { name: "Kraken", icon: "🐙", url: "https://kraken.com" },
+                { name: "Gemini", icon: "♊", url: "https://gemini.com" }
+            ]
+        };
+
+        // ============================================================
+        // FLATTEN PLATFORMS FOR SEARCH
+        // ============================================================
+        let allPlatformsFlat = [];
+        let platformCategories = [];
+        for (const category in allPlatforms) {
+            platformCategories.push({
+                name: category,
+                icon: category.split(' ')[0],
+                count: allPlatforms[category].length
+            });
+            allPlatforms[category].forEach(p => {
+                allPlatformsFlat.push({ 
+                    ...p, 
+                    category: category.replace(/[^a-zA-Z0-9 ]/g, '').trim()
+                });
+            });
+        }
+
+        function searchPlatforms(query) {
+            if (!query || query.length < 1) return [];
+            const q = query.toLowerCase().trim();
+            return allPlatformsFlat.filter(p => 
+                p.name.toLowerCase().includes(q) || 
+                p.category.toLowerCase().includes(q) ||
+                (p.url && p.url.toLowerCase().includes(q))
+            );
+        }
+
+        function getPlatformsByCategory(category) {
+            if (!category) return [];
+            const catKey = Object.keys(allPlatforms).find(k => k.includes(category) || category.includes(k));
+            return catKey ? allPlatforms[catKey] : [];
+        }
+
+        // ============================================================
+        // CONFIGURATION
+        // ============================================================
+        const DAILY_REWARD = 5;
+        const POINTS_FOR_5_DOLLARS = 15000;
+        const AD_REWARD_POINTS = 10;
+        let currentUser = null;
+        let userData = null;
+        let currentTab = "home";
+        let isAdLoading = false;
+        let capturedImage = null;
+
+        // ============================================================
+        // LESSONS & JOBS
+        // ============================================================
+        const lessons = [
+            { id: 1, title: "Introduction to Coding", category: "Coding", content: "Start with HTML, CSS, then JavaScript. Build projects to learn!", reward: 20 },
+            { id: 2, title: "What is Cryptocurrency?", category: "Crypto", content: "Digital money secured by blockchain. Bitcoin was first!", reward: 20 },
+            { id: 3, title: "Freelancing 101", category: "Freelancing", content: "Offer skills on Upwork/Fiverr. Start small, build reviews!", reward: 20 },
+            { id: 4, title: "How to Use ChatGPT", category: "AI", content: "ChatGPT can write emails, code, brainstorm. Be specific!", reward: 20 }
+        ];
+
+        const jobs = [
+            { title: "Remote Customer Support", company: "SupportHub", location: "Remote", pay: "$15/hr", url: "https://www.upwork.com", type: "Remote" },
+            { title: "Frontend Developer", company: "TechCorp", location: "Lagos", pay: "₦250k/month", url: "https://www.linkedin.com/jobs", type: "Full-time" },
+            { title: "Content Writer", company: "ContentKing", location: "Remote", pay: "$20/article", url: "https://www.fiverr.com", type: "Freelance" }
+        ];
+
+        const spinRewards = [50, 25, 100, 10, 75, 5, 200, 0, 15, 30];
+        let lastSpinTime = 0;
+        const SPIN_COOLDOWN = 86400000;
+
+        // ============================================================
+        // HELPER FUNCTIONS
+        // ============================================================
+        function showToast(msg, duration = 3000) {
+            const t = document.createElement('div');
+            t.className = 'toast';
+            t.innerText = msg;
+            document.body.appendChild(t);
+            setTimeout(() => t.remove(), duration);
+        }
+
+        function openUrl(url) { 
+            if (url) window.open(url, '_blank'); 
+        }
+        
+        function escapeHtml(str) {
+            if (!str) return '';
+            return str.replace(/[&<>]/g, function(m) {
+                if (m === '&') return '&amp;';
+                if (m === '<') return '&lt;';
+                if (m === '>') return '&gt;';
+                return m;
+            });
+        }
+
+        // ============================================================
+        // USER DATA FUNCTIONS
+        // ============================================================
+        async function loadUserData() {
+            if (!currentUser) return;
+            try {
+                const doc = await db.collection('users').doc(currentUser.uid).get();
+                if (doc.exists) {
+                    userData = doc.data();
+                } else {
+                    await db.collection('users').doc(currentUser.uid).set({
+                        username: currentUser.email.split('@')[0],
+                        email: currentUser.email,
+                        points: 50,
+                        totalPoints: 50,
+                        streak: 0,
+                        adsWatched: 0,
+                        referrals: 0,
+                        referralCode: Math.random().toString(36).substring(2, 8).toUpperCase(),
+                        lastAdTime: null,
+                        createdAt: new Date()
+                    });
+                    userData = { username: currentUser.email.split('@')[0], points: 50, totalPoints: 50, streak: 0, adsWatched: 0, referrals: 0 };
+                }
+            } catch(e) { console.error(e); }
+        }
+
+        async function updatePoints(amount, reason) {
+            if (!currentUser) return;
+            const newPoints = (userData?.points || 0) + amount;
+            await db.collection('users').doc(currentUser.uid).update({ 
+                points: newPoints, 
+                totalPoints: (userData?.totalPoints || 0) + amount 
+            });
+            userData.points = newPoints;
+            userData.totalPoints = (userData?.totalPoints || 0) + amount;
+            if (reason) showToast(`🎉 +${amount} points! ${reason}`, 2000);
+            renderApp();
+        }
+
+        // ============================================================
+        // AUTHENTICATION
+        // ============================================================
+        async function signUp(email, password, username) {
+            try {
+                const cred = await auth.createUserWithEmailAndPassword(email, password);
+                await db.collection('users').doc(cred.user.uid).set({
+                    username: username || email.split('@')[0],
+                    email: email,
+                    points: 50,
+                    totalPoints: 50,
+                    streak: 0,
+                    adsWatched: 0,
+                    referrals: 0,
+                    referralCode: Math.random().toString(36).substring(2, 8).toUpperCase(),
+                    lastAdTime: null,
+                    createdAt: new Date()
+                });
+                showToast("Account created! +50 bonus points", 3000);
+                return true;
+            } catch(e) { alert(e.message); return false; }
+        }
+
+        async function signIn(email, password) {
+            try {
+                await auth.signInWithEmailAndPassword(email, password);
+                return true;
+            } catch(e) { alert(e.message); return false; }
+        }
+
+        async function signOut() {
+            await auth.signOut();
+            currentUser = null;
+            userData = null;
+            renderApp();
+        }
+
+        window.doLogin = async function() {
+            const email = document.getElementById('loginEmail').value.trim();
+            const password = document.getElementById('loginPassword').value.trim();
+            const isLoginMode = document.getElementById('actionBtn').innerText === 'Login';
+
+            if (!email || !password) {
+                document.getElementById('errorMsg').innerText = 'Please enter email and password';
+                return;
+            }
+
+            try {
+                if (isLoginMode) {
+                    await signIn(email, password);
+                } else {
+                    await signUp(email, password, email.split('@')[0]);
+                }
+                document.getElementById('errorMsg').innerText = '';
+            } catch (error) {
+                document.getElementById('errorMsg').innerText = error.message;
+            }
+        };
+
+        window.doLogout = async function() {
+            await signOut();
+        };
+
+        window.toggleForm = function() {
+            const isLoginMode = document.getElementById('actionBtn').innerText === 'Login';
+            if (isLoginMode) {
+                document.getElementById('formTitle').innerText = 'Create Account';
+                document.getElementById('formSubtitle').innerText = 'Sign up to start selling';
+                document.getElementById('actionBtn').innerText = 'Sign Up';
+                document.getElementById('switchBtn').innerText = 'Already have an account? Login';
+            } else {
+                document.getElementById('formTitle').innerText = 'Welcome to EasySell';
+                document.getElementById('formSubtitle').innerText = 'Login to buy and sell';
+                document.getElementById('actionBtn').innerText = 'Login';
+                document.getElementById('switchBtn').innerText = "Don't have an account? Sign Up";
+            }
+            document.getElementById('errorMsg').innerText = '';
+        };
+
+        // ============================================================
+        // MARKETPLACE FUNCTIONS
+        // ============================================================
+        async function loadProducts() {
+            const container = document.getElementById('productsContainer');
+            if (!container) return;
+            container.innerHTML = '<div class="loading">Loading products...</div>';
+            
+            try {
+                const q = db.collection("products").orderBy("timestamp", "desc");
+                const querySnapshot = await q.get();
+                const products = [];
+                querySnapshot.forEach((doc) => {
+                    products.push({ id: doc.id, ...doc.data() });
+                });
+                renderProducts(products);
+            } catch (error) {
+                console.error("Error loading products:", error);
+                container.innerHTML = '<div class="empty-state"><p>Error loading products. Please refresh.</p></div>';
+            }
+        }
+
+        function renderProducts(products) {
+            const container = document.getElementById('productsContainer');
+            if (!container) return;
+            if (products.length === 0) {
+                container.innerHTML = '<div class="empty-state"><p>📭 No products yet</p><button class="sell-btn" onclick="openSellModal()" style="background:#059669; color:white;">+ Be the first to sell</button></div>';
+                return;
+            }
+
+            let html = '';
+            for (let i = 0; i < products.length; i++) {
+                const product = products[i];
+                const isOwner = (currentUser && product.userId === currentUser.uid);
+                html += `
+                    <div class="product-card">
+                        <img class="product-image" src="${product.image}" onerror="this.src='https://picsum.photos/200/150'">
+                        <div class="product-info">
+                            <div class="product-name">${escapeHtml(product.name)} ${isOwner ? '<span class="owner-badge">Your item</span>' : ''}</div>
+                            <div class="product-price">₦${product.price.toLocaleString()}</div>
+                            <div class="product-meta">👤 ${escapeHtml(product.seller)} | 📅 ${product.date}</div>
+                            ${isOwner ? `<button class="delete-btn" onclick="deleteProduct('${product.id}')">🗑️ Delete</button>` : ''}
+                            <button class="details-btn" onclick="openDetailModal('${product.id}', '${escapeHtml(product.name)}', '${product.image}', ${product.price}, '${escapeHtml(product.description)}', '${escapeHtml(product.seller)}', '${product.phone}', '${product.date}')">View Details</button>
+                        </div>
+                    </div>
+                `;
+            }
+            container.innerHTML = html;
+        }
+
+        window.deleteProduct = async function(id) {
+            if (confirm('Delete this product?')) {
+                try {
+                    await db.collection("products").doc(id).delete();
+                    loadProducts();
+                } catch (error) {
+                    alert('Error deleting: ' + error.message);
+                }
+            }
+        };
+
+        window.openDetailModal = function(id, name, image, price, desc, seller, phone, date) {
+            document.getElementById('detailName').innerText = name;
+            document.getElementById('detailImage').src = image;
+            document.getElementById('detailPrice').innerText = `₦${price.toLocaleString()}`;
+            document.getElementById('detailDesc').innerText = desc;
+            document.getElementById('detailSeller').innerText = seller;
+            document.getElementById('detailPhone').innerText = phone;
+            document.getElementById('detailDate').innerText = date;
+            document.getElementById('detailModal').setAttribute('data-product-id', id);
+            document.getElementById('detailModal').style.display = 'flex';
+        };
+
+        window.contactSeller = function() {
+            const phone = document.getElementById('detailPhone').innerText;
+            const seller = document.getElementById('detailSeller').innerText;
+            const name = document.getElementById('detailName').innerText;
+            const priceText = document.getElementById('detailPrice').innerText;
+            if (phone && phone !== 'Not provided') {
+                let cleanPhone = phone.replace(/\D/g, '');
+                if (cleanPhone.startsWith('0')) cleanPhone = '234' + cleanPhone.substring(1);
+                const message = encodeURIComponent(`Hi ${seller}, I'm interested in buying "${name}" for ${priceText}. Is it available?`);
+                window.open(`https://wa.me/${cleanPhone}?text=${message}`, '_blank');
+            } else {
+                alert('Phone number not available');
+            }
+            closeDetailModal();
+        };
+
+        function closeDetailModal() {
+            document.getElementById('detailModal').style.display = 'none';
+        }
+
+        window.closeDetailModal = closeDetailModal;
+
+        // Camera functions
+        window.takePhoto = function() {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = 'image/*';
+            input.capture = 'environment';
+            input.onchange = function(e) {
+                const file = e.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function(event) {
+                        capturedImage = event.target.result;
+                        document.getElementById('previewImg').src = capturedImage;
+                        document.getElementById('imagePreview').style.display = 'block';
+                    };
+                    reader.readAsDataURL(file);
+                }
+            };
+            input.click();
+        };
+
+        window.uploadPhoto = function() {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = 'image/*';
+            input.onchange = function(e) {
+                const file = e.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function(event) {
+                        capturedImage = event.target.result;
+                        document.getElementById('previewImg').src = capturedImage;
+                        document.getElementById('imagePreview').style.display = 'block';
+                    };
+                    reader.readAsDataURL(file);
+                }
+            };
+            input.click();
+        };
+
+        window.removePhoto = function() {
+            capturedImage = null;
+            document.getElementById('imagePreview').style.display = 'none';
+            document.getElementById('previewImg').src = '';
+        };
+
+        window.openSellModal = function() {
+            capturedImage = null;
+            document.getElementById('imagePreview').style.display = 'none';
+            document.getElementById('productName').value = '';
+            document.getElementById('productPrice').value = '';
+            document.getElementById('productPhone').value = '';
+            document.getElementById('productDesc').value = '';
+            document.getElementById('sellModal').style.display = 'flex';
+        };
+
+        window.closeSellModal = function() {
+            document.getElementById('sellModal').style.display = 'none';
+        };
+
+        window.addProduct = async function() {
+            const name = document.getElementById('productName').value.trim();
+            const price = parseFloat(document.getElementById('productPrice').value);
+            const phone = document.getElementById('productPhone').value.trim();
+            const description = document.getElementById('productDesc').value.trim();
+
+            if (!name) {
+                alert('Please enter product name');
+                return;
+            }
+            if (isNaN(price) || price <= 0) {
+                alert('Please enter a valid price');
+                return;
+            }
+            if (!phone) {
+                alert('Please enter your WhatsApp number');
+                return;
+            }
+            if (!currentUser) {
+                alert('You must be logged in');
+                return;
+            }
+
+            let imageUrl = capturedImage;
+            if (!imageUrl) {
+                imageUrl = 'https://picsum.photos/id/' + Math.floor(Math.random() * 50) + '/300/200';
+            }
+
+            try {
+                await db.collection("products").add({
+                    name: name,
+                    price: price,
+                    phone: phone,
+                    image: imageUrl,
+                    description: description || 'No description',
+                    seller: currentUser.email || 'User',
+                    userId: currentUser.uid,
+                    date: new Date().toISOString().split('T')[0],
+                    timestamp: new Date().getTime()
+                });
+                await updatePoints(10, 'Product listed!');
+                alert('✅ Product posted successfully! +10 points');
+                closeSellModal();
+                loadProducts();
+            } catch (error) {
+                alert('Error posting product: ' + error.message);
+            }
+        };
+
+        // ============================================================
+        // REWARD FUNCTIONS (CentLock)
+        // ============================================================
+        function getBadges() {
+            const badges = [];
+            const points = userData?.points || 0;
+            const streak = userData?.streak || 0;
+            const adsWatched = userData?.adsWatched || 0;
+            const referrals = userData?.referrals || 0;
+
+            if (points >= 100) badges.push({ icon: "🥉", label: "100 Points", unlocked: true });
+            else badges.push({ icon: "🥉", label: "100 Points", unlocked: false });
+            if (points >= 500) badges.push({ icon: "🥈", label: "500 Points", unlocked: true });
+            else badges.push({ icon: "🥈", label: "500 Points", unlocked: false });
+            if (points >= 1000) badges.push({ icon: "🥇", label: "1000 Points", unlocked: true });
+            else badges.push({ icon: "🥇", label: "1000 Points", unlocked: false });
+            if (streak >= 7) badges.push({ icon: "🔥", label: "7-Day Streak", unlocked: true });
+            else badges.push({ icon: "🔥", label: "7-Day Streak", unlocked: false });
+            if (adsWatched >= 10) badges.push({ icon: "📺", label: "10 Ads Watched", unlocked: true });
+            else badges.push({ icon: "📺", label: "10 Ads Watched", unlocked: false });
+            if (referrals >= 5) badges.push({ icon: "👥", label: "5 Referrals", unlocked: true });
+            else badges.push({ icon: "👥", label: "5 Referrals", unlocked: false });
+
+            return badges;
+        }
+
+        function spinWheel() {
+            if (!currentUser) { alert("Login first"); return; }
+            const now = Date.now();
+            if (now - lastSpinTime < SPIN_COOLDOWN) {
+                const hoursLeft = Math.ceil((SPIN_COOLDOWN - (now - lastSpinTime)) / 3600000);
+                alert(`⏳ Come back in ${hoursLeft} hours for your free spin!`);
+                return;
+            }
+            const result = spinRewards[Math.floor(Math.random() * spinRewards.length)];
+            lastSpinTime = now;
+            if (result > 0) {
+                updatePoints(result, "🎡 Spin wheel reward!");
+            } else {
+                showToast("😅 Better luck next time!", 2000);
+            }
+            renderApp();
+        }
+
+        async function claimDaily() {
+            if (!currentUser) return;
+            const today = new Date().toISOString().split('T')[0];
+            const ref = db.collection('users').doc(currentUser.uid).collection('dailyClaims').doc(today);
+            if ((await ref.get()).exists) return alert("Already claimed today!");
+            let streak = (userData?.streak || 0) + 1;
+            let reward = DAILY_REWARD + Math.floor(streak / 7) * 5;
+            if (streak >= 30) reward = 100;
+            await ref.set({ date: today });
+            await db.collection('users').doc(currentUser.uid).update({
+                points: (userData?.points || 0) + reward,
+                totalPoints: (userData?.totalPoints || 0) + reward,
+                streak: streak
+            });
+            await loadUserData();
+            showToast(`🎉 +${reward} points! ${streak} day streak!`, 3000);
+            renderApp();
+        }
+
+        async function requestWithdrawal() {
+            if (!currentUser) return alert("Login first");
+            const points = userData?.points || 0;
+            if (points < POINTS_FOR_5_DOLLARS) {
+                alert(`Need ${POINTS_FOR_5_DOLLARS - points} more points`);
+                return;
+            }
+            const cash = (points / POINTS_FOR_5_DOLLARS) * 5;
+            await db.collection('withdrawalRequests').add({
+                userId: currentUser.uid,
+                username: userData?.username || '',
+                points: points,
+                amount: cash,
+                status: "pending",
+                date: new Date()
+            });
+            alert(`✅ Withdrawal for $${cash.toFixed(2)} submitted!`);
+        }
+
+        // ============================================================
+        // REWARDED AD
+        // ============================================================
+        async function watchRewardedAd() {
+            if (!currentUser) return alert("Login first");
+            if (isAdLoading) return;
+            
+            isAdLoading = true;
+            const btn = document.getElementById('rewardedBtn');
+            if (btn) btn.disabled = true;
+            
+            showAdOverlay();
+            
+            try {
+                const adWindow = window.open('https://omg10.com/4/11140123', '_blank');
+                
+                let countdown = 6;
+                const countdownEl = document.getElementById('adCountdown');
+                const timer = setInterval(() => {
+                    countdown--;
+                    if (countdownEl) countdownEl.textContent = countdown;
+                    if (countdown <= 0) clearInterval(timer);
+                }, 1000);
+                
+                await new Promise(resolve => setTimeout(resolve, 6000));
+                
+                if (adWindow && !adWindow.closed) {
+                    adWindow.close();
+                }
+                
+                hideAdOverlay();
+                
+                await db.collection('users').doc(currentUser.uid).update({
+                    points: (userData?.points || 0) + AD_REWARD_POINTS,
+                    totalPoints: (userData?.totalPoints || 0) + AD_REWARD_POINTS,
+                    adsWatched: (userData?.adsWatched || 0) + 1
+                });
+                await loadUserData();
+                
+                showReturnToAppOverlay(AD_REWARD_POINTS);
+                
+                renderApp();
+                showToast(`✅ +${AD_REWARD_POINTS} points! Ad watched.`, 3000);
+                
+            } catch (error) {
+                console.error("Ad error:", error);
+                hideAdOverlay();
+                showToast("⏹️ Ad was not completed. No points awarded.", 3000);
+            } finally {
+                isAdLoading = false;
+                if (btn) btn.disabled = false;
+            }
+        }
+
+        function showAdOverlay() {
+            const overlay = document.createElement('div');
+            overlay.id = 'adOverlay';
+            overlay.className = 'ad-overlay';
+            overlay.innerHTML = `
+                <div class="ad-modal">
+                    <h2>📺 Watching Ad</h2>
+                    <p>Please watch the ad to earn points</p>
+                    <div class="spinner"></div>
+                    <div class="countdown" id="adCountdown">6</div>
+                    <p style="color:#8aa0bc;font-size:0.7rem;">Returning automatically...</p>
+                    <button class="skip-btn" onclick="closeAdManually()">✕ Skip (No points)</button>
+                </div>
+            `;
+            document.body.appendChild(overlay);
+        }
+
+        function hideAdOverlay() {
+            const overlay = document.getElementById('adOverlay');
+            if (overlay) overlay.remove();
+        }
+
+        function closeAdManually() {
+            hideAdOverlay();
+            isAdLoading = false;
+            const btn = document.getElementById('rewardedBtn');
+            if (btn) btn.disabled = false;
+            showToast("⏹️ Ad skipped. No points awarded.", 2000);
+        }
+
+        function showReturnToAppOverlay(points) {
+            const existing = document.getElementById('returnOverlay');
+            if (existing) existing.remove();
+            
+            const overlay = document.createElement('div');
+            overlay.id = 'returnOverlay';
+            overlay.className = 'return-overlay';
+            overlay.innerHTML = `
+                <div class="return-modal">
+                    <div class="icon">🎉</div>
+                    <h2>Ad Complete!</h2>
+                    <div class="points-earned">+${points} points</div>
+                    <p>You earned points for watching the ad!</p>
+                    <button class="btn-return" id="returnToAppBtn">
+                        🔄 Go Back to App
+                    </button>
+                </div>
+            `;
+            document.body.appendChild(overlay);
+            
+            document.getElementById('returnToAppBtn')?.addEventListener('click', function() {
+                const overlay = document.getElementById('returnOverlay');
+                if (overlay) overlay.remove();
+                window.focus();
+                renderApp();
+                showToast("✅ Welcome back! Points added.", 2000);
+            });
+            
+            setTimeout(() => {
+                const overlay = document.getElementById('returnOverlay');
+                if (overlay) {
+                    overlay.remove();
+                    window.focus();
+                    renderApp();
+                    showToast("✅ Auto-returned to app. Points added.", 2000);
+                }
+            }, 10000);
+        }
+
+        // ============================================================
+        // RENDER FUNCTIONS
+        // ============================================================
+        async function renderHomeTab() {
+            const points = userData?.points || 0;
+            const cash = (points / POINTS_FOR_5_DOLLARS) * 5;
+            const badges = getBadges();
+            const unlockedBadges = badges.filter(b => b.unlocked).length;
+            const totalBadges = badges.length;
+
+            // Get first 20 popular platforms for dashboard
+            const popularPlatforms = allPlatformsFlat.slice(0, 20);
+
+            let popularHtml = '<div class="popular-grid">';
+            popularPlatforms.forEach(p => {
+                popularHtml += `<div class="popular-card" data-url="${p.url}"><div class="icon">${p.icon}</div><div class="name">${p.name}</div></div>`;
+            });
+            popularHtml += '</div>';
+
+            // Category grid
+            let categoryHtml = '<div class="category-grid">';
+            platformCategories.slice(0, 12).forEach(cat => {
+                categoryHtml += `<div class="category-card" data-category="${cat.name}">
+                    <div class="cat-icon">${cat.icon}</div>
+                    <div class="cat-name">${cat.name}</div>
+                    <div class="cat-count">${cat.count} sites</div>
+                </div>`;
+            });
+            categoryHtml += '</div>';
+
+            return `
+                <div class="balance">
+                    <h2>${points} pts</h2>
+                    <div>≈ $${cash.toFixed(2)} USD</div>
+                    <div class="flex"><span>🔥 Streak: ${userData?.streak || 0} days</span><span>👥 Referrals: ${userData?.referrals || 0}</span></div>
+                    <div class="progress-bar"><div class="progress-fill" style="width:${Math.min(100, (points/POINTS_FOR_5_DOLLARS)*100)}%"></div></div>
+                    <div class="info">🎯 ${Math.min(100, (points/POINTS_FOR_5_DOLLARS)*100).toFixed(1)}% to $5 withdrawal</div>
+                </div>
+
+                <div class="section-title">🏆 Achievements (${unlockedBadges}/${totalBadges})</div>
+                <div class="badge-container">
+                    ${badges.map(b => `
+                        <div class="badge-item ${b.unlocked ? 'unlocked' : ''}">
+                            <span class="icon">${b.icon}</span>
+                            <span class="label">${b.label}</span>
+                            ${b.unlocked ? ' ✅' : ' 🔒'}
+                        </div>
+                    `).join('')}
+                </div>
+
+                <div class="section-title">🎡 Free Spin (Every 24h)</div>
+                <button class="btn-spin" onclick="spinWheel()">🎡 Spin & Win!</button>
+
+                <div class="section-title">📅 Daily Check-in</div>
+                <button id="dailyBtn" class="btn-daily">✅ Claim Daily Reward</button>
+
+                <div class="section-title">📺 Watch Ad & Earn Points</div>
+                <button id="rewardedBtn" class="btn-rewarded">🎥 Watch Ad (+${AD_REWARD_POINTS} pts)</button>
+                <div class="info">⏱️ Watch the full ad. A "Go Back" button will appear when done!</div>
+
+                <div class="section-title">🌐 Popular Platforms</div>
+                ${popularHtml}
+
+                <div class="section-title">📂 Browse by Category</div>
+                ${categoryHtml}
+
+                <div class="section-title">🔍 Search All Platforms</div>
+                <div class="search-bar">
+                    <input type="text" id="searchInput" placeholder="Search 200+ websites...">
+                    <button id="searchBtn">🔍</button>
+                </div>
+                <div id="searchResults" class="search-results"></div>
+
+                <div class="section-title">💳 Withdrawal</div>
+                <button id="withdrawBtn" class="btn-withdraw" ${points < POINTS_FOR_5_DOLLARS ? 'disabled style="opacity:0.5;"' : ''}>
+                    ${points >= POINTS_FOR_5_DOLLARS ? `💰 Withdraw $${cash.toFixed(2)}` : `🔒 Need ${POINTS_FOR_5_DOLLARS - points} more points`}
+                </button>
+
+                <div class="section-title">👥 Referral Program</div>
+                <div class="opportunity-card">
+                    <div class="info">Share your code and earn 50 points per referral!</div>
+                    <div class="flex"><span><strong>Your Code:</strong> ${userData?.referralCode || 'NONE'}</span><button class="btn-outline" id="copyReferralBtn" style="width:auto; padding:0.3rem 1rem;">📋 Copy</button></div>
+                </div>
+            `;
+        }
+
+        async function renderMarketTab() {
+            return `
+                <div style="margin-bottom: 20px;">
+                    <h3>🔥 All Products from Everyone</h3>
+                    <p style="font-size: 14px; color: #8aa0bc;">Browse items posted by all users</p>
+                </div>
+                <div id="productsContainer" class="products-grid">
+                    <div class="loading">Loading products...</div>
+                </div>
+            `;
+        }
+
+        async function renderLearnTab() {
+            return `
+                <div class="section-title">📚 Learning Center (20 pts each)</div>
+                ${lessons.map(l => `
+                    <div class="lesson-card" data-id="${l.id}" data-reward="${l.reward}">
+                        <div class="flex"><span><strong>${l.title}</strong></span><span class="green">${l.category}</span></div>
+                        <div class="info">${l.content}</div>
+                        ${userData?.[`lesson_${l.id}`] ? '<span class="green">✓ Completed</span>' : '<button class="btn-outline complete-lesson" style="margin-top:0.3rem; padding:0.4rem; font-size:0.8rem;">Complete & Earn →</button>'}
+                    </div>
+                `).join('')}
+            `;
+        }
+
+        async function renderJobsTab() {
+            return `
+                <div class="section-title">💼 Opportunities</div>
+                ${jobs.map(j => `
+                    <div class="job-card">
+                        <div class="flex"><span><strong>${j.title}</strong></span><span class="green">${j.type}</span></div>
+                        <div class="info">🏢 ${j.company} | 📍 ${j.location} | 💰 ${j.pay}</div>
+                        <button class="btn-outline apply-job" data-url="${j.url}" style="margin-top:0.3rem; padding:0.4rem; font-size:0.8rem;">Apply Now →</button>
+                    </div>
+                `).join('')}
+            `;
+        }
+
+        async function renderProfileTab() {
+            return `
+                <div class="section-title">👤 Profile</div>
+                <div class="balance" style="text-align:left;">
+                    <div><strong>Username:</strong> ${userData?.username || currentUser?.email?.split('@')[0]}</div>
+                    <div><strong>Email:</strong> ${currentUser?.email}</div>
+                    <div><strong>Total earned:</strong> ${userData?.totalPoints || 0} pts</div>
+                    <div><strong>Ads watched:</strong> ${userData?.adsWatched || 0}</div>
+                    <div><strong>Streak:</strong> ${userData?.streak || 0} days</div>
+                    <div><strong>Referrals:</strong> ${userData?.referrals || 0}</div>
+                    <button id="logoutBtn" class="btn-outline" style="margin-top:1rem;">Logout</button>
+                </div>
+                <div class="info">🔗 Referral code: <strong>${userData?.referralCode || 'NONE'}</strong></div>
+            `;
+        }
+
+        // ============================================================
+        // MAIN RENDER FUNCTION
+        // ============================================================
+        async function renderApp() {
+            const app = document.getElementById("appContainer");
+            if (!app) return;
+
+            await loadUserData();
+
+            const tabContent = document.getElementById('tabContent');
+            if (!tabContent) return;
+
+            // Tab switching
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.removeEventListener('click', handleTabClick);
+                btn.addEventListener('click', handleTabClick);
+            });
+
+            function handleTabClick(e) {
+                currentTab = e.target.dataset.tab;
+                document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+                e.target.classList.add('active');
+                renderApp();
+            }
+
+            switch(currentTab) {
+                case 'home':
+                    tabContent.innerHTML = await renderHomeTab();
+                    // Home tab event listeners
+                    document.getElementById("dailyBtn")?.addEventListener('click', claimDaily);
+                    document.getElementById("rewardedBtn")?.addEventListener('click', watchRewardedAd);
+                    document.getElementById("withdrawBtn")?.addEventListener('click', requestWithdrawal);
+                    document.getElementById("copyReferralBtn")?.addEventListener('click', () => {
+                        const code = userData?.referralCode || currentUser?.uid?.substring(0, 8) || 'NONE';
+                        navigator.clipboard.writeText(code);
+                        showToast("📋 Code copied!", 1500);
+                    });
+                    
+                    // Popular platforms click
+                    document.querySelectorAll('.popular-card[data-url]').forEach(c => c.addEventListener('click', () => openUrl(c.dataset.url)));
+                    
+                    // Category click - show platforms in category
+                    document.querySelectorAll('.category-card[data-category]').forEach(c => {
+                        c.addEventListener('click', () => {
+                            const category = c.dataset.category;
+                            const platforms = getPlatformsByCategory(category);
+                            const container = document.getElementById('searchResults');
+                            if (platforms.length === 0) {
+                                container.innerHTML = '<div class="no-results">No platforms found in this category.</div>';
+                            } else {
+                                container.innerHTML = platforms.map(p => `
+                                    <div class="card" data-url="${p.url}" style="text-align:left; padding:0.5rem 1rem;">
+                                        <span>${p.icon} ${p.name}</span>
+                                        <span class="result-category">${category}</span>
+                                    </div>
+                                `).join('');
+                                container.querySelectorAll('.card[data-url]').forEach(card => card.addEventListener('click', () => openUrl(card.dataset.url)));
+                            }
+                        });
+                    });
+
+                    // Search functionality
+                    document.getElementById("searchBtn")?.addEventListener('click', () => {
+                        const query = document.getElementById('searchInput').value;
+                        const results = searchPlatforms(query);
+                        const container = document.getElementById('searchResults');
+                        if (results.length === 0) {
+                            container.innerHTML = '<div class="no-results">No platforms found. Try a different search!</div>';
+                        } else {
+                            container.innerHTML = results.slice(0, 50).map(r => `
+                                <div class="card" data-url="${r.url}" style="text-align:left; padding:0.5rem 1rem;">
+                                    <span>${r.icon} ${r.name}</span>
+                                    <span class="result-category">${r.category}</span>
+                                </div>
+                            `).join('');
+                            container.querySelectorAll('.card[data-url]').forEach(card => card.addEventListener('click', () => openUrl(card.dataset.url)));
+                        }
+                    });
+                    document.getElementById("searchInput")?.addEventListener('keypress', (e) => {
+                        if (e.key === 'Enter') document.getElementById("searchBtn")?.click();
+                    });
+                    break;
+                    
+                case 'market':
+                    tabContent.innerHTML = await renderMarketTab();
+                    loadProducts();
+                    break;
+                    
+                case 'earn':
+                    tabContent.innerHTML = await renderHomeTab();
+                    document.getElementById("dailyBtn")?.addEventListener('click', claimDaily);
+                    document.getElementById("rewardedBtn")?.addEventListener('click', watchRewardedAd);
+                    document.getElementById("withdrawBtn")?.addEventListener('click', requestWithdrawal);
+                    document.getElementById("copyReferralBtn")?.addEventListener('click', () => {
+                        const code = userData?.referralCode || currentUser?.uid?.substring(0, 8) || 'NONE';
+                        navigator.clipboard.writeText(code);
+                        showToast("📋 Code copied!", 1500);
+                    });
+                    document.querySelectorAll('.popular-card[data-url]').forEach(c => c.addEventListener('click', () => openUrl(c.dataset.url)));
+                    break;
+                    
+                case 'learn':
+                    tabContent.innerHTML = await renderLearnTab();
+                    document.querySelectorAll('.complete-lesson').forEach(btn => {
+                        const card = btn.closest('.lesson-card');
+                        if (card) btn.addEventListener('click', () => {
+                            const id = parseInt(card.dataset.id);
+                            const reward = parseInt(card.dataset.reward);
+                            const key = `lesson_${id}`;
+                            if (userData?.[key]) { showToast("Already completed!", 1500); return; }
+                            db.collection('users').doc(currentUser.uid).update({ [key]: true });
+                            updatePoints(reward, 'Lesson completed!');
+                        });
+                    });
+                    break;
+                    
+                case 'jobs':
+                    tabContent.innerHTML = await renderJobsTab();
+                    document.querySelectorAll('.apply-job').forEach(b => b.addEventListener('click', () => openUrl(b.dataset.url)));
+                    break;
+                    
+                case 'profile':
+                    tabContent.innerHTML = await renderProfileTab();
+                    document.getElementById("logoutBtn")?.addEventListener('click', signOut);
+                    break;
+                    
+                default:
+                    tabContent.innerHTML = '<div class="loading">Loading...</div>';
+            }
+
+            // Update user email in header
+            const userEmailEl = document.getElementById('userEmail');
+            if (userEmailEl && currentUser) {
+                userEmailEl.innerText = currentUser.email;
+            }
+        }
+
+        // ============================================================
+        // AUTH STATE
+        // ============================================================
+        auth.onAuthStateChanged(async (user) => {
+            if (user) {
+                currentUser = user;
+                document.getElementById('loginScreen').style.display = 'none';
+                document.getElementById('mainApp').style.display = 'block';
+                await loadUserData();
+                renderApp();
+            } else {
+                currentUser = null;
+                userData = null;
+                document.getElementById('loginScreen').style.display = 'flex';
+                document.getElementById('mainApp').style.display = 'none';
+            }
+        });
+
+        // ============================================================
+        // CLOSE MODALS ON CLICK OUTSIDE
+        // ============================================================
+        window.onclick = function(event) {
+            const sellModal = document.getElementById('sellModal');
+            const detailModal = document.getElementById('detailModal');
+            if (event.target === sellModal) closeSellModal();
+            if (event.target === detailModal) closeDetailModal();
+        };
+
+        // Make functions globally accessible
+        window.spinWheel = spinWheel;
+        window.closeAdManually = closeAdManually;
+    </script>
+</body>
+</html>
