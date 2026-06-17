@@ -1,1 +1,1709 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>EasySell · Buy, Sell & Earn</title>
+    
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-storage-compat.js"></script>
+    
+    <!-- Monetag Ad Scripts -->
+    <script type="text/javascript">
+        (function() {
+            var s = document.createElement('script');
+            s.type = 'text/javascript';
+            s.async = true;
+            s.src = 'https://omg10.com/4/11140123';
+            var x = document.getElementsByTagName('script')[0];
+            x.parentNode.insertBefore(s, x);
+        })();
+    </script>
+    <script type="text/javascript">
+        (function() {
+            var s = document.createElement('script');
+            s.type = 'text/javascript';
+            s.async = true;
+            s.src = 'https://omg10.com/4/11140124';
+            var x = document.getElementsByTagName('script')[0];
+            x.parentNode.insertBefore(s, x);
+        })();
+    </script>
+    <script type="text/javascript">
+        (function() {
+            var s = document.createElement('script');
+            s.type = 'text/javascript';
+            s.async = true;
+            s.src = 'https://omg10.com/4/11140125';
+            var x = document.getElementsByTagName('script')[0];
+            x.parentNode.insertBefore(s, x);
+        })();
+    </script>
+    <script type="text/javascript">
+        (function() {
+            var s = document.createElement('script');
+            s.type = 'text/javascript';
+            s.async = true;
+            s.src = 'https://omg10.com/4/11140126';
+            var x = document.getElementsByTagName('script')[0];
+            x.parentNode.insertBefore(s, x);
+        })();
+    </script>
+    <script type="text/javascript">
+        (function() {
+            var s = document.createElement('script');
+            s.type = 'text/javascript';
+            s.async = true;
+            s.src = 'https://omg10.com/4/11140127';
+            var x = document.getElementsByTagName('script')[0];
+            x.parentNode.insertBefore(s, x);
+        })();
+    </script>
+    <script type="text/javascript">
+        (function() {
+            var s = document.createElement('script');
+            s.type = 'text/javascript';
+            s.async = true;
+            s.src = 'https://omg10.com/4/11140128';
+            var x = document.getElementsByTagName('script')[0];
+            x.parentNode.insertBefore(s, x);
+        })();
+    </script>
+    <script type="text/javascript">
+        (function() {
+            var s = document.createElement('script');
+            s.type = 'text/javascript';
+            s.async = true;
+            s.src = 'https://omg10.com/4/11140129';
+            var x = document.getElementsByTagName('script')[0];
+            x.parentNode.insertBefore(s, x);
+        })();
+    </script>
+    <script type="text/javascript">
+        (function() {
+            var s = document.createElement('script');
+            s.type = 'text/javascript';
+            s.async = true;
+            s.src = 'https://omg10.com/4/11140130';
+            var x = document.getElementsByTagName('script')[0];
+            x.parentNode.insertBefore(s, x);
+        })();
+    </script>
+    
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
+        body { background: #f5f5f5; min-height: 100vh; padding-bottom: 70px; }
+        
+        /* Login Screen */
+        .login-container { min-height: 100vh; display: flex; justify-content: center; align-items: center; padding: 20px; background: linear-gradient(135deg, #0f0c29, #302b63, #24243e); }
+        .login-card { background: white; border-radius: 32px; padding: 40px 28px; max-width: 400px; width: 100%; text-align: center; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25); }
+        .login-logo { width: 80px; height: 80px; background: linear-gradient(135deg, #059669, #047857); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; }
+        .login-logo span { font-size: 45px; }
+        .login-card h1 { font-size: 28px; margin-bottom: 8px; color: #1a1a2e; }
+        .login-card p { color: #6b7280; margin-bottom: 25px; font-size: 14px; }
+        .login-input { width: 100%; padding: 14px; border: 1px solid #ddd; border-radius: 30px; margin-bottom: 12px; font-size: 14px; background: #f8f9fa; outline: none; transition: border 0.3s; }
+        .login-input:focus { border-color: #059669; }
+        .login-btn { width: 100%; background: linear-gradient(135deg, #059669, #047857); color: white; border: none; padding: 14px; border-radius: 30px; font-size: 16px; font-weight: bold; cursor: pointer; margin-top: 10px; }
+        .login-btn:active { transform: scale(0.97); }
+        .switch-btn { background: none; border: none; color: #059669; margin-top: 15px; cursor: pointer; font-size: 14px; }
+        .error-msg { color: #dc2626; font-size: 12px; margin-bottom: 10px; }
+        
+        .main-app { display: none; }
+        
+        /* Top Header */
+        .top-header { background: white; padding: 12px 16px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #e5e7eb; position: sticky; top: 0; z-index: 100; }
+        .top-header .logo { font-size: 20px; font-weight: 800; color: #059669; }
+        .top-header .logo span { color: #1a1a2e; }
+        .top-header .header-actions { display: flex; gap: 12px; align-items: center; }
+        .top-header .header-actions button { background: none; border: none; font-size: 20px; cursor: pointer; padding: 4px; }
+        .top-header .header-actions .user-avatar { width: 32px; height: 32px; border-radius: 50%; background: #059669; color: white; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 14px; cursor: pointer; }
+        
+        /* Points Badge */
+        .points-badge { background: linear-gradient(135deg, #f59e0b, #d97706); color: white; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; display: flex; align-items: center; gap: 4px; cursor: pointer; }
+        .points-badge .coin { font-size: 14px; }
+        .feature-label { display: inline-block; background: #059669; color: white; font-size: 9px; font-weight: 700; padding: 2px 8px; border-radius: 10px; text-transform: uppercase; letter-spacing: 0.5px; margin-left: 6px; }
+        .feature-label.gold { background: #f59e0b; }
+        .feature-label.purple { background: #7c3aed; }
+        .feature-label.red { background: #dc2626; }
+        .feature-label.blue { background: #3b82f6; }
+        
+        /* Search Bar */
+        .search-section { background: white; padding: 12px 16px; border-bottom: 1px solid #e5e7eb; }
+        .search-bar { display: flex; background: #f1f3f5; border-radius: 30px; padding: 4px 16px; align-items: center; }
+        .search-bar input { flex: 1; border: none; background: transparent; padding: 10px 0; font-size: 14px; outline: none; }
+        .search-bar button { background: none; border: none; font-size: 18px; cursor: pointer; padding: 8px; color: #6b7280; }
+        
+        /* Main Content */
+        .main-content { padding: 12px 16px 20px; max-width: 600px; margin: 0 auto; }
+        
+        /* Balance Card */
+        .balance-card { background: linear-gradient(135deg, #059669, #047857); border-radius: 16px; padding: 16px; color: white; margin-bottom: 16px; }
+        .balance-card .points { font-size: 28px; font-weight: 800; }
+        .balance-card .label { font-size: 12px; opacity: 0.8; }
+        .balance-card .progress { margin-top: 8px; height: 4px; background: rgba(255,255,255,0.3); border-radius: 2px; overflow: hidden; }
+        .balance-card .progress .fill { height: 100%; background: #fcd34d; border-radius: 2px; transition: width 0.5s; }
+        .balance-card .row { display: flex; justify-content: space-between; margin-top: 8px; font-size: 12px; opacity: 0.9; }
+        
+        /* Quick Actions */
+        .quick-actions { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 16px; }
+        .quick-action { background: white; border-radius: 12px; padding: 12px; text-align: center; cursor: pointer; box-shadow: 0 1px 3px rgba(0,0,0,0.08); transition: all 0.2s; border: 2px solid transparent; }
+        .quick-action:active { transform: scale(0.95); }
+        .quick-action .icon { font-size: 24px; }
+        .quick-action .label { font-size: 11px; font-weight: 700; color: #1a1a2e; margin-top: 4px; }
+        .quick-action .sub { font-size: 9px; color: #6b7280; }
+        
+        /* Categories Section */
+        .categories-section { background: white; border-radius: 16px; padding: 16px; margin-bottom: 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
+        .categories-section .section-title { font-size: 16px; font-weight: 700; color: #1a1a2e; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; }
+        .categories-section .section-title .view-all { font-size: 12px; color: #059669; font-weight: 600; cursor: pointer; }
+        .categories-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+        .category-item { display: flex; flex-direction: column; align-items: center; text-align: center; cursor: pointer; padding: 8px 4px; border-radius: 12px; transition: background 0.2s; }
+        .category-item:active { background: #f1f3f5; }
+        .category-item .icon { font-size: 28px; margin-bottom: 4px; }
+        .category-item .name { font-size: 11px; color: #1a1a2e; font-weight: 500; line-height: 1.2; }
+        
+        /* Platforms Section */
+        .platforms-section { background: white; border-radius: 16px; padding: 16px; margin-bottom: 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
+        .platforms-section .section-title { font-size: 16px; font-weight: 700; color: #1a1a2e; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; }
+        .platforms-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; }
+        .platform-item { display: flex; flex-direction: column; align-items: center; cursor: pointer; padding: 6px 2px; border-radius: 8px; transition: background 0.2s; }
+        .platform-item:active { background: #f1f3f5; }
+        .platform-item .icon { font-size: 24px; }
+        .platform-item .name { font-size: 9px; color: #1a1a2e; font-weight: 500; text-align: center; margin-top: 2px; word-break: break-word; max-width: 50px; }
+        
+        /* Trending Section */
+        .trending-section { background: white; border-radius: 16px; padding: 16px; margin-bottom: 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
+        .trending-section .section-title { font-size: 16px; font-weight: 700; color: #1a1a2e; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+        .trending-section .section-title .fire { color: #f97316; }
+        .trending-tags { display: flex; flex-wrap: wrap; gap: 8px; }
+        .trending-tag { background: #f1f3f5; padding: 6px 14px; border-radius: 20px; font-size: 13px; color: #1a1a2e; cursor: pointer; transition: all 0.2s; }
+        .trending-tag:active { transform: scale(0.95); background: #e5e7eb; }
+        .trending-tag .count { color: #6b7280; font-size: 11px; margin-left: 4px; }
+        
+        /* Products Grid */
+        .products-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        .product-card { background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.08); transition: all 0.2s; }
+        .product-card:active { transform: scale(0.97); }
+        .product-card .image-container { position: relative; width: 100%; padding-top: 75%; background: #f1f3f5; overflow: hidden; }
+        .product-card .image-container img { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; }
+        .product-card .image-container .badge { position: absolute; top: 8px; left: 8px; background: rgba(0,0,0,0.7); color: white; font-size: 10px; padding: 2px 8px; border-radius: 12px; }
+        .product-card .product-info { padding: 10px; }
+        .product-card .product-name { font-size: 13px; font-weight: 600; color: #1a1a2e; margin-bottom: 4px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+        .product-card .product-price { font-size: 15px; font-weight: 700; color: #059669; }
+        .product-card .product-meta { font-size: 11px; color: #6b7280; margin-top: 4px; display: flex; justify-content: space-between; }
+        
+        /* Bottom Navigation */
+        .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background: white; display: flex; justify-content: space-around; padding: 8px 0; border-top: 1px solid #e5e7eb; z-index: 100; }
+        .bottom-nav .nav-item { display: flex; flex-direction: column; align-items: center; background: none; border: none; cursor: pointer; padding: 4px 12px; color: #6b7280; transition: color 0.2s; font-size: 10px; position: relative; }
+        .bottom-nav .nav-item.active { color: #059669; }
+        .bottom-nav .nav-item .icon { font-size: 22px; }
+        .bottom-nav .nav-item .label { margin-top: 2px; font-weight: 700; }
+        .bottom-nav .nav-item .badge-count { background: #dc2626; color: white; border-radius: 50%; font-size: 10px; padding: 0 5px; min-width: 18px; text-align: center; position: absolute; top: -4px; right: -8px; }
+        
+        /* Modal Styles */
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); justify-content: center; align-items: flex-end; z-index: 1000; }
+        .modal.show { display: flex; }
+        .modal-content { background: white; border-radius: 24px 24px 0 0; padding: 24px; width: 100%; max-width: 600px; max-height: 90vh; overflow-y: auto; animation: slideUp 0.3s ease; }
+        @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .modal-header h2 { font-size: 20px; color: #1a1a2e; }
+        .modal-header .close-modal { font-size: 28px; cursor: pointer; color: #6b7280; background: none; border: none; }
+        
+        .form-group { margin-bottom: 16px; }
+        .form-group label { display: block; font-size: 13px; font-weight: 700; color: #1a1a2e; margin-bottom: 4px; }
+        .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 12px; border: 1px solid #e5e7eb; border-radius: 12px; font-size: 14px; outline: none; transition: border 0.3s; background: #f8f9fa; }
+        .form-group input:focus, .form-group select:focus, .form-group textarea:focus { border-color: #059669; }
+        .form-group textarea { resize: vertical; min-height: 80px; }
+        
+        .upload-area { border: 2px dashed #e5e7eb; border-radius: 12px; padding: 20px; text-align: center; cursor: pointer; transition: all 0.3s; }
+        .upload-area:active { transform: scale(0.97); }
+        .upload-area .icon { font-size: 32px; }
+        .upload-area .text { color: #6b7280; font-size: 13px; margin-top: 4px; }
+        .upload-area.has-image { border-color: #059669; background: #f0fdf4; }
+        .upload-area img { max-width: 100%; max-height: 150px; border-radius: 8px; }
+        
+        .submit-btn { width: 100%; background: linear-gradient(135deg, #059669, #047857); color: white; border: none; padding: 14px; border-radius: 30px; font-size: 16px; font-weight: 700; cursor: pointer; margin-top: 8px; }
+        .submit-btn:active { transform: scale(0.97); }
+        .submit-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+        
+        /* Detail Modal */
+        .detail-modal .modal-content { border-radius: 24px 24px 0 0; }
+        .detail-image { width: 100%; border-radius: 12px; margin-bottom: 16px; }
+        .detail-price { font-size: 24px; font-weight: 700; color: #059669; }
+        .detail-name { font-size: 18px; font-weight: 600; color: #1a1a2e; margin: 8px 0; }
+        .detail-desc { color: #4b5563; font-size: 14px; line-height: 1.6; margin: 8px 0; }
+        .detail-seller { display: flex; align-items: center; gap: 12px; padding: 12px; background: #f8f9fa; border-radius: 12px; margin: 12px 0; }
+        .detail-seller .avatar { width: 40px; height: 40px; border-radius: 50%; background: #059669; color: white; display: flex; align-items: center; justify-content: center; font-weight: bold; }
+        .detail-seller .info { flex: 1; }
+        .detail-seller .info .name { font-weight: 700; color: #1a1a2e; }
+        .detail-seller .info .meta { font-size: 12px; color: #6b7280; }
+        .detail-actions { display: flex; gap: 12px; margin-top: 16px; }
+        .detail-actions .btn-chat { flex: 1; background: #25D366; color: white; border: none; padding: 12px; border-radius: 30px; font-weight: 700; cursor: pointer; }
+        .detail-actions .btn-call { flex: 1; background: #059669; color: white; border: none; padding: 12px; border-radius: 30px; font-weight: 700; cursor: pointer; }
+        .detail-actions button:active { transform: scale(0.97); }
+        
+        .delete-btn { background: #fee2e2; color: #dc2626; border: none; padding: 8px 16px; border-radius: 12px; cursor: pointer; font-weight: 700; width: 100%; margin-top: 8px; }
+        .delete-btn:active { transform: scale(0.97); }
+        
+        /* Empty State */
+        .empty-state { text-align: center; padding: 40px 20px; }
+        .empty-state .icon { font-size: 48px; }
+        .empty-state .title { font-size: 18px; font-weight: 700; color: #1a1a2e; margin: 12px 0 4px; }
+        .empty-state .subtitle { color: #6b7280; font-size: 14px; }
+        
+        /* Toast */
+        .toast { position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%); background: #1a1a2e; color: white; padding: 12px 24px; border-radius: 30px; font-size: 14px; z-index: 9999; animation: slideUp 0.3s ease; max-width: 90%; text-align: center; font-weight: 600; }
+        .toast.error { background: #fee2e2; color: #dc2626; }
+        
+        /* Ad Overlay - FIXED for complete ad viewing */
+        .ad-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); display: flex; align-items: center; justify-content: center; z-index: 10000; }
+        .ad-modal { background: #1a1f30; padding: 2rem; border-radius: 1.5rem; text-align: center; max-width: 350px; border: 2px solid #4CAF50; }
+        .ad-modal h2 { color: #4ade80; margin-bottom: 0.5rem; font-weight: 700; font-size: 1.5rem; }
+        .ad-modal p { color: #8aa0bc; margin-bottom: 0.5rem; }
+        .ad-modal .spinner { border: 4px solid #2a2f42; border-top: 4px solid #4CAF50; border-radius: 50%; width: 50px; height: 50px; animation: spin 1s linear infinite; margin: 15px auto; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .ad-modal .countdown { font-size: 3rem; font-weight: 700; color: #FFD700; margin: 0.5rem 0; }
+        .ad-modal .status-text { color: #8aa0bc; font-size: 0.8rem; margin: 0.5rem 0; }
+        .ad-modal .skip-btn { background: transparent; border: 1px solid #8aa0bc; color: #8aa0bc; padding: 8px 20px; margin-top: 10px; cursor: pointer; font-size: 0.8rem; border-radius: 20px; }
+        .ad-modal .skip-btn:active { transform: scale(0.95); }
+        
+        /* Return Overlay - FIXED - ONLY SHOWS AFTER AD COMPLETES */
+        .return-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); display: flex; align-items: center; justify-content: center; z-index: 10002; }
+        .return-modal { background: linear-gradient(135deg, #1a1f30, #0f1422); padding: 2.5rem; border-radius: 2rem; text-align: center; max-width: 380px; border: 2px solid #4CAF50; box-shadow: 0 20px 60px rgba(0,0,0,0.5); }
+        .return-modal .icon { font-size: 4rem; margin-bottom: 0.5rem; }
+        .return-modal h2 { color: #4ade80; font-size: 1.8rem; margin-bottom: 0.5rem; font-weight: 700; }
+        .return-modal p { color: #8aa0bc; margin-bottom: 1.5rem; }
+        .return-modal .btn-return { background: linear-gradient(135deg, #4CAF50, #45a049); color: white; border: none; padding: 1rem 2rem; border-radius: 3rem; font-size: 1.2rem; font-weight: 700; cursor: pointer; width: 100%; transition: all 0.3s; box-shadow: 0 4px 15px rgba(76,175,80,0.3); }
+        .return-modal .btn-return:hover { transform: translateY(-3px); box-shadow: 0 6px 25px rgba(76,175,80,0.4); }
+        .return-modal .btn-return:active { transform: scale(0.97); }
+        .return-modal .points-earned { font-size: 2.5rem; color: #FFD700; font-weight: 700; margin: 0.5rem 0; }
+        
+        /* Profile */
+        .profile-header { text-align: center; padding: 20px 0; }
+        .profile-header .avatar { width: 80px; height: 80px; border-radius: 50%; background: #059669; color: white; font-size: 32px; display: flex; align-items: center; justify-content: center; margin: 0 auto 12px; font-weight: 700; }
+        .profile-header .name { font-size: 20px; font-weight: 700; color: #1a1a2e; }
+        .profile-header .email { color: #6b7280; font-size: 14px; }
+        .profile-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin: 16px 0; }
+        .profile-stats .stat { background: #f8f9fa; border-radius: 12px; padding: 12px; text-align: center; }
+        .profile-stats .stat .number { font-size: 20px; font-weight: 700; color: #059669; }
+        .profile-stats .stat .label { font-size: 11px; color: #6b7280; margin-top: 4px; font-weight: 600; }
+        
+        .menu-item { display: flex; align-items: center; gap: 12px; padding: 14px 16px; border-bottom: 1px solid #f1f3f5; cursor: pointer; }
+        .menu-item:active { background: #f8f9fa; }
+        .menu-item .icon { font-size: 20px; width: 28px; }
+        .menu-item .text { flex: 1; font-size: 14px; color: #1a1a2e; font-weight: 600; }
+        .menu-item .arrow { color: #6b7280; }
+        
+        /* Responsive */
+        @media (max-width: 400px) {
+            .categories-grid { grid-template-columns: repeat(3, 1fr); }
+            .products-grid { grid-template-columns: 1fr 1fr; gap: 8px; }
+            .platforms-grid { grid-template-columns: repeat(4, 1fr); }
+        }
+        @media (min-width: 600px) {
+            .main-content { padding: 20px; }
+            .products-grid { grid-template-columns: repeat(3, 1fr); }
+            .categories-grid { grid-template-columns: repeat(6, 1fr); }
+            .platforms-grid { grid-template-columns: repeat(6, 1fr); }
+        }
+    </style>
+</head>
+<body>
 
+    <!-- Login/Signup Screen -->
+    <div id="loginScreen" class="login-container">
+        <div class="login-card">
+            <div class="login-logo"><span>🛍️</span></div>
+            <h1 id="formTitle">Welcome to EasySell</h1>
+            <p id="formSubtitle">Nigeria's trusted marketplace</p>
+            <div id="errorMsg" class="error-msg"></div>
+            <input type="email" id="loginEmail" class="login-input" placeholder="Email address">
+            <input type="password" id="loginPassword" class="login-input" placeholder="Password">
+            <button class="login-btn" onclick="doLogin()" id="actionBtn">Login</button>
+            <button class="switch-btn" onclick="toggleForm()" id="switchBtn">Don't have an account? Sign Up</button>
+        </div>
+    </div>
+
+    <!-- Main App -->
+    <div id="mainApp" class="main-app">
+        <!-- Top Header -->
+        <div class="top-header">
+            <div class="logo">Easy<span>Sell</span></div>
+            <div class="header-actions">
+                <button onclick="openSearch()" title="🔍 Search">🔍</button>
+                <div class="points-badge" onclick="switchTab('earn')" title="🪙 Points">
+                    <span class="coin">🪙</span>
+                    <span id="pointsDisplay">0</span>
+                    <span class="feature-label gold">POINTS</span>
+                </div>
+                <div class="user-avatar" onclick="switchTab('profile')" id="userAvatar">U</div>
+            </div>
+        </div>
+
+        <!-- Search Section -->
+        <div class="search-section" id="searchSection">
+            <div class="search-bar">
+                <input type="text" id="searchInput" placeholder="🔍 I am looking for..." onkeyup="searchProducts()">
+                <button onclick="searchProducts()">🔍</button>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content" id="mainContent">
+            <!-- Home Tab Content -->
+            <div id="homeContent">
+                <!-- Balance Card -->
+                <div class="balance-card">
+                    <div class="label">💰 <strong>BALANCE</strong> <span class="feature-label gold">EARNINGS</span></div>
+                    <div class="points" id="balancePoints">0 pts</div>
+                    <div class="progress"><div class="fill" id="balanceProgress" style="width:0%"></div></div>
+                    <div class="row">
+                        <span>≈ $<span id="balanceUSD">0.00</span> USD</span>
+                        <span>🔥 <strong>STREAK</strong>: <span id="streakDisplay">0</span> days</span>
+                    </div>
+                </div>
+
+                <!-- Quick Actions -->
+                <div class="quick-actions">
+                    <div class="quick-action" onclick="claimDaily()">
+                        <div class="icon">📅</div>
+                        <div class="label"><strong>DAILY CHECK-IN</strong> <span class="feature-label gold">+5</span></div>
+                        <div class="sub">Claim daily reward</div>
+                    </div>
+                    <div class="quick-action" onclick="watchRewardedAd()">
+                        <div class="icon">📺</div>
+                        <div class="label"><strong>WATCH AD</strong> <span class="feature-label purple">+10</span></div>
+                        <div class="sub">Earn points & money</div>
+                    </div>
+                    <div class="quick-action" onclick="spinWheel()">
+                        <div class="icon">🎡</div>
+                        <div class="label"><strong>SPIN WHEEL</strong> <span class="feature-label red">WIN</span></div>
+                        <div class="sub">Win up to 200 pts</div>
+                    </div>
+                </div>
+
+                <!-- Categories -->
+                <div class="categories-section">
+                    <div class="section-title">
+                        📂 <strong>CATEGORIES</strong> <span class="feature-label blue">BROWSE</span>
+                        <span class="view-all" onclick="switchTab('categories')">View All →</span>
+                    </div>
+                    <div class="categories-grid" id="categoriesGrid"></div>
+                </div>
+
+                <!-- Platforms -->
+                <div class="platforms-section">
+                    <div class="section-title">
+                        🌐 <strong>PLATFORMS</strong> <span class="feature-label purple">200+</span>
+                        <span class="view-all" onclick="switchTab('platforms')">View All →</span>
+                    </div>
+                    <div class="platforms-grid" id="platformsGrid"></div>
+                </div>
+
+                <!-- Trending -->
+                <div class="trending-section">
+                    <div class="section-title"><span class="fire">🔥</span> <strong>TRENDING</strong> <span class="feature-label red">HOT</span></div>
+                    <div class="trending-tags" id="trendingTags"></div>
+                </div>
+
+                <!-- Products -->
+                <div id="productsContainer">
+                    <div class="loading-text">📦 <strong>Loading products</strong>...</div>
+                </div>
+            </div>
+
+            <!-- Platforms Tab -->
+            <div id="platformsContent" style="display:none;">
+                <div class="categories-section">
+                    <div class="section-title">🌐 <strong>ALL PLATFORMS</strong> <span class="feature-label purple">200+</span></div>
+                    <div class="search-bar" style="margin-bottom:12px;">
+                        <input type="text" id="platformSearch" placeholder="🔍 Search 200+ platforms..." onkeyup="searchPlatforms()">
+                        <button onclick="searchPlatforms()">🔍</button>
+                    </div>
+                    <div id="platformResults" class="platforms-grid" style="grid-template-columns:repeat(4,1fr);"></div>
+                </div>
+            </div>
+
+            <!-- Categories Tab -->
+            <div id="categoriesContent" style="display:none;">
+                <div class="categories-section">
+                    <div class="section-title">📂 <strong>ALL CATEGORIES</strong> <span class="feature-label blue">BROWSE</span></div>
+                    <div class="categories-grid" id="allCategoriesGrid" style="grid-template-columns:repeat(3,1fr);"></div>
+                </div>
+            </div>
+
+            <!-- Earn Tab -->
+            <div id="earnContent" style="display:none;">
+                <div class="balance-card">
+                    <div class="label">💰 <strong>EARN POINTS</strong> <span class="feature-label gold">REWARDS</span></div>
+                    <div class="points" id="earnPoints">0 pts</div>
+                    <div class="progress"><div class="fill" id="earnProgress" style="width:0%"></div></div>
+                    <div class="row">
+                        <span>🎯 <strong>NEXT WITHDRAWAL</strong>: $<span id="withdrawProgress">0.00</span></span>
+                        <span>📊 <strong>ADS WATCHED</strong>: <span id="adsWatchedDisplay">0</span></span>
+                    </div>
+                </div>
+
+                <div class="quick-actions" style="grid-template-columns:repeat(2,1fr);">
+                    <div class="quick-action" onclick="claimDaily()">
+                        <div class="icon">📅</div>
+                        <div class="label"><strong>DAILY CHECK-IN</strong> <span class="feature-label gold">+5</span></div>
+                        <div class="sub">Claim daily reward</div>
+                    </div>
+                    <div class="quick-action" onclick="watchRewardedAd()">
+                        <div class="icon">📺</div>
+                        <div class="label"><strong>WATCH AD</strong> <span class="feature-label purple">+10</span></div>
+                        <div class="sub">Earn points & money</div>
+                    </div>
+                    <div class="quick-action" onclick="spinWheel()">
+                        <div class="icon">🎡</div>
+                        <div class="label"><strong>SPIN WHEEL</strong> <span class="feature-label red">WIN</span></div>
+                        <div class="sub">Win up to 200 pts</div>
+                    </div>
+                    <div class="quick-action" onclick="requestWithdrawal()">
+                        <div class="icon">💳</div>
+                        <div class="label"><strong>WITHDRAW</strong> <span class="feature-label gold">CASH</span></div>
+                        <div class="sub">Withdraw earnings</div>
+                    </div>
+                </div>
+
+                <div class="categories-section">
+                    <div class="section-title">🏆 <strong>ACHIEVEMENTS</strong> <span class="feature-label gold">BADGES</span></div>
+                    <div id="badgesContainer" style="display:flex; flex-wrap:wrap; gap:8px; justify-content:center;"></div>
+                </div>
+
+                <div class="categories-section">
+                    <div class="section-title">👥 <strong>REFERRAL PROGRAM</strong> <span class="feature-label purple">+50</span></div>
+                    <div class="opportunity-card" style="background:#f8f9fa; border-radius:12px; padding:12px; text-align:center;">
+                        <div class="info" style="color:#6b7280; font-size:13px; margin-bottom:8px;">Share your code and earn 50 points per referral!</div>
+                        <div class="flex" style="display:flex; justify-content:center; gap:12px; align-items:center;">
+                            <span><strong>Your Code:</strong> <span id="referralCodeDisplay" style="color:#059669; font-weight:700;">NONE</span></span>
+                            <button class="btn-outline" onclick="copyReferralCode()" style="background:#059669; color:white; border:none; padding:6px 16px; border-radius:20px; font-weight:700; cursor:pointer;">📋 Copy</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Profile Tab -->
+            <div id="profileContent" style="display:none;">
+                <div class="profile-header">
+                    <div class="avatar" id="profileAvatar">U</div>
+                    <div class="name" id="profileName">User</div>
+                    <div class="email" id="profileEmail">user@email.com</div>
+                </div>
+                <div class="profile-stats">
+                    <div class="stat">
+                        <div class="number" id="profileAds">0</div>
+                        <div class="label"><strong>ADS</strong></div>
+                    </div>
+                    <div class="stat">
+                        <div class="number" id="profileSaved">0</div>
+                        <div class="label"><strong>SAVED</strong></div>
+                    </div>
+                    <div class="stat">
+                        <div class="number" id="profilePoints">0</div>
+                        <div class="label"><strong>POINTS</strong></div>
+                    </div>
+                </div>
+                <div style="background:white; border-radius:16px; overflow:hidden; margin-top:12px; box-shadow:0 1px 3px rgba(0,0,0,0.08);">
+                    <div class="menu-item" onclick="document.getElementById('profilePhone').style.display='block'">
+                        <span class="icon">📞</span>
+                        <span class="text"><strong>PHONE NUMBER</strong></span>
+                        <span class="arrow" id="profilePhoneDisplay">Not set</span>
+                    </div>
+                    <div class="menu-item" id="profilePhone" style="display:none; padding:12px 16px; background:#f8f9fa; flex-wrap:wrap;">
+                        <input type="tel" id="phoneInput" placeholder="Enter phone number" style="flex:1; padding:8px 12px; border:1px solid #e5e7eb; border-radius:8px; min-width:150px;">
+                        <button onclick="updatePhone()" style="background:#059669; color:white; border:none; padding:8px 16px; border-radius:8px; cursor:pointer; font-weight:700;">Save</button>
+                    </div>
+                    <div class="menu-item" onclick="switchTab('home')">
+                        <span class="icon">📦</span>
+                        <span class="text"><strong>MY ADS</strong></span>
+                        <span class="arrow">→</span>
+                    </div>
+                    <div class="menu-item" onclick="window.open('mailto:support@easysell.com')">
+                        <span class="icon">✉️</span>
+                        <span class="text"><strong>CONTACT SUPPORT</strong></span>
+                        <span class="arrow">→</span>
+                    </div>
+                    <div class="menu-item" onclick="doLogout()" style="border-bottom:none;">
+                        <span class="icon">🚪</span>
+                        <span class="text" style="color:#dc2626;"><strong>LOGOUT</strong></span>
+                        <span class="arrow">→</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bottom Navigation -->
+        <div class="bottom-nav">
+            <button class="nav-item active" data-tab="home" onclick="switchTab('home')">
+                <span class="icon">🏠</span>
+                <span class="label"><strong>HOME</strong></span>
+            </button>
+            <button class="nav-item" data-tab="categories" onclick="switchTab('categories')">
+                <span class="icon">📂</span>
+                <span class="label"><strong>CATEGORIES</strong></span>
+                <span class="feature-label blue">16</span>
+            </button>
+            <button class="nav-item sell-btn" onclick="openSellModal()" style="color:#059669;">
+                <span class="icon" style="font-size:28px;">➕</span>
+                <span class="label"><strong>SELL</strong></span>
+                <span class="feature-label gold">POST</span>
+            </button>
+            <button class="nav-item" data-tab="earn" onclick="switchTab('earn')">
+                <span class="icon">🪙</span>
+                <span class="label"><strong>EARN</strong></span>
+                <span class="feature-label purple">POINTS</span>
+            </button>
+            <button class="nav-item" data-tab="profile" onclick="switchTab('profile')">
+                <span class="icon">👤</span>
+                <span class="label"><strong>PROFILE</strong></span>
+            </button>
+        </div>
+    </div>
+
+    <!-- Sell Modal -->
+    <div id="sellModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>📦 <strong>POST NEW AD</strong> <span class="feature-label gold">SELL</span></h2>
+                <button class="close-modal" onclick="closeSellModal()">&times;</button>
+            </div>
+            <form id="sellForm" onsubmit="submitAd(event)">
+                <div class="form-group">
+                    <label><strong>TITLE</strong> <span style="color:#dc2626;">*</span></label>
+                    <input type="text" id="adTitle" placeholder="What are you selling?" required>
+                </div>
+                <div class="form-group">
+                    <label><strong>CATEGORY</strong> <span style="color:#dc2626;">*</span></label>
+                    <select id="adCategory" required>
+                        <option value="">Select category</option>
+                        <option value="Electronics">📱 Electronics</option>
+                        <option value="Home & Furniture">🏠 Home, Furniture & Appliances</option>
+                        <option value="Fashion">👗 Fashion</option>
+                        <option value="Beauty">💄 Beauty & Personal Care</option>
+                        <option value="Services">🔧 Services</option>
+                        <option value="Repair & Construction">🔨 Repair & Construction</option>
+                        <option value="Commercial Equipment">🔩 Commercial Equipment & Tools</option>
+                        <option value="Leisure">🎮 Leisure & Activities</option>
+                        <option value="Babies & Kids">👶 Babies & Kids</option>
+                        <option value="Food & Agriculture">🌾 Food, Agriculture & Farming</option>
+                        <option value="Animals & Pets">🐾 Animals & Pets</option>
+                        <option value="Jobs">💼 Jobs</option>
+                        <option value="Cars">🚗 Cars</option>
+                        <option value="Mobile Phones">📱 Mobile Phones</option>
+                        <option value="Motorcycles">🏍️ Motorcycles</option>
+                        <option value="Land & Plots">🏘️ Land & Plots for Sale</option>
+                        <option value="Property">🏠 Property</option>
+                        <option value="Phones & Tablets">📱 Phones & Tablets</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label><strong>DESCRIPTION</strong></label>
+                    <textarea id="adDescription" placeholder="Describe your item..."></textarea>
+                </div>
+                <div class="form-group">
+                    <label><strong>LOCATION</strong></label>
+                    <input type="text" id="adLocation" placeholder="e.g. Lagos, Abuja, Port Harcourt">
+                </div>
+                <div class="form-group">
+                    <label><strong>PRICE (₦)</strong> <span style="color:#dc2626;">*</span></label>
+                    <input type="number" id="adPrice" placeholder="0" required>
+                </div>
+                <div class="form-group">
+                    <label><strong>YOUR NAME</strong> <span style="color:#dc2626;">*</span></label>
+                    <input type="text" id="adName" placeholder="Your full name" required>
+                </div>
+                <div class="form-group">
+                    <label><strong>PHONE NUMBER</strong> <span style="color:#dc2626;">*</span></label>
+                    <input type="tel" id="adPhone" placeholder="07030627287" required>
+                </div>
+                <div class="form-group">
+                    <label><strong>PHOTOS</strong></label>
+                    <div class="upload-area" id="uploadArea" onclick="document.getElementById('imageInput').click()">
+                        <div class="icon">📷</div>
+                        <div class="text"><strong>Tap to add photos</strong></div>
+                        <div id="imagePreview" style="display:none; margin-top:8px;">
+                            <img id="previewImg" style="max-width:100%; max-height:150px; border-radius:8px;">
+                        </div>
+                    </div>
+                    <input type="file" id="imageInput" accept="image/*" style="display:none;" onchange="handleImageUpload(event)">
+                </div>
+                <button type="submit" class="submit-btn"><strong>📤 POST AD</strong></button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Detail Modal -->
+    <div id="detailModal" class="modal detail-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="detailTitle"></h2>
+                <button class="close-modal" onclick="closeDetailModal()">&times;</button>
+            </div>
+            <img id="detailImage" class="detail-image">
+            <div class="detail-price" id="detailPrice"></div>
+            <div class="detail-name" id="detailName"></div>
+            <div class="detail-desc" id="detailDesc"></div>
+            <div class="detail-seller">
+                <div class="avatar" id="detailAvatar">U</div>
+                <div class="info">
+                    <div class="name" id="detailSeller"><strong>SELLER</strong></div>
+                    <div class="meta" id="detailDate">Posted</div>
+                </div>
+                <div style="font-size:12px; color:#6b7280;">📍 <span id="detailLocation"></span></div>
+            </div>
+            <div class="detail-actions">
+                <button class="btn-chat" onclick="contactSeller()"><strong>💬 CHAT ON WHATSAPP</strong></button>
+                <button class="btn-call" onclick="callSeller()"><strong>📞 CALL</strong></button>
+            </div>
+            <button class="delete-btn" id="detailDeleteBtn" style="display:none;" onclick="deleteProduct()"><strong>🗑️ DELETE AD</strong></button>
+        </div>
+    </div>
+
+    <!-- Toast -->
+    <div id="toast" class="toast" style="display:none;"></div>
+
+    <script>
+        // ============================================================
+        // FIREBASE CONFIGURATION
+        // ============================================================
+        const firebaseConfig = {
+            apiKey: "AIzaSyAAWF9XukiN4nuA7LlbsaU2qiZgzTGM3FE",
+            authDomain: "easysell-75318.firebaseapp.com",
+            projectId: "easysell-75318",
+            storageBucket: "easysell-75318.firebasestorage.app",
+            messagingSenderId: "81916821182",
+            appId: "1:81916821182:web:46064186708cec62eba8ef"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+        const storage = firebase.storage();
+
+        // ============================================================
+        // CONFIGURATION
+        // ============================================================
+        const DAILY_REWARD = 5;
+        const POINTS_FOR_5_DOLLARS = 15000;
+        const AD_REWARD_POINTS = 10;
+        let currentUser = null;
+        let userData = null;
+        let currentTab = 'home';
+        let selectedImageFile = null;
+        let currentProductId = null;
+        let allProducts = [];
+        let lastSpinTime = 0;
+        const SPIN_COOLDOWN = 86400000;
+
+        // ============================================================
+        // ALL PLATFORMS
+        // ============================================================
+        const allPlatforms = [
+            { name: "Google", icon: "🔍", url: "https://google.com" },
+            { name: "YouTube", icon: "▶️", url: "https://youtube.com" },
+            { name: "WhatsApp", icon: "💬", url: "https://web.whatsapp.com" },
+            { name: "ChatGPT", icon: "🤖", url: "https://chat.openai.com" },
+            { name: "Facebook", icon: "📘", url: "https://facebook.com" },
+            { name: "Instagram", icon: "📸", url: "https://instagram.com" },
+            { name: "Twitter/X", icon: "🐦", url: "https://twitter.com" },
+            { name: "Telegram", icon: "✈️", url: "https://web.telegram.org" },
+            { name: "Binance", icon: "🟡", url: "https://binance.com" },
+            { name: "Netflix", icon: "📺", url: "https://netflix.com" },
+            { name: "Amazon", icon: "📦", url: "https://amazon.com" },
+            { name: "Spotify", icon: "🎵", url: "https://spotify.com" },
+            { name: "TikTok", icon: "🎵", url: "https://tiktok.com" },
+            { name: "LinkedIn", icon: "🔗", url: "https://linkedin.com" },
+            { name: "Reddit", icon: "🤖", url: "https://reddit.com" },
+            { name: "Pinterest", icon: "📌", url: "https://pinterest.com" },
+            { name: "Snapchat", icon: "👻", url: "https://snapchat.com" },
+            { name: "Discord", icon: "🎮", url: "https://discord.com" },
+            { name: "GitHub", icon: "🐙", url: "https://github.com" },
+            { name: "Stack Overflow", icon: "📚", url: "https://stackoverflow.com" },
+            { name: "Medium", icon: "📝", url: "https://medium.com" },
+            { name: "Dev.to", icon: "💻", url: "https://dev.to" },
+            { name: "Canva", icon: "🎨", url: "https://canva.com" },
+            { name: "Notion", icon: "📝", url: "https://notion.so" },
+            { name: "Grammarly", icon: "✍️", url: "https://grammarly.com" },
+            { name: "Claude AI", icon: "🧠", url: "https://claude.ai" },
+            { name: "Gemini", icon: "✨", url: "https://gemini.google.com" },
+            { name: "Perplexity AI", icon: "🔍", url: "https://perplexity.ai" },
+            { name: "Midjourney", icon: "🎨", url: "https://midjourney.com" },
+            { name: "DeepSeek", icon: "🧠", url: "https://deepseek.com" },
+            { name: "Coursera", icon: "🎓", url: "https://coursera.org" },
+            { name: "Udemy", icon: "📚", url: "https://udemy.com" },
+            { name: "freeCodeCamp", icon: "💻", url: "https://freecodecamp.org" },
+            { name: "Khan Academy", icon: "📖", url: "https://khanacademy.org" },
+            { name: "Duolingo", icon: "🦉", url: "https://duolingo.com" },
+            { name: "Upwork", icon: "💼", url: "https://upwork.com" },
+            { name: "Fiverr", icon: "🎯", url: "https://fiverr.com" },
+            { name: "Indeed", icon: "💼", url: "https://indeed.com" },
+            { name: "RemoteOK", icon: "🌍", url: "https://remoteok.com" },
+            { name: "BBC News", icon: "📰", url: "https://bbc.com/news" },
+            { name: "CNN", icon: "📺", url: "https://cnn.com" },
+            { name: "Al Jazeera", icon: "📰", url: "https://aljazeera.com" },
+            { name: "Punch", icon: "📰", url: "https://punchng.com" },
+            { name: "Vanguard", icon: "📰", url: "https://vanguardngr.com" },
+            { name: "GTBank", icon: "🏦", url: "https://gtbank.com" },
+            { name: "UBA", icon: "🏦", url: "https://ubagroup.com" },
+            { name: "Access Bank", icon: "🏦", url: "https://accessbankplc.com" },
+            { name: "First Bank", icon: "🏦", url: "https://firstbanknigeria.com" },
+            { name: "Jumia", icon: "🛍️", url: "https://jumia.com" },
+            { name: "Konga", icon: "🛍️", url: "https://konga.com" },
+            { name: "AliExpress", icon: "📦", url: "https://aliexpress.com" },
+            { name: "eBay", icon: "🛒", url: "https://ebay.com" },
+            { name: "Walmart", icon: "🛍️", url: "https://walmart.com" },
+            { name: "Etsy", icon: "🎨", url: "https://etsy.com" },
+            { name: "Shopify", icon: "🛒", url: "https://shopify.com" },
+            { name: "PayPal", icon: "🔷", url: "https://paypal.com" },
+            { name: "Payoneer", icon: "🌍", url: "https://payoneer.com" },
+            { name: "Wise", icon: "💷", url: "https://wise.com" },
+            { name: "Flutterwave", icon: "🌊", url: "https://flutterwave.com" },
+            { name: "Stripe", icon: "💳", url: "https://stripe.com" }
+        ];
+
+        // ============================================================
+        // CATEGORIES
+        // ============================================================
+        const categories = [
+            { name: 'Cars', icon: '🚗' },
+            { name: 'Mobile Phones', icon: '📱' },
+            { name: 'Motorcycles', icon: '🏍️' },
+            { name: 'Land & Plots', icon: '🏘️' },
+            { name: 'Electronics', icon: '💻' },
+            { name: 'Home & Furniture', icon: '🏠' },
+            { name: 'Fashion', icon: '👗' },
+            { name: 'Beauty', icon: '💄' },
+            { name: 'Services', icon: '🔧' },
+            { name: 'Repair & Construction', icon: '🔨' },
+            { name: 'Commercial Equipment', icon: '🔩' },
+            { name: 'Leisure & Activities', icon: '🎮' },
+            { name: 'Babies & Kids', icon: '👶' },
+            { name: 'Food & Agriculture', icon: '🌾' },
+            { name: 'Animals & Pets', icon: '🐾' },
+            { name: 'Jobs', icon: '💼' }
+        ];
+
+        // ============================================================
+        // TRENDING TAGS
+        // ============================================================
+        const trendingTags = [
+            { name: 'Seeking Work - CVs', count: 234 },
+            { name: 'iPhone 15 Pro', count: 189 },
+            { name: 'Land for Sale', count: 156 },
+            { name: 'Cars under 1M', count: 143 },
+            { name: 'Furniture', count: 98 },
+            { name: 'Laptops', count: 87 }
+        ];
+
+        // ============================================================
+        // SPIN REWARDS
+        // ============================================================
+        const spinRewards = [50, 25, 100, 10, 75, 5, 200, 0, 15, 30];
+
+        // ============================================================
+        // AUTHENTICATION
+        // ============================================================
+        async function signUp(email, password, username) {
+            try {
+                const cred = await auth.createUserWithEmailAndPassword(email, password);
+                await db.collection('users').doc(cred.user.uid).set({
+                    username: username || email.split('@')[0],
+                    email: email,
+                    phone: '',
+                    points: 50,
+                    totalPoints: 50,
+                    streak: 0,
+                    adsWatched: 0,
+                    referrals: 0,
+                    referralCode: Math.random().toString(36).substring(2, 8).toUpperCase(),
+                    savedItems: [],
+                    createdAt: new Date().toISOString()
+                });
+                showToast('🎉 Account created! +50 bonus points');
+                return true;
+            } catch(e) { showToast(e.message, true); return false; }
+        }
+
+        async function signIn(email, password) {
+            try {
+                await auth.signInWithEmailAndPassword(email, password);
+                return true;
+            } catch(e) { showToast(e.message, true); return false; }
+        }
+
+        window.doLogin = async function() {
+            const email = document.getElementById('loginEmail').value.trim();
+            const password = document.getElementById('loginPassword').value.trim();
+            const isLoginMode = document.getElementById('actionBtn').innerText === 'Login';
+
+            if (!email || !password) {
+                document.getElementById('errorMsg').innerText = 'Please enter email and password';
+                return;
+            }
+
+            try {
+                if (isLoginMode) {
+                    await signIn(email, password);
+                } else {
+                    await signUp(email, password, email.split('@')[0]);
+                }
+                document.getElementById('errorMsg').innerText = '';
+            } catch (error) {
+                document.getElementById('errorMsg').innerText = error.message;
+            }
+        };
+
+        window.doLogout = async function() {
+            await auth.signOut();
+            currentUser = null;
+            userData = null;
+            document.getElementById('loginScreen').style.display = 'flex';
+            document.getElementById('mainApp').style.display = 'none';
+        };
+
+        window.toggleForm = function() {
+            const isLoginMode = document.getElementById('actionBtn').innerText === 'Login';
+            if (isLoginMode) {
+                document.getElementById('formTitle').innerText = 'Create Account';
+                document.getElementById('formSubtitle').innerText = 'Start selling today';
+                document.getElementById('actionBtn').innerText = 'Sign Up';
+                document.getElementById('switchBtn').innerText = 'Already have an account? Login';
+            } else {
+                document.getElementById('formTitle').innerText = 'Welcome to EasySell';
+                document.getElementById('formSubtitle').innerText = "Nigeria's trusted marketplace";
+                document.getElementById('actionBtn').innerText = 'Login';
+                document.getElementById('switchBtn').innerText = "Don't have an account? Sign Up";
+            }
+            document.getElementById('errorMsg').innerText = '';
+        };
+
+        // ============================================================
+        // USER DATA FUNCTIONS
+        // ============================================================
+        async function loadUserData() {
+            if (!currentUser) return;
+            try {
+                const doc = await db.collection('users').doc(currentUser.uid).get();
+                if (doc.exists) {
+                    userData = doc.data();
+                } else {
+                    userData = { username: currentUser.email.split('@')[0], points: 50, totalPoints: 50, streak: 0, adsWatched: 0, referrals: 0 };
+                }
+                updateUI();
+            } catch(e) { console.error(e); }
+        }
+
+        async function updatePoints(amount, reason) {
+            if (!currentUser) return;
+            const newPoints = (userData?.points || 0) + amount;
+            await db.collection('users').doc(currentUser.uid).update({ 
+                points: newPoints, 
+                totalPoints: (userData?.totalPoints || 0) + amount 
+            });
+            userData.points = newPoints;
+            userData.totalPoints = (userData?.totalPoints || 0) + amount;
+            if (reason) showToast(`🎉 +${amount} points! ${reason}`, 2000);
+            updateUI();
+        }
+
+        function updateUI() {
+            const points = userData?.points || 0;
+            const cash = (points / POINTS_FOR_5_DOLLARS) * 5;
+            const streak = userData?.streak || 0;
+            const adsWatched = userData?.adsWatched || 0;
+            
+            document.getElementById('pointsDisplay').textContent = points;
+            document.getElementById('balancePoints').textContent = points + ' pts';
+            document.getElementById('balanceUSD').textContent = cash.toFixed(2);
+            document.getElementById('streakDisplay').textContent = streak;
+            document.getElementById('earnPoints').textContent = points + ' pts';
+            document.getElementById('adsWatchedDisplay').textContent = adsWatched;
+            
+            const progress = Math.min(100, (points / POINTS_FOR_5_DOLLARS) * 100);
+            document.getElementById('balanceProgress').style.width = progress + '%';
+            document.getElementById('earnProgress').style.width = progress + '%';
+            document.getElementById('withdrawProgress').textContent = cash.toFixed(2);
+            
+            if (userData?.referralCode) {
+                document.getElementById('referralCodeDisplay').textContent = userData.referralCode;
+            }
+            
+            renderBadges();
+        }
+
+        // ============================================================
+        // BADGES
+        // ============================================================
+        function renderBadges() {
+            const container = document.getElementById('badgesContainer');
+            const points = userData?.points || 0;
+            const streak = userData?.streak || 0;
+            const adsWatched = userData?.adsWatched || 0;
+            
+            const badges = [
+                { icon: '🥉', label: '100 Points', unlocked: points >= 100 },
+                { icon: '🥈', label: '500 Points', unlocked: points >= 500 },
+                { icon: '🥇', label: '1000 Points', unlocked: points >= 1000 },
+                { icon: '🔥', label: '7-Day Streak', unlocked: streak >= 7 },
+                { icon: '📺', label: '10 Ads Watched', unlocked: adsWatched >= 10 },
+                { icon: '👥', label: '5 Referrals', unlocked: (userData?.referrals || 0) >= 5 }
+            ];
+            
+            container.innerHTML = badges.map(b => `
+                <div style="background:${b.unlocked ? '#f0fdf4' : '#f1f3f5'}; border-radius:20px; padding:4px 12px; font-size:12px; border:1px solid ${b.unlocked ? '#059669' : '#e5e7eb'}; display:flex; align-items:center; gap:4px;">
+                    <span>${b.icon}</span>
+                    <span style="font-weight:${b.unlocked ? '700' : '400'}; color:${b.unlocked ? '#059669' : '#6b7280'};">${b.label}</span>
+                    ${b.unlocked ? '✅' : '🔒'}
+                </div>
+            `).join('');
+        }
+
+        // ============================================================
+        // DAILY CHECK-IN
+        // ============================================================
+        async function claimDaily() {
+            if (!currentUser) { showToast('Please login first', true); return; }
+            const today = new Date().toISOString().split('T')[0];
+            const ref = db.collection('users').doc(currentUser.uid).collection('dailyClaims').doc(today);
+            if ((await ref.get()).exists) { showToast('Already claimed today!', true); return; }
+            
+            let streak = (userData?.streak || 0) + 1;
+            let reward = DAILY_REWARD + Math.floor(streak / 7) * 5;
+            if (streak >= 30) reward = 100;
+            
+            await ref.set({ date: today });
+            await db.collection('users').doc(currentUser.uid).update({
+                points: (userData?.points || 0) + reward,
+                totalPoints: (userData?.totalPoints || 0) + reward,
+                streak: streak
+            });
+            await loadUserData();
+            showToast(`🎉 +${reward} points! ${streak} day streak!`);
+        }
+
+        // ============================================================
+        // SPIN WHEEL
+        // ============================================================
+        window.spinWheel = function() {
+            if (!currentUser) { showToast('Please login first', true); return; }
+            const now = Date.now();
+            if (now - lastSpinTime < SPIN_COOLDOWN) {
+                const hoursLeft = Math.ceil((SPIN_COOLDOWN - (now - lastSpinTime)) / 3600000);
+                showToast(`⏳ Come back in ${hoursLeft} hours!`, true);
+                return;
+            }
+            const result = spinRewards[Math.floor(Math.random() * spinRewards.length)];
+            lastSpinTime = now;
+            if (result > 0) {
+                updatePoints(result, '🎡 Spin wheel reward!');
+            } else {
+                showToast('😅 Better luck next time!');
+            }
+        };
+
+        // ============================================================
+        // REWARDED AD - COMPLETE BEFORE RETURNING
+        // ============================================================
+        window.watchRewardedAd = async function() {
+            if (!currentUser) { showToast('Please login first', true); return; }
+            
+            // Show ad overlay - LOCK THE SCREEN
+            const overlay = document.createElement('div');
+            overlay.className = 'ad-overlay';
+            overlay.id = 'adOverlay';
+            overlay.innerHTML = `
+                <div class="ad-modal">
+                    <h2>📺 <strong>WATCHING AD</strong></h2>
+                    <p id="adStatus">⏳ Loading ad...</p>
+                    <div class="spinner"></div>
+                    <div class="countdown" id="adCountdown">15</div>
+                    <p class="status-text" id="adInstruction">⚠️ DO NOT close this window until ad completes!</p>
+                    <button class="skip-btn" onclick="closeAdManually()">✕ Skip (No points)</button>
+                </div>
+            `;
+            document.body.appendChild(overlay);
+            
+            try {
+                // Update status
+                document.getElementById('adStatus').textContent = '📺 Opening ad...';
+                
+                // Open Monetag ad in new window
+                const adWindow = window.open('https://omg10.com/4/11140123', '_blank');
+                
+                // Wait for ad to load
+                await new Promise(resolve => setTimeout(resolve, 3000));
+                
+                // Update status
+                document.getElementById('adStatus').textContent = '📺 Ad is playing...';
+                document.getElementById('adInstruction').textContent = '⏳ Please wait for the ad to complete!';
+                
+                // Countdown - MUST COMPLETE BEFORE RETURNING
+                let countdown = 15; // 15 seconds for complete ad
+                const countdownEl = document.getElementById('adCountdown');
+                const timer = setInterval(() => {
+                    countdown--;
+                    if (countdownEl) countdownEl.textContent = countdown;
+                    
+                    // Update status messages
+                    if (countdown <= 5) {
+                        document.getElementById('adStatus').textContent = '✅ Ad almost complete!';
+                        document.getElementById('adInstruction').textContent = '⏳ Just a few more seconds...';
+                    }
+                    
+                    if (countdown <= 0) {
+                        clearInterval(timer);
+                        document.getElementById('adStatus').textContent = '✅ AD COMPLETED!';
+                        document.getElementById('adInstruction').textContent = '🎉 You earned points!';
+                        document.getElementById('adInstruction').style.color = '#4ade80';
+                    }
+                }, 1000);
+                
+                // Wait FULL 15 seconds for ad to complete
+                await new Promise(resolve => setTimeout(resolve, 15000));
+                
+                // CLOSE AD WINDOW ONLY AFTER COMPLETION
+                if (adWindow && !adWindow.closed) {
+                    adWindow.close();
+                }
+                
+                // Hide overlay
+                document.getElementById('adOverlay')?.remove();
+                
+                // AWARD POINTS ONLY AFTER FULL COMPLETION
+                await db.collection('users').doc(currentUser.uid).update({
+                    points: (userData?.points || 0) + AD_REWARD_POINTS,
+                    totalPoints: (userData?.totalPoints || 0) + AD_REWARD_POINTS,
+                    adsWatched: (userData?.adsWatched || 0) + 1
+                });
+                await loadUserData();
+                
+                // SHOW "GO BACK TO APP" ONLY AFTER COMPLETION
+                const returnOverlay = document.createElement('div');
+                returnOverlay.className = 'return-overlay';
+                returnOverlay.id = 'returnOverlay';
+                returnOverlay.innerHTML = `
+                    <div class="return-modal">
+                        <div class="icon">🎉</div>
+                        <h2>AD COMPLETE!</h2>
+                        <div class="points-earned">+${AD_REWARD_POINTS} points</div>
+                        <p>✅ You watched the full ad and earned points!</p>
+                        <button class="btn-return" onclick="goBackToApp()">
+                            🔄 <strong>GO BACK TO APP</strong>
+                        </button>
+                    </div>
+                `;
+                document.body.appendChild(returnOverlay);
+                
+                // Auto-return after 10 seconds if user doesn't click
+                setTimeout(() => {
+                    const overlayEl = document.getElementById('returnOverlay');
+                    if (overlayEl) {
+                        overlayEl.remove();
+                        showToast('✅ Auto-returned to app!');
+                    }
+                }, 10000);
+                
+                showToast(`✅ +${AD_REWARD_POINTS} points! Ad completed!`);
+            } catch (error) {
+                document.getElementById('adOverlay')?.remove();
+                showToast('❌ Ad was not completed. No points awarded.', true);
+            }
+        };
+
+        // ============================================================
+        // GO BACK TO APP FUNCTION
+        // ============================================================
+        function goBackToApp() {
+            const overlay = document.getElementById('returnOverlay');
+            if (overlay) overlay.remove();
+            window.focus();
+            showToast('✅ Welcome back! Points added!');
+        }
+
+        // ============================================================
+        // CLOSE AD MANUALLY - NO POINTS
+        // ============================================================
+        function closeAdManually() {
+            document.getElementById('adOverlay')?.remove();
+            showToast('⏹️ Ad skipped. No points awarded.', true);
+        }
+
+        // ============================================================
+        // WITHDRAWAL
+        // ============================================================
+        window.requestWithdrawal = async function() {
+            if (!currentUser) { showToast('Please login first', true); return; }
+            const points = userData?.points || 0;
+            if (points < POINTS_FOR_5_DOLLARS) {
+                showToast(`Need ${POINTS_FOR_5_DOLLARS - points} more points`, true);
+                return;
+            }
+            const cash = (points / POINTS_FOR_5_DOLLARS) * 5;
+            await db.collection('withdrawalRequests').add({
+                userId: currentUser.uid,
+                username: userData?.username || '',
+                points: points,
+                amount: cash,
+                status: 'pending',
+                date: new Date().toISOString()
+            });
+            showToast(`✅ Withdrawal for $${cash.toFixed(2)} submitted!`);
+        };
+
+        // ============================================================
+        // COPY REFERRAL CODE
+        // ============================================================
+        window.copyReferralCode = function() {
+            const code = userData?.referralCode || 'NONE';
+            navigator.clipboard.writeText(code);
+            showToast('📋 Referral code copied!');
+        };
+
+        // ============================================================
+        // UI FUNCTIONS
+        // ============================================================
+        function showToast(message, isError = false) {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.className = 'toast' + (isError ? ' error' : '');
+            toast.style.display = 'block';
+            clearTimeout(toast._timeout);
+            toast._timeout = setTimeout(() => { toast.style.display = 'none'; }, 3000);
+        }
+
+        function openSearch() {
+            document.getElementById('searchInput').focus();
+        }
+
+        function switchTab(tab) {
+            currentTab = tab;
+            document.querySelectorAll('.bottom-nav .nav-item').forEach(el => el.classList.remove('active'));
+            document.querySelector(`.bottom-nav .nav-item[data-tab="${tab}"]`)?.classList.add('active');
+            
+            // Hide all content
+            document.getElementById('homeContent').style.display = 'none';
+            document.getElementById('platformsContent').style.display = 'none';
+            document.getElementById('categoriesContent').style.display = 'none';
+            document.getElementById('earnContent').style.display = 'none';
+            document.getElementById('profileContent').style.display = 'none';
+            
+            // Show selected content
+            if (tab === 'home') {
+                document.getElementById('homeContent').style.display = 'block';
+                renderCategories();
+                renderPlatforms();
+                renderTrending();
+                loadProducts();
+            } else if (tab === 'platforms') {
+                document.getElementById('platformsContent').style.display = 'block';
+                renderAllPlatforms();
+            } else if (tab === 'categories') {
+                document.getElementById('categoriesContent').style.display = 'block';
+                renderAllCategories();
+            } else if (tab === 'earn') {
+                document.getElementById('earnContent').style.display = 'block';
+                updateUI();
+            } else if (tab === 'profile') {
+                document.getElementById('profileContent').style.display = 'block';
+                renderProfile();
+            }
+        }
+
+        // ============================================================
+        // CATEGORIES
+        // ============================================================
+        function renderCategories() {
+            const grid = document.getElementById('categoriesGrid');
+            grid.innerHTML = categories.slice(0, 8).map(cat => `
+                <div class="category-item" onclick="filterByCategory('${cat.name}')">
+                    <span class="icon">${cat.icon}</span>
+                    <span class="name"><strong>${cat.name}</strong></span>
+                </div>
+            `).join('');
+        }
+
+        function renderAllCategories() {
+            const grid = document.getElementById('allCategoriesGrid');
+            grid.innerHTML = categories.map(cat => `
+                <div class="category-item" onclick="filterByCategory('${cat.name}')">
+                    <span class="icon">${cat.icon}</span>
+                    <span class="name"><strong>${cat.name}</strong></span>
+                </div>
+            `).join('');
+        }
+
+        function filterByCategory(category) {
+            showToast(`📂 Showing: ${category}`);
+            switchTab('home');
+            loadProducts(category);
+        }
+
+        // ============================================================
+        // PLATFORMS
+        // ============================================================
+        function renderPlatforms() {
+            const grid = document.getElementById('platformsGrid');
+            grid.innerHTML = allPlatforms.slice(0, 10).map(p => `
+                <div class="platform-item" onclick="window.open('${p.url}','_blank')">
+                    <span class="icon">${p.icon}</span>
+                    <span class="name"><strong>${p.name}</strong></span>
+                </div>
+            `).join('');
+        }
+
+        function renderAllPlatforms() {
+            const grid = document.getElementById('platformResults');
+            grid.innerHTML = allPlatforms.map(p => `
+                <div class="platform-item" onclick="window.open('${p.url}','_blank')" style="padding:8px 4px;">
+                    <span class="icon" style="font-size:28px;">${p.icon}</span>
+                    <span class="name" style="font-size:10px;"><strong>${p.name}</strong></span>
+                </div>
+            `).join('');
+        }
+
+        function searchPlatforms() {
+            const query = document.getElementById('platformSearch').value.toLowerCase().trim();
+            const grid = document.getElementById('platformResults');
+            if (!query) {
+                renderAllPlatforms();
+                return;
+            }
+            const results = allPlatforms.filter(p => 
+                p.name.toLowerCase().includes(query) || 
+                p.url.toLowerCase().includes(query)
+            );
+            if (results.length === 0) {
+                grid.innerHTML = `<div style="grid-column:1/-1; text-align:center; padding:20px; color:#6b7280;">❌ No platforms found</div>`;
+            } else {
+                grid.innerHTML = results.map(p => `
+                    <div class="platform-item" onclick="window.open('${p.url}','_blank')" style="padding:8px 4px;">
+                        <span class="icon" style="font-size:28px;">${p.icon}</span>
+                        <span class="name" style="font-size:10px;"><strong>${p.name}</strong></span>
+                    </div>
+                `).join('');
+            }
+        }
+
+        // ============================================================
+        // TRENDING
+        // ============================================================
+        function renderTrending() {
+            const container = document.getElementById('trendingTags');
+            container.innerHTML = trendingTags.map(tag => `
+                <span class="trending-tag" onclick="searchTrending('${tag.name}')">
+                    <strong>${tag.name}</strong> <span class="count">${tag.count}</span>
+                </span>
+            `).join('');
+        }
+
+        function searchTrending(term) {
+            document.getElementById('searchInput').value = term;
+            searchProducts();
+        }
+
+        // ============================================================
+        // PRODUCTS
+        // ============================================================
+        async function loadProducts(category = null, search = null) {
+            const container = document.getElementById('productsContainer');
+            container.innerHTML = '<div class="loading-text">📦 <strong>Loading products</strong>...</div>';
+            
+            try {
+                let query = db.collection('products').orderBy('timestamp', 'desc');
+                if (category) {
+                    query = db.collection('products').where('category', '==', category).orderBy('timestamp', 'desc');
+                }
+                
+                const snapshot = await query.limit(20).get();
+                allProducts = [];
+                snapshot.forEach(doc => {
+                    allProducts.push({ id: doc.id, ...doc.data() });
+                });
+                
+                if (search) {
+                    const term = search.toLowerCase();
+                    allProducts = allProducts.filter(p => 
+                        p.title.toLowerCase().includes(term) || 
+                        (p.description || '').toLowerCase().includes(term) ||
+                        (p.category || '').toLowerCase().includes(term)
+                    );
+                }
+                
+                renderProducts(allProducts);
+            } catch (error) {
+                console.error('Error loading products:', error);
+                container.innerHTML = '<div class="empty-state"><div class="icon">⚠️</div><div class="title">Error loading products</div><div class="subtitle">Please refresh and try again</div></div>';
+            }
+        }
+
+        function renderProducts(products) {
+            const container = document.getElementById('productsContainer');
+            
+            if (!products || products.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="icon">📭</div>
+                        <div class="title">No products found</div>
+                        <div class="subtitle">Be the first to post an ad!</div>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = `
+                <div class="products-grid">
+                    ${products.map(p => `
+                        <div class="product-card" onclick="openDetail('${p.id}')">
+                            <div class="image-container">
+                                <img src="${p.image || 'https://via.placeholder.com/300x225/059669/white?text=No+Image'}" 
+                                     onerror="this.src='https://via.placeholder.com/300x225/059669/white?text=No+Image'">
+                                ${p.category ? `<span class="badge"><strong>${p.category}</strong></span>` : ''}
+                            </div>
+                            <div class="product-info">
+                                <div class="product-name"><strong>${escapeHtml(p.title)}</strong></div>
+                                <div class="product-price">₦${Number(p.price).toLocaleString()}</div>
+                                <div class="product-meta">
+                                    <span>📍 ${p.location || 'Nigeria'}</span>
+                                    <span>${formatDate(p.timestamp)}</span>
+                                </div>
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+        }
+
+        function searchProducts() {
+            const query = document.getElementById('searchInput').value.trim();
+            if (query) {
+                loadProducts(null, query);
+            } else {
+                loadProducts();
+            }
+        }
+
+        // ============================================================
+        // SELL MODAL
+        // ============================================================
+        window.openSellModal = function() {
+            if (!currentUser) {
+                showToast('Please login first', true);
+                return;
+            }
+            document.getElementById('sellModal').classList.add('show');
+            document.getElementById('adName').value = userData?.username || '';
+            document.getElementById('adPhone').value = userData?.phone || '';
+        };
+
+        window.closeSellModal = function() {
+            document.getElementById('sellModal').classList.remove('show');
+            document.getElementById('sellForm').reset();
+            document.getElementById('imagePreview').style.display = 'none';
+            document.getElementById('uploadArea').classList.remove('has-image');
+            selectedImageFile = null;
+        };
+
+        function handleImageUpload(event) {
+            const file = event.target.files[0];
+            if (file) {
+                selectedImageFile = file;
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    document.getElementById('previewImg').src = e.target.result;
+                    document.getElementById('imagePreview').style.display = 'block';
+                    document.getElementById('uploadArea').classList.add('has-image');
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        async function submitAd(e) {
+            e.preventDefault();
+            if (!currentUser) {
+                showToast('Please login first', true);
+                return;
+            }
+
+            const title = document.getElementById('adTitle').value.trim();
+            const category = document.getElementById('adCategory').value;
+            const description = document.getElementById('adDescription').value.trim();
+            const location = document.getElementById('adLocation').value.trim();
+            const price = document.getElementById('adPrice').value;
+            const name = document.getElementById('adName').value.trim();
+            const phone = document.getElementById('adPhone').value.trim();
+
+            if (!title || !category || !price || !name || !phone) {
+                showToast('Please fill in all required fields', true);
+                return;
+            }
+
+            const submitBtn = document.querySelector('#sellForm .submit-btn');
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<strong>📤 POSTING...</strong>';
+
+            try {
+                let imageUrl = 'https://via.placeholder.com/300x225/059669/white?text=No+Image';
+                
+                if (selectedImageFile) {
+                    const storageRef = storage.ref(`products/${Date.now()}_${selectedImageFile.name}`);
+                    await storageRef.put(selectedImageFile);
+                    imageUrl = await storageRef.getDownloadURL();
+                }
+
+                await db.collection('products').add({
+                    title: title,
+                    category: category,
+                    description: description || 'No description provided',
+                    location: location || 'Nigeria',
+                    price: parseFloat(price),
+                    name: name,
+                    phone: phone,
+                    image: imageUrl,
+                    userId: currentUser.uid,
+                    userEmail: currentUser.email,
+                    timestamp: Date.now(),
+                    date: new Date().toISOString().split('T')[0]
+                });
+
+                await updatePoints(10, 'Product listed!');
+                showToast('✅ Ad posted successfully! +10 points');
+                closeSellModal();
+                loadProducts();
+            } catch (error) {
+                console.error('Error posting ad:', error);
+                showToast('Error posting ad: ' + error.message, true);
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = '<strong>📤 POST AD</strong>';
+            }
+        }
+
+        // ============================================================
+        // DETAIL MODAL
+        // ============================================================
+        window.openDetail = async function(productId) {
+            currentProductId = productId;
+            try {
+                const doc = await db.collection('products').doc(productId).get();
+                if (!doc.exists) {
+                    showToast('Product not found', true);
+                    return;
+                }
+                const product = doc.data();
+                
+                document.getElementById('detailTitle').textContent = product.title;
+                document.getElementById('detailImage').src = product.image || 'https://via.placeholder.com/400x300/059669/white?text=No+Image';
+                document.getElementById('detailPrice').textContent = `₦${Number(product.price).toLocaleString()}`;
+                document.getElementById('detailName').textContent = product.title;
+                document.getElementById('detailDesc').textContent = product.description || 'No description provided';
+                document.getElementById('detailSeller').textContent = product.name || 'Anonymous';
+                document.getElementById('detailDate').textContent = `📅 Posted ${formatDate(product.timestamp)}`;
+                document.getElementById('detailLocation').textContent = product.location || 'Nigeria';
+                document.getElementById('detailAvatar').textContent = (product.name || 'U')[0].toUpperCase();
+                
+                document.getElementById('detailModal').dataset.phone = product.phone || '';
+                document.getElementById('detailModal').dataset.seller = product.name || 'Seller';
+                document.getElementById('detailModal').dataset.title = product.title || '';
+                document.getElementById('detailModal').dataset.price = product.price || '';
+                
+                const deleteBtn = document.getElementById('detailDeleteBtn');
+                if (currentUser && product.userId === currentUser.uid) {
+                    deleteBtn.style.display = 'block';
+                } else {
+                    deleteBtn.style.display = 'none';
+                }
+                
+                document.getElementById('detailModal').classList.add('show');
+            } catch (error) {
+                console.error('Error loading product:', error);
+                showToast('Error loading product details', true);
+            }
+        };
+
+        window.closeDetailModal = function() {
+            document.getElementById('detailModal').classList.remove('show');
+            currentProductId = null;
+        };
+
+        window.contactSeller = function() {
+            const phone = document.getElementById('detailModal').dataset.phone;
+            const seller = document.getElementById('detailModal').dataset.seller;
+            const title = document.getElementById('detailModal').dataset.title;
+            const price = document.getElementById('detailModal').dataset.price;
+            
+            if (phone) {
+                let cleanPhone = phone.replace(/\D/g, '');
+                if (cleanPhone.startsWith('0')) cleanPhone = '234' + cleanPhone.substring(1);
+                const message = encodeURIComponent(`Hi ${seller}, I'm interested in "${title}" for ₦${Number(price).toLocaleString()}. Is it available?`);
+                window.open(`https://wa.me/${cleanPhone}?text=${message}`, '_blank');
+            } else {
+                showToast('Phone number not available', true);
+            }
+        };
+
+        window.callSeller = function() {
+            const phone = document.getElementById('detailModal').dataset.phone;
+            if (phone) {
+                let cleanPhone = phone.replace(/\D/g, '');
+                if (cleanPhone.startsWith('0')) cleanPhone = '234' + cleanPhone.substring(1);
+                window.open(`tel:${cleanPhone}`);
+            } else {
+                showToast('Phone number not available', true);
+            }
+        };
+
+        window.deleteProduct = async function() {
+            if (!currentProductId) return;
+            if (!confirm('Delete this ad permanently?')) return;
+            
+            try {
+                await db.collection('products').doc(currentProductId).delete();
+                showToast('Ad deleted successfully');
+                closeDetailModal();
+                loadProducts();
+            } catch (error) {
+                console.error('Error deleting product:', error);
+                showToast('Error deleting ad', true);
+            }
+        };
+
+        // ============================================================
+        // PROFILE
+        // ============================================================
+        async function renderProfile() {
+            if (!currentUser) {
+                document.getElementById('profileContent').innerHTML = `
+                    <div class="empty-state">
+                        <div class="icon">👤</div>
+                        <div class="title">Not logged in</div>
+                        <div class="subtitle">Login to access your profile</div>
+                    </div>
+                `;
+                return;
+            }
+
+            try {
+                const doc = await db.collection('users').doc(currentUser.uid).get();
+                const data = doc.data() || {};
+                
+                const adsSnap = await db.collection('products').where('userId', '==', currentUser.uid).get();
+                const adCount = adsSnap.size;
+                const savedCount = data.savedItems?.length || 0;
+                
+                document.getElementById('profileAvatar').textContent = (data.username || 'U')[0].toUpperCase();
+                document.getElementById('profileName').textContent = data.username || 'User';
+                document.getElementById('profileEmail').textContent = currentUser.email;
+                document.getElementById('profileAds').textContent = adCount;
+                document.getElementById('profileSaved').textContent = savedCount;
+                document.getElementById('profilePoints').textContent = data.points || 0;
+                document.getElementById('profilePhoneDisplay').textContent = data.phone || 'Not set';
+                
+                updateUI();
+            } catch (error) {
+                console.error('Error loading profile:', error);
+            }
+        }
+
+        async function updatePhone() {
+            const phone = document.getElementById('phoneInput').value.trim();
+            if (!phone) {
+                showToast('Please enter a phone number', true);
+                return;
+            }
+            try {
+                await db.collection('users').doc(currentUser.uid).update({ phone: phone });
+                showToast('📞 Phone number updated!');
+                renderProfile();
+            } catch (error) {
+                showToast('Error updating phone', true);
+            }
+        }
+
+        // ============================================================
+        // UTILITY FUNCTIONS
+        // ============================================================
+        function escapeHtml(str) {
+            if (!str) return '';
+            const div = document.createElement('div');
+            div.textContent = str;
+            return div.innerHTML;
+        }
+
+        function formatDate(timestamp) {
+            if (!timestamp) return 'Recently';
+            const date = new Date(timestamp);
+            const now = new Date();
+            const diff = Math.floor((now - date) / (1000 * 60 * 60 * 24));
+            if (diff === 0) return 'Today';
+            if (diff === 1) return 'Yesterday';
+            if (diff < 7) return `${diff}d ago`;
+            return date.toLocaleDateString('en-NG', { day: 'numeric', month: 'short' });
+        }
+
+        // ============================================================
+        // AUTH STATE
+        // ============================================================
+        auth.onAuthStateChanged(async (user) => {
+            if (user) {
+                currentUser = user;
+                document.getElementById('loginScreen').style.display = 'none';
+                document.getElementById('mainApp').style.display = 'block';
+                
+                try {
+                    const doc = await db.collection('users').doc(user.uid).get();
+                    if (doc.exists) {
+                        userData = doc.data();
+                    } else {
+                        userData = { username: user.email.split('@')[0], points: 50, totalPoints: 50, streak: 0, adsWatched: 0, referrals: 0 };
+                        await db.collection('users').doc(user.uid).set({
+                            username: user.email.split('@')[0],
+                            email: user.email,
+                            phone: '',
+                            points: 50,
+                            totalPoints: 50,
+                            streak: 0,
+                            adsWatched: 0,
+                            referrals: 0,
+                            referralCode: Math.random().toString(36).substring(2, 8).toUpperCase(),
+                            savedItems: [],
+                            createdAt: new Date().toISOString()
+                        });
+                    }
+                } catch (e) { console.error(e); }
+                
+                document.getElementById('userAvatar').textContent = (userData?.username || user.email)[0].toUpperCase();
+                updateUI();
+                switchTab('home');
+            } else {
+                currentUser = null;
+                userData = null;
+                document.getElementById('loginScreen').style.display = 'flex';
+                document.getElementById('mainApp').style.display = 'none';
+            }
+        });
+
+        // ============================================================
+        // CLOSE MODALS ON CLICK OUTSIDE
+        // ============================================================
+        document.querySelectorAll('.modal').forEach(modal => {
+            modal.addEventListener('click', function(e) {
+                if (e.target === this) {
+                    this.classList.remove('show');
+                }
+            });
+        });
+
+        // ============================================================
+        // INITIAL LOAD
+        // ============================================================
+        console.log('🛍️ EasySell Marketplace Loaded');
+        console.log('📦 Features: Marketplace + Rewards + Platforms + Ads');
+        console.log('📺 Ads now complete fully before returning!');
+    </script>
+</body>
+</html>
