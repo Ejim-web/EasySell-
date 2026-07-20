@@ -1,1 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>EasySell</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
 
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-storage-compat.js"></script>
+
+    <style>
+        body { 
+            margin: 0; 
+            font-family: system-ui, sans-serif; 
+            background: #0a0a0a; 
+            color: #fff; 
+            min-height: 100vh;
+        }
+        header { 
+            background: #111; 
+            padding: 12px 16px; 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+        }
+        .logo { font-size: 24px; font-weight: 800; color: #00b16a; }
+        .search-bar { 
+            background: #1f1f1f; 
+            margin: 12px 16px; 
+            padding: 12px 16px; 
+            border-radius: 12px; 
+            display: flex; 
+            align-items: center; 
+            gap: 10px; 
+        }
+        .search-bar input { 
+            flex: 1; 
+            background: transparent; 
+            border: none; 
+            color: white; 
+            outline: none; 
+        }
+
+        .bottom-nav { 
+            position: fixed; 
+            bottom: 0; 
+            left: 0; 
+            right: 0; 
+            background: #111; 
+            display: flex; 
+            justify-content: space-around; 
+            padding: 12px 0; 
+            border-top: 1px solid #222; 
+        }
+        .nav-item { text-align: center; color: #aaa; cursor: pointer; }
+        .nav-item.active { color: #00b16a; }
+
+        .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.95); align-items: flex-end; z-index: 1000; }
+        .modal.show { display: flex; }
+        .modal-content { background: #1a1a1a; width: 100%; border-radius: 20px 20px 0 0; padding: 20px; max-height: 90vh; overflow-y: auto; }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="logo">EasySell</div>
+        <div style="background:#00b16a;color:white;width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;">U</div>
+    </header>
+
+    <div class="search-bar">
+        <i class="fas fa-search"></i>
+        <input type="text" placeholder="I am looking for..." />
+    </div>
+
+    <div style="padding:20px;text-align:center;color:#888;">
+        <p>Your marketplace is ready.</p>
+        <p>Click "Sell" button below to post an ad.</p>
+    </div>
+
+    <!-- Bottom Nav -->
+    <div class="bottom-nav">
+        <div class="nav-item active" onclick="switchTab('home')"><i class="fas fa-home"></i><div>Home</div></div>
+        <div class="nav-item" onclick="openSellModal()"><i class="fas fa-plus-circle" style="font-size:28px;"></i></div>
+        <div class="nav-item" onclick="switchTab('profile')"><i class="fas fa-user"></i><div>Profile</div></div>
+    </div>
+
+    <!-- Sell Modal -->
+    <div id="sellModal" class="modal">
+        <div class="modal-content">
+            <h2 style="margin-bottom:20px;">Post New Ad</h2>
+            <form onsubmit="submitAd(event)">
+                <input type="text" placeholder="Title" style="width:100%;padding:14px;margin-bottom:12px;background:#222;border:none;border-radius:8px;color:white;">
+                <button type="submit" style="width:100%;padding:16px;background:#00b16a;color:white;border:none;border-radius:30px;font-weight:700;">Post Ad</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        window.openSellModal = function() {
+            document.getElementById('sellModal').classList.add('show');
+        };
+
+        window.submitAd = function(e) {
+            e.preventDefault();
+            alert("✅ Ad posted! (Demo)");
+            document.getElementById('sellModal').classList.remove('show');
+        };
+
+        window.switchTab = function(tab) {
+            alert("Switched to " + tab);
+        };
+
+        console.log("✅ Dark Theme Ready");
+    </script>
+</body>
+</html>
