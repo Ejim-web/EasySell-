@@ -1,1 +1,1232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+    <title>EasySell · Buy & Sell</title>
 
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js">
+    </script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js">
+    </script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js">
+    </script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-storage-compat.js">
+    </script>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+        body {
+            background: #f5f5f5;
+            min-height: 100vh;
+            padding-bottom: 70px;
+        }
+
+        /* ───────────── LOGIN SCREEN ───────────── */
+        .login-container {
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+        }
+        .login-card {
+            background: white;
+            border-radius: 32px;
+            padding: 40px 28px;
+            max-width: 400px;
+            width: 100%;
+            text-align: center;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+        }
+        .login-logo {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, #059669, #047857);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+        }
+        .login-logo span {
+            font-size: 45px;
+        }
+        .login-card h1 {
+            font-size: 28px;
+            margin-bottom: 8px;
+            color: #1a1a2e;
+        }
+        .login-card p {
+            color: #6b7280;
+            margin-bottom: 25px;
+            font-size: 14px;
+        }
+        .login-input {
+            width: 100%;
+            padding: 14px;
+            border: 1px solid #ddd;
+            border-radius: 30px;
+            margin-bottom: 12px;
+            font-size: 14px;
+            background: #f8f9fa;
+            outline: none;
+            transition: border 0.3s;
+        }
+        .login-input:focus {
+            border-color: #059669;
+        }
+        .login-btn {
+            width: 100%;
+            background: linear-gradient(135deg, #059669, #047857);
+            color: white;
+            border: none;
+            padding: 14px;
+            border-radius: 30px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            margin-top: 10px;
+            transition: transform 0.2s;
+        }
+        .login-btn:active {
+            transform: scale(0.97);
+        }
+        .login-btn.guest {
+            background: #6b7280;
+        }
+        .switch-btn {
+            background: none;
+            border: none;
+            color: #059669;
+            margin-top: 15px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+        }
+        .error-msg {
+            color: #dc2626;
+            font-size: 13px;
+            margin-bottom: 10px;
+            min-height: 20px;
+        }
+        .divider {
+            margin: 15px 0;
+            border-top: 1px solid #e5e7eb;
+            padding-top: 15px;
+        }
+
+        /* ───────────── MAIN APP ───────────── */
+        .main-app {
+            display: none;
+        }
+
+        /* ───────────── TOP HEADER ───────────── */
+        .top-header {
+            background: white;
+            padding: 12px 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #e5e7eb;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        .top-header .logo {
+            font-size: 20px;
+            font-weight: 800;
+            color: #059669;
+        }
+        .top-header .logo span {
+            color: #1a1a2e;
+        }
+        .header-actions {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+        .header-actions button {
+            background: none;
+            border: none;
+            font-size: 20px;
+            cursor: pointer;
+            padding: 4px;
+            color: #1a1a2e;
+        }
+        .user-avatar {
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            background: #059669;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 15px;
+            cursor: pointer;
+        }
+
+        /* ───────────── SEARCH & FILTERS ───────────── */
+        .search-section {
+            background: white;
+            padding: 12px 16px;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        .search-bar {
+            display: flex;
+            background: #f1f3f5;
+            border-radius: 30px;
+            padding: 4px 16px;
+            align-items: center;
+        }
+        .search-bar input {
+            flex: 1;
+            border: none;
+            background: transparent;
+            padding: 10px 0;
+            font-size: 14px;
+            outline: none;
+        }
+        .search-bar button {
+            background: none;
+            border: none;
+            font-size: 18px;
+            cursor: pointer;
+            padding: 8px;
+            color: #6b7280;
+        }
+        .filter-row {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            align-items: center;
+            margin-top: 8px;
+        }
+        .filter-row select {
+            padding: 6px 12px;
+            border: 1px solid #e5e7eb;
+            border-radius: 20px;
+            font-size: 13px;
+            background: #f8f9fa;
+            outline: none;
+            flex: 1;
+            min-width: 80px;
+        }
+        .filter-row select:focus {
+            border-color: #059669;
+        }
+
+        /* ───────────── MAIN CONTENT ───────────── */
+        .main-content {
+            padding: 12px 16px 20px;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        /* ───────────── SELL PROMO CARD ───────────── */
+        .sell-promo {
+            background: linear-gradient(135deg, #059669, #047857);
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 16px;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            box-shadow: 0 4px 12px rgba(5, 150, 105, 0.3);
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        .sell-promo:active {
+            transform: scale(0.97);
+        }
+        .sell-promo .icon {
+            font-size: 48px;
+            margin-bottom: 8px;
+        }
+        .sell-promo h3 {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+        .sell-promo p {
+            opacity: 0.9;
+            font-size: 14px;
+            margin-bottom: 12px;
+        }
+        .sell-promo .btn-sell-now {
+            background: white;
+            color: #059669;
+            padding: 10px 30px;
+            border: none;
+            border-radius: 30px;
+            font-weight: 700;
+            font-size: 16px;
+            cursor: pointer;
+            transition: transform 0.2s;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+        .sell-promo .btn-sell-now:active {
+            transform: scale(0.95);
+        }
+
+        /* ───────────── PRODUCTS GRID ───────────── */
+        .products-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+        .product-card {
+            background: white;
+            border-radius: 14px;
+            overflow: hidden;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+            transition: all 0.2s;
+            cursor: pointer;
+            position: relative;
+        }
+        .product-card:active {
+            transform: scale(0.97);
+        }
+        .product-card .image-container {
+            position: relative;
+            width: 100%;
+            padding-top: 75%;
+            background: #f1f3f5;
+            overflow: hidden;
+        }
+        .product-card .image-container img {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .product-card .image-container .badge {
+            position: absolute;
+            top: 8px;
+            left: 8px;
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            font-size: 10px;
+            padding: 2px 10px;
+            border-radius: 12px;
+            font-weight: 600;
+        }
+        .product-card .product-info {
+            padding: 10px 12px;
+        }
+        .product-card .product-name {
+            font-size: 13px;
+            font-weight: 600;
+            color: #1a1a2e;
+            margin-bottom: 4px;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+        .product-card .product-price {
+            font-size: 16px;
+            font-weight: 700;
+            color: #059669;
+        }
+        .product-card .product-meta {
+            font-size: 11px;
+            color: #6b7280;
+            margin-top: 4px;
+            display: flex;
+            justify-content: space-between;
+        }
+        .product-card .product-meta .location {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .product-card .product-meta .date {
+            font-size: 11px;
+        }
+
+        /* ───────────── BOTTOM NAV ───────────── */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: white;
+            display: flex;
+            justify-content: space-around;
+            padding: 8px 0 10px;
+            border-top: 1px solid #e5e7eb;
+            z-index: 100;
+        }
+        .bottom-nav .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 4px 12px;
+            color: #6b7280;
+            transition: color 0.2s;
+            font-size: 10px;
+            font-weight: 600;
+        }
+        .bottom-nav .nav-item.active {
+            color: #059669;
+        }
+        .bottom-nav .nav-item .icon {
+            font-size: 24px;
+        }
+        .bottom-nav .nav-item .label {
+            margin-top: 2px;
+            font-weight: 700;
+        }
+        .bottom-nav .nav-item.sell-btn .icon {
+            font-size: 30px;
+            color: #059669;
+        }
+
+        /* ───────────── MODAL ───────────── */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            justify-content: center;
+            align-items: flex-end;
+            z-index: 9999;
+        }
+        .modal.show {
+            display: flex !important;
+        }
+        .modal-content {
+            background: white;
+            border-radius: 24px 24px 0 0;
+            padding: 24px;
+            width: 100%;
+            max-width: 600px;
+            max-height: 90vh;
+            overflow-y: auto;
+            animation: slideUp 0.3s ease;
+        }
+        @keyframes slideUp {
+            from {
+                transform: translateY(100%);
+            }
+            to {
+                transform: translateY(0);
+            }
+        }
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .modal-header h2 {
+            font-size: 20px;
+            color: #1a1a2e;
+        }
+        .modal-header .close-modal {
+            font-size: 30px;
+            cursor: pointer;
+            color: #6b7280;
+            background: none;
+            border: none;
+            padding: 0 4px;
+        }
+
+        /* ───────────── FORM ───────────── */
+        .form-group {
+            margin-bottom: 16px;
+        }
+        .form-group label {
+            display: block;
+            font-size: 13px;
+            font-weight: 700;
+            color: #1a1a2e;
+            margin-bottom: 4px;
+        }
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px 14px;
+            border: 1px solid #e5e7eb;
+            border-radius: 12px;
+            font-size: 14px;
+            outline: none;
+            transition: border 0.3s;
+            background: #f8f9fa;
+        }
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            border-color: #059669;
+        }
+        .form-group textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        .submit-btn {
+            width: 100%;
+            background: linear-gradient(135deg, #059669, #047857);
+            color: white;
+            border: none;
+            padding: 14px;
+            border-radius: 30px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            margin-top: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: transform 0.2s;
+        }
+        .submit-btn:active {
+            transform: scale(0.97);
+        }
+        .submit-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        /* ───────────── TOAST ───────────── */
+        .toast {
+            position: fixed;
+            bottom: 80px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #1a1a2e;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 30px;
+            font-size: 14px;
+            z-index: 9999;
+            animation: slideUp 0.3s ease;
+            max-width: 90%;
+            text-align: center;
+            font-weight: 600;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+            display: none;
+        }
+        .toast.error {
+            background: #fee2e2;
+            color: #dc2626;
+        }
+
+        /* ───────────── EMPTY STATE ───────────── */
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+        }
+        .empty-state .icon {
+            font-size: 48px;
+        }
+        .empty-state .title {
+            font-size: 18px;
+            font-weight: 700;
+            color: #1a1a2e;
+            margin: 12px 0 4px;
+        }
+        .empty-state .subtitle {
+            color: #6b7280;
+            font-size: 14px;
+        }
+
+        /* ───────────── RESPONSIVE ───────────── */
+        @media (max-width: 400px) {
+            .products-grid {
+                grid-template-columns: 1fr 1fr;
+                gap: 8px;
+            }
+        }
+        @media (min-width: 600px) {
+            .main-content {
+                padding: 20px;
+            }
+            .products-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ════════════════════════════════════════════════ -->
+    <!-- LOGIN SCREEN                                   -->
+    <!-- ════════════════════════════════════════════════ -->
+    <div id="loginScreen" class="login-container">
+        <div class="login-card">
+            <div class="login-logo"><span>🛍️</span></div>
+            <h1 id="formTitle">Welcome to EasySell</h1>
+            <p id="formSubtitle">Nigeria's trusted marketplace</p>
+            <div id="errorMsg" class="error-msg"></div>
+            <input type="email" id="loginEmail" class="login-input" placeholder="Email address" />
+            <input type="password" id="loginPassword" class="login-input" placeholder="Password" />
+            <button class="login-btn" onclick="doLogin()" id="actionBtn">Login</button>
+            <button class="switch-btn" onclick="toggleForm()" id="switchBtn">Don't have an account? Sign Up</button>
+            <div class="divider">
+                <button class="login-btn guest" onclick="continueAsGuest()">Continue as Guest</button>
+                <p style="font-size:12px;color:#6b7280;margin-top:8px;">You can post without signing up</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- ════════════════════════════════════════════════ -->
+    <!-- MAIN APP                                       -->
+    <!-- ════════════════════════════════════════════════ -->
+    <div id="mainApp" class="main-app">
+
+        <!-- ─── TOP HEADER ─── -->
+        <div class="top-header">
+            <div class="logo">Easy<span>Sell</span></div>
+            <div class="header-actions">
+                <button onclick="openSearch()" title="Search"><i class="fas fa-search"></i></button>
+                <div class="user-avatar" onclick="switchTab('profile')" id="userAvatar">U</div>
+            </div>
+        </div>
+
+        <!-- ─── SEARCH & FILTERS ─── -->
+        <div class="search-section">
+            <div class="search-bar">
+                <input type="text" id="searchInput" placeholder="🔍 I am looking for..." oninput="applyFilters()" />
+                <button onclick="applyFilters()"><i class="fas fa-search"></i></button>
+            </div>
+            <div class="filter-row">
+                <select id="categoryFilter" onchange="applyFilters()">
+                    <option value="">All Categories</option>
+                    <option value="Cars">🚗 Cars</option>
+                    <option value="Mobile Phones">📱 Mobile Phones</option>
+                    <option value="Motorcycles">🏍️ Motorcycles</option>
+                    <option value="Land & Plots">🏘️ Land & Plots</option>
+                    <option value="Electronics">💻 Electronics</option>
+                    <option value="Home & Furniture">🏠 Home & Furniture</option>
+                    <option value="Fashion">👗 Fashion</option>
+                    <option value="Beauty">💄 Beauty</option>
+                    <option value="Services">🔧 Services</option>
+                    <option value="Jobs">💼 Jobs</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- ─── MAIN CONTENT ─── -->
+        <div class="main-content" id="mainContent">
+
+            <!-- ========== HOME TAB ========== -->
+            <div id="homeContent">
+                <!-- ─── SELL PROMO CARD ─── -->
+                <div class="sell-promo" onclick="openSellModal()">
+                    <div class="icon"><i class="fas fa-plus-circle"></i></div>
+                    <h3>Sell Your Item</h3>
+                    <p>Post a free ad and reach thousands of buyers</p>
+                    <button class="btn-sell-now" onclick="event.stopPropagation(); openSellModal();">
+                        <i class="fas fa-upload"></i> Post Ad Now
+                    </button>
+                </div>
+
+                <!-- Products -->
+                <div id="productsContainer">
+                    <div style="text-align:center;padding:20px;color:#6b7280;"><i class="fas fa-spinner fa-spin"></i> Loading products...</div>
+                </div>
+            </div>
+
+            <!-- ========== PROFILE TAB ========== -->
+            <div id="profileContent" style="display:none;">
+                <div style="text-align:center;padding:30px 20px;">
+                    <div style="width:80px;height:80px;border-radius:50%;background:#059669;color:white;font-size:34px;display:flex;align-items:center;justify-content:center;margin:0 auto 12px;font-weight:700;" id="profileAvatar">U</div>
+                    <div style="font-size:20px;font-weight:700;color:#1a1a2e;" id="profileName">User</div>
+                    <div style="color:#6b7280;font-size:14px;" id="profileEmail">user@email.com</div>
+                </div>
+                <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin:16px 0;">
+                    <div style="background:#f8f9fa;border-radius:12px;padding:12px;text-align:center;">
+                        <div style="font-size:22px;font-weight:700;color:#059669;" id="profileAds">0</div>
+                        <div style="font-size:11px;color:#6b7280;font-weight:600;">ADS</div>
+                    </div>
+                    <div style="background:#f8f9fa;border-radius:12px;padding:12px;text-align:center;">
+                        <div style="font-size:22px;font-weight:700;color:#059669;" id="profileSaved">0</div>
+                        <div style="font-size:11px;color:#6b7280;font-weight:600;">SAVED</div>
+                    </div>
+                    <div style="background:#f8f9fa;border-radius:12px;padding:12px;text-align:center;">
+                        <div style="font-size:22px;font-weight:700;color:#059669;" id="profileFavorites">0</div>
+                        <div style="font-size:11px;color:#6b7280;font-weight:600;">FAVORITES</div>
+                    </div>
+                </div>
+                <div style="background:white;border-radius:16px;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,0.08);">
+                    <div style="display:flex;align-items:center;gap:12px;padding:14px 16px;border-bottom:1px solid #f1f3f5;cursor:pointer;" onclick="switchTab('home')">
+                        <span style="font-size:20px;width:28px;text-align:center;color:#059669;"><i class="fas fa-box"></i></span>
+                        <span style="flex:1;font-size:14px;color:#1a1a2e;font-weight:600;">MY ADS</span>
+                        <span style="color:#6b7280;"><i class="fas fa-chevron-right"></i></span>
+                    </div>
+                    <div style="display:flex;align-items:center;gap:12px;padding:14px 16px;border-bottom:1px solid #f1f3f5;cursor:pointer;" onclick="window.open('mailto:support@easysell.com')">
+                        <span style="font-size:20px;width:28px;text-align:center;color:#059669;"><i class="fas fa-envelope"></i></span>
+                        <span style="flex:1;font-size:14px;color:#1a1a2e;font-weight:600;">CONTACT SUPPORT</span>
+                        <span style="color:#6b7280;"><i class="fas fa-chevron-right"></i></span>
+                    </div>
+                    <div style="display:flex;align-items:center;gap:12px;padding:14px 16px;cursor:pointer;" onclick="doLogout()">
+                        <span style="font-size:20px;width:28px;text-align:center;color:#dc2626;"><i class="fas fa-sign-out-alt"></i></span>
+                        <span style="flex:1;font-size:14px;color:#dc2626;font-weight:600;">LOGOUT</span>
+                        <span style="color:#6b7280;"><i class="fas fa-chevron-right"></i></span>
+                    </div>
+                </div>
+            </div>
+
+        </div><!-- /main-content -->
+
+        <!-- ─── BOTTOM NAV ─── -->
+        <div class="bottom-nav">
+            <button class="nav-item active" data-tab="home" onclick="switchTab('home')">
+                <span class="icon"><i class="fas fa-home"></i></span>
+                <span class="label"><strong>HOME</strong></span>
+            </button>
+            <button class="nav-item sell-btn" onclick="openSellModal()" style="color:#059669;">
+                <span class="icon" style="font-size:30px;"><i class="fas fa-plus-circle"></i></span>
+                <span class="label"><strong>SELL</strong></span>
+            </button>
+            <button class="nav-item" data-tab="profile" onclick="switchTab('profile')">
+                <span class="icon"><i class="fas fa-user"></i></span>
+                <span class="label"><strong>PROFILE</strong></span>
+            </button>
+        </div>
+
+    </div><!-- /main-app -->
+
+    <!-- ════════════════════════════════════════════════ -->
+    <!-- SELL MODAL                                     -->
+    <!-- ════════════════════════════════════════════════ -->
+    <div id="sellModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2><i class="fas fa-box-open" style="color:#059669;"></i> <strong>POST NEW AD</strong></h2>
+                <button class="close-modal" onclick="closeSellModal()">&times;</button>
+            </div>
+            <form id="sellForm" onsubmit="submitAd(event)">
+                <input type="hidden" id="editProductId" value="" />
+                <div class="form-group">
+                    <label><strong>TITLE</strong> <span style="color:#dc2626;">*</span></label>
+                    <input type="text" id="adTitle" placeholder="What are you selling?" required />
+                </div>
+                <div class="form-group">
+                    <label><strong>CATEGORY</strong> <span style="color:#dc2626;">*</span></label>
+                    <select id="adCategory" required>
+                        <option value="">Select category</option>
+                        <option value="Cars">🚗 Cars</option>
+                        <option value="Mobile Phones">📱 Mobile Phones</option>
+                        <option value="Motorcycles">🏍️ Motorcycles</option>
+                        <option value="Land & Plots">🏘️ Land & Plots</option>
+                        <option value="Electronics">💻 Electronics</option>
+                        <option value="Home & Furniture">🏠 Home & Furniture</option>
+                        <option value="Fashion">👗 Fashion</option>
+                        <option value="Beauty">💄 Beauty</option>
+                        <option value="Services">🔧 Services</option>
+                        <option value="Jobs">💼 Jobs</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label><strong>DESCRIPTION</strong></label>
+                    <textarea id="adDescription" placeholder="Describe your item…"></textarea>
+                </div>
+                <div class="form-group">
+                    <label><strong>LOCATION</strong></label>
+                    <input type="text" id="adLocation" placeholder="e.g. Lagos, Abuja" />
+                </div>
+                <div class="form-group">
+                    <label><strong>PRICE (₦)</strong> <span style="color:#dc2626;">*</span></label>
+                    <input type="number" id="adPrice" placeholder="0" required />
+                </div>
+                <div class="form-group">
+                    <label><strong>YOUR NAME</strong> <span style="color:#dc2626;">*</span></label>
+                    <input type="text" id="adName" placeholder="Your full name" required />
+                </div>
+                <div class="form-group">
+                    <label><strong>PHONE NUMBER</strong> <span style="color:#dc2626;">*</span></label>
+                    <input type="tel" id="adPhone" placeholder="07030627287" required />
+                </div>
+                <button type="submit" class="submit-btn" id="sellSubmitBtn">
+                    <span id="sellBtnText"><i class="fas fa-upload"></i> POST AD</span>
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- ════════════════════════════════════════════════ -->
+    <!-- TOAST                                          -->
+    <!-- ════════════════════════════════════════════════ -->
+    <div id="toast" class="toast"></div>
+
+    <!-- ════════════════════════════════════════════════ -->
+    <!-- JAVASCRIPT                                     -->
+    <!-- ════════════════════════════════════════════════ -->
+    <script>
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        // FIREBASE CONFIG
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        const firebaseConfig = {
+            apiKey: "AIzaSyAAWF9XukiN4nuA7LlbsaU2qiZgzTGM3FE",
+            authDomain: "easysell-75318.firebaseapp.com",
+            projectId: "easysell-75318",
+            storageBucket: "easysell-75318.firebasestorage.app",
+            messagingSenderId: "81916821182",
+            appId: "1:81916821182:web:46064186708cec62eba8ef"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+        const storage = firebase.storage();
+
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        // STATE
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        let currentUser = null;
+        let userData = null;
+        let allProducts = [];
+        let currentTab = 'home';
+
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        // AUTH – FIXED: Auto-login after signup
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        async function signUp(email, password, username) {
+            try {
+                const cred = await auth.createUserWithEmailAndPassword(email, password);
+                // User is automatically signed in by Firebase (onAuthStateChanged fires)
+                await db.collection('users').doc(cred.user.uid).set({
+                    username: username || email.split('@')[0],
+                    email: email,
+                    phone: '',
+                    savedItems: [],
+                    createdAt: new Date().toISOString()
+                });
+                showToast('🎉 Account created! Welcome!');
+                return true;
+            } catch (e) {
+                showToast(e.message, true);
+                return false;
+            }
+        }
+
+        async function signIn(email, password) {
+            try {
+                await auth.signInWithEmailAndPassword(email, password);
+                return true;
+            } catch (e) {
+                showToast(e.message, true);
+                return false;
+            }
+        }
+
+        async function continueAsGuest() {
+            try {
+                await auth.signInAnonymously();
+                showToast('👤 You are browsing as a guest');
+                return true;
+            } catch (e) {
+                showToast('Guest login failed: ' + e.message, true);
+                return false;
+            }
+        }
+
+        window.doLogin = async function() {
+            const email = document.getElementById('loginEmail').value.trim();
+            const password = document.getElementById('loginPassword').value.trim();
+            const isLoginMode = document.getElementById('actionBtn').innerText === 'Login';
+
+            if (!email || !password) {
+                document.getElementById('errorMsg').innerText = 'Please enter email and password';
+                return;
+            }
+
+            try {
+                if (isLoginMode) {
+                    await signIn(email, password);
+                } else {
+                    await signUp(email, password, email.split('@')[0]);
+                    // No need to call signIn – Firebase auto-signs in after signup
+                }
+                document.getElementById('errorMsg').innerText = '';
+            } catch (err) {
+                document.getElementById('errorMsg').innerText = err.message;
+            }
+        };
+
+        window.continueAsGuest = continueAsGuest;
+
+        window.doLogout = async function() {
+            await auth.signOut();
+            currentUser = null;
+            userData = null;
+            document.getElementById('loginScreen').style.display = 'flex';
+            document.getElementById('mainApp').style.display = 'none';
+            showToast('Logged out');
+        };
+
+        window.toggleForm = function() {
+            const isLogin = document.getElementById('actionBtn').innerText === 'Login';
+            document.getElementById('formTitle').innerText = isLogin ? 'Create Account' : 'Welcome to EasySell';
+            document.getElementById('formSubtitle').innerText = isLogin ? 'Start selling today' : "Nigeria's trusted marketplace";
+            document.getElementById('actionBtn').innerText = isLogin ? 'Sign Up' : 'Login';
+            document.getElementById('switchBtn').innerText = isLogin ? 'Already have an account? Login' : "Don't have an account? Sign Up";
+            document.getElementById('errorMsg').innerText = '';
+        };
+
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        // USER DATA
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        async function loadUserData() {
+            if (!currentUser) return;
+            try {
+                const doc = await db.collection('users').doc(currentUser.uid).get();
+                if (doc.exists) {
+                    userData = doc.data();
+                } else {
+                    userData = {
+                        username: currentUser.isAnonymous ? 'Guest' : currentUser.email.split('@')[0],
+                        email: currentUser.email || 'guest@user',
+                        phone: '',
+                        savedItems: [],
+                        createdAt: new Date().toISOString()
+                    };
+                    await db.collection('users').doc(currentUser.uid).set(userData);
+                }
+                updateUI();
+            } catch (e) { console.error(e); }
+        }
+
+        function updateUI() {
+            if (userData) {
+                document.getElementById('userAvatar').textContent = (userData.username || 'U')[0].toUpperCase();
+                document.getElementById('profileAvatar').textContent = (userData.username || 'U')[0].toUpperCase();
+                document.getElementById('profileName').textContent = userData.username || 'User';
+                document.getElementById('profileEmail').textContent = userData.email || 'guest@user';
+                document.getElementById('profileSaved').textContent = (userData.savedItems || []).length;
+                document.getElementById('profileFavorites').textContent = (userData.savedItems || []).length;
+            }
+        }
+
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        // TOAST
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        function showToast(msg, isError = false, duration = 3000) {
+            const el = document.getElementById('toast');
+            el.textContent = msg;
+            el.className = 'toast' + (isError ? ' error' : '');
+            el.style.display = 'block';
+            clearTimeout(el._timeout);
+            el._timeout = setTimeout(() => { el.style.display = 'none'; }, duration);
+        }
+
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        // TAB SWITCHING
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        window.switchTab = function(tab) {
+            currentTab = tab;
+            document.querySelectorAll('.bottom-nav .nav-item').forEach(el => el.classList.remove('active'));
+            document.querySelector(`.bottom-nav .nav-item[data-tab="${tab}"]`)?.classList.add('active');
+
+            if (tab === 'home') {
+                document.getElementById('homeContent').style.display = 'block';
+                document.getElementById('profileContent').style.display = 'none';
+                loadProducts();
+            } else if (tab === 'profile') {
+                document.getElementById('homeContent').style.display = 'none';
+                document.getElementById('profileContent').style.display = 'block';
+                renderProfile();
+            }
+        };
+
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        // PRODUCTS
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        async function loadProducts() {
+            const container = document.getElementById('productsContainer');
+            container.innerHTML = '<div style="text-align:center;padding:20px;color:#6b7280;"><i class="fas fa-spinner fa-spin"></i> Loading products...</div>';
+
+            try {
+                const snap = await db.collection('products').orderBy('timestamp', 'desc').limit(30).get();
+                allProducts = [];
+                snap.forEach(d => allProducts.push({ id: d.id, ...d.data() }));
+                applyFilters();
+            } catch (e) {
+                console.error(e);
+                container.innerHTML =
+                `<div class="empty-state"><div class="icon"><i class="fas fa-exclamation-triangle"></i></div><div class="title">Error loading</div><div class="subtitle">Please refresh</div></div>`;
+            }
+        }
+
+        function applyFilters() {
+            const search = document.getElementById('searchInput').value.trim().toLowerCase();
+            const category = document.getElementById('categoryFilter').value;
+
+            let filtered = allProducts.filter(p => {
+                const matchesSearch = (p.title || '').toLowerCase().includes(search) ||
+                    (p.description || '').toLowerCase().includes(search) ||
+                    (p.category || '').toLowerCase().includes(search);
+                const matchesCategory = !category || p.category === category;
+                return matchesSearch && matchesCategory;
+            });
+
+            renderProducts(filtered);
+        }
+
+        function renderProducts(products) {
+            const container = document.getElementById('productsContainer');
+
+            if (!products || products.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="icon"><i class="fas fa-box-open"></i></div>
+                        <div class="title">No products found</div>
+                        <div class="subtitle">Be the first to post an ad!</div>
+                    </div>`;
+                return;
+            }
+
+            container.innerHTML =
+                `<div class="products-grid">${products.map(p => {
+              const image = (p.images && p.images.length) ? p.images[0] : (p.image || 'https://via.placeholder.com/300x225/059669/white?text=No+Image');
+              return `
+              <div class="product-card" onclick="openDetail('${p.id}')">
+                <div class="image-container">
+                  <img src="${image}" onerror="this.src='https://via.placeholder.com/300x225/059669/white?text=No+Image'" />
+                  ${p.category ? `<span class="badge"><strong>${p.category}</strong></span>` : ''}
+                </div>
+                <div class="product-info">
+                  <div class="product-name"><strong>${escapeHtml(p.title)}</strong></div>
+                  <div class="product-price">₦${Number(p.price).toLocaleString()}</div>
+                  <div class="product-meta">
+                    <span class="location"><i class="fas fa-map-marker-alt"></i> ${p.location || 'Nigeria'}</span>
+                    <span class="date">${formatDate(p.timestamp)}</span>
+                  </div>
+                </div>
+              </div>
+            `}).join('')}</div>`;
+        }
+
+        window.applyFilters = applyFilters;
+
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        // SELL MODAL – FIXED: Opens without login check
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        window.openSellModal = function() {
+            console.log('🔑 openSellModal called');
+
+            // If not logged in, show toast but still open modal
+            if (!currentUser) {
+                showToast('Please login or continue as guest to post', true);
+                // Still open the modal so they can see the form
+            }
+
+            // Reset form
+            document.getElementById('editProductId').value = '';
+            document.getElementById('sellModalTitle').innerHTML = '<i class="fas fa-box-open" style="color:#059669;"></i> <strong>POST NEW AD</strong>';
+            document.getElementById('sellSubmitBtn').querySelector('#sellBtnText').innerHTML = '<i class="fas fa-upload"></i> POST AD';
+            document.getElementById('sellForm').reset();
+
+            const modal = document.getElementById('sellModal');
+            if (modal) {
+                modal.classList.add('show');
+                modal.style.display = 'flex';
+                console.log('✅ Modal opened');
+            } else {
+                console.error('❌ Modal element #sellModal not found');
+                showToast('Error: Could not open form', true);
+            }
+        };
+
+        window.closeSellModal = function() {
+            const modal = document.getElementById('sellModal');
+            if (modal) {
+                modal.classList.remove('show');
+                modal.style.display = 'none';
+            }
+        };
+
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        // SUBMIT AD – Saves to Firestore
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        window.submitAd = async function(e) {
+            e.preventDefault();
+            console.log('🚀 === SUBMIT AD STARTED ===');
+
+            if (!currentUser) {
+                showToast('Please login or continue as guest first', true);
+                return;
+            }
+
+            const title = document.getElementById('adTitle').value.trim();
+            const category = document.getElementById('adCategory').value;
+            const description = document.getElementById('adDescription').value.trim();
+            const location = document.getElementById('adLocation').value.trim();
+            const price = document.getElementById('adPrice').value;
+            const name = document.getElementById('adName').value.trim();
+            const phone = document.getElementById('adPhone').value.trim();
+
+            console.log('📝 Form values:', { title, category, description, location, price, name, phone });
+
+            if (!title || !category || !price || !name || !phone) {
+                showToast('Please fill in all required fields', true);
+                return;
+            }
+
+            const btn = document.getElementById('sellSubmitBtn');
+            const btnText = document.getElementById('sellBtnText');
+            btn.disabled = true;
+            btnText.innerHTML = '<i class="fas fa-spinner fa-spin"></i> POSTING...';
+
+            try {
+                // Use placeholder image if no image upload (simplified version)
+                const imageUrl = 'https://via.placeholder.com/300x225/059669/white?text=No+Image';
+
+                const productData = {
+                    title,
+                    category,
+                    description: description || 'No description provided',
+                    location: location || 'Nigeria',
+                    price: parseFloat(price),
+                    name,
+                    phone,
+                    image: imageUrl,
+                    images: [imageUrl],
+                    userId: currentUser.uid,
+                    userEmail: currentUser.email || 'guest@user',
+                    timestamp: Date.now(),
+                    date: new Date().toISOString().split('T')[0],
+                    status: 'active'
+                };
+                console.log('📦 Product data:', productData);
+
+                console.log('💾 Saving to Firestore...');
+                await db.collection('products').add(productData);
+                showToast('✅ Ad posted successfully!');
+
+                closeSellModal();
+                loadProducts();
+                console.log('🎉 === SUBMIT AD COMPLETED SUCCESSFULLY ===');
+
+            } catch (err) {
+                console.error('❌ === SUBMIT AD FAILED ===');
+                console.error('❌ Error message:', err.message);
+                showToast('❌ Error: ' + (err.message || 'Unknown error'), true);
+            } finally {
+                btn.disabled = false;
+                btnText.innerHTML = '<i class="fas fa-upload"></i> POST AD';
+                console.log('🔄 Button reset');
+            }
+        };
+
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        // PRODUCT DETAIL (simplified view)
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        window.openDetail = async function(id) {
+            try {
+                const doc = await db.collection('products').doc(id).get();
+                if (!doc.exists) { showToast('Product not found', true); return; }
+                const p = doc.data();
+                showToast(`📦 ${p.title} - ₦${Number(p.price).toLocaleString()} from ${p.name || 'Anonymous'}`);
+            } catch (e) { console.error(e);
+                showToast('Error loading details', true); }
+        };
+
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        // PROFILE
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        async function renderProfile() {
+            if (!currentUser) {
+                document.getElementById('profileContent').innerHTML =
+                    `<div class="empty-state"><div class="icon"><i class="fas fa-user"></i></div><div class="title">Not logged in</div><div class="subtitle">Login to access your profile</div></div>`;
+                return;
+            }
+            try {
+                const doc = await db.collection('users').doc(currentUser.uid).get();
+                const data = doc.data() || {};
+                const adsSnap = await db.collection('products').where('userId', '==', currentUser.uid).get();
+                document.getElementById('profileAvatar').textContent = (data.username || 'U')[0].toUpperCase();
+                document.getElementById('profileName').textContent = data.username || 'User';
+                document.getElementById('profileEmail').textContent = data.email || 'guest@user';
+                document.getElementById('profileAds').textContent = adsSnap.size;
+                document.getElementById('profileSaved').textContent = (data.savedItems || []).length;
+                document.getElementById('profileFavorites').textContent = (data.savedItems || []).length;
+                updateUI();
+            } catch (e) { console.error(e); }
+        }
+
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        // UTILITY
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        function escapeHtml(str) {
+            if (!str) return '';
+            const d = document.createElement('div');
+            d.textContent = str;
+            return d.innerHTML;
+        }
+
+        function formatDate(ts) {
+            if (!ts) return 'Recently';
+            const d = new Date(ts);
+            const now = new Date();
+            const diff = Math.floor((now - d) / (86400000));
+            if (diff === 0) return 'Today';
+            if (diff === 1) return 'Yesterday';
+            if (diff < 7) return `${diff}d ago`;
+            return d.toLocaleDateString('en-NG', { day: 'numeric', month: 'short' });
+        }
+
+        function openSearch() {
+            document.getElementById('searchInput').focus();
+        }
+
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        // AUTH STATE – Auto-login after signup works here
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        auth.onAuthStateChanged(async (user) => {
+            if (user) {
+                currentUser = user;
+                document.getElementById('loginScreen').style.display = 'none';
+                document.getElementById('mainApp').style.display = 'block';
+                await loadUserData();
+                updateUI();
+                loadProducts();
+            } else {
+                currentUser = null;
+                userData = null;
+                document.getElementById('loginScreen').style.display = 'flex';
+                document.getElementById('mainApp').style.display = 'none';
+            }
+        });
+
+        // Close modal on backdrop click
+        document.querySelectorAll('.modal').forEach(m => {
+            m.addEventListener('click', function(e) {
+                if (e.target === this) {
+                    this.classList.remove('show');
+                    this.style.display = 'none';
+                }
+            });
+        });
+
+        console.log('🛍️ EasySell – Complete & Fixed (auto-login, guest mode, post ads)');
+    </script>
+</body>
+</html>
