@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Firestore Test</title>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+</head>
+<body>
+    <h2>Firestore Products Test</h2>
+    <div id="status">⏳ Waiting for auth...</div>
+    <div id="products" style="margin-top:12px;"></div>
+
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyAAWF9XukiN4nuA7LlbsaU2qiZgzTGM3FE",
+            authDomain: "easysell-75318.firebaseapp.com",
+            projectId: "easysell-75318",
+            storageBucket: "easysell-75318.firebasestorage.app",
+            messagingSenderId: "81916821182",
+            appId: "1:81916821182:web:46064186708cec62eba8ef"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+
+        document.getElementById('status').textContent = '⏳ Waiting for auth...';
+
+        auth.onAuthStateChanged(async (user) => {
+            if (!user) {
+                document.getElementById('status').textContent = '❌ Not logged in. Please login first.';
+                return;
+            }
+            document.getElementById('status').textContent = `✅ Logged in as ${user.email}. Loading products...`;
+
+            try {
+                console.log('📦 Querying Firestore...');
+                const snapshot = await db.collection('products')
+                    .where('status', '==', 'available')
+                    .orderBy('createdAt', 'desc')
+                    .limit(10)
+                    .get();
+
+                const products = [];
+                snapshot.forEach(doc => products.push({ id: doc.id, ...doc.data() }));
+
+                document.getElementById('status').textContent = `✅ Loaded ${products.length} products.`;
+                const container = document.getElementById('products');
+                if (products.length === 0) {
+                    container.innerHTML = '<p>No products found. Try posting one!</p>';
+                } else {
+                    container.innerHTML = products.map(p => `
+                        <div style="padding:8px;border-bottom:1px solid #333;">
+                            <strong>${p.title || 'Untitled'}</strong> - ₦${p.price || 0}
+                        </div>
+                    `).join('');
+                }
+            } catch (err) {
+                document.getElementById('status').textContent = `❌ Error: ${err.message}`;
+                console.error('❌ Firestore error:', err.code, err.message);
+                // Show detailed error
+                const container = document.getElementById('products');
+                container.innerHTML = `
+                    <p style="color:#e74c3c;"><strong>Error details:</strong></p>
+                    <pre style="background:#1a1a1a;padding:12px;border-radius:8px;color:#f0f0f0;font-size:12px;overflow:auto;">${err.message}\n\nCode: ${err.code || 'N/A'}</pre>
+                `;
+            }
+        });
+    </script>
+</body>
+</html>
