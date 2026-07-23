@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Firebase Config Test</title>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+</head>
+<body>
+    <h2>Config Test</h2>
+    <div id="result">Checking...</div>
+
+    <button onclick="testLogin()">Test Login</button>
+    <button onclick="testSignup()">Test Signup</button>
+
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyAAWF9XukiN4nuA7LlbsaU2qiZgzTGM3FE",
+            authDomain: "easysell-75318.firebaseapp.com",
+            projectId: "easysell-75318",
+            storageBucket: "easysell-75318.firebasestorage.app",
+            messagingSenderId: "81916821182",
+            appId: "1:81916821182:web:46064186708cec62eba8ef"
+        };
+
+        console.log('🔥 Initializing Firebase with config:', firebaseConfig);
+
+        try {
+            firebase.initializeApp(firebaseConfig);
+            document.getElementById('result').innerHTML = '✅ Firebase initialized!';
+            console.log('✅ Firebase initialized');
+        } catch (e) {
+            document.getElementById('result').innerHTML = '❌ Error: ' + e.message;
+            console.error('❌ Init error:', e);
+        }
+
+        const auth = firebase.auth();
+
+        async function testLogin() {
+            try {
+                const result = await auth.signInWithEmailAndPassword('test@test.com', 'test123');
+                document.getElementById('result').innerHTML = '✅ Login success: ' + result.user.email;
+            } catch (e) {
+                document.getElementById('result').innerHTML = '❌ Login error: ' + e.code + ' - ' + e.message;
+                console.error('Login error:', e);
+            }
+        }
+
+        async function testSignup() {
+            try {
+                const result = await auth.createUserWithEmailAndPassword('test' + Date.now() + '@test.com', 'test123');
+                document.getElementById('result').innerHTML = '✅ Signup success: ' + result.user.email;
+            } catch (e) {
+                document.getElementById('result').innerHTML = '❌ Signup error: ' + e.code + ' - ' + e.message;
+                console.error('Signup error:', e);
+            }
+        }
+    </script>
+</body>
+</html>
