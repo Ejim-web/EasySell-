@@ -1,8 +1,18 @@
 const admin = require('firebase-admin');
 const axios = require('axios');
 
+if (!process.env.FIREBASE_SERVICE_ACCOUNT) {
+  throw new Error('FIREBASE_SERVICE_ACCOUNT missing');
+}
+if (!process.env.FLUTTERWAVE_SECRET_KEY) {
+  throw new Error('FLUTTERWAVE_SECRET_KEY missing');
+}
+if (!process.env.BASE_URL) {
+  throw new Error('BASE_URL missing');
+}
+
+const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
 if (!admin.apps.length) {
-  const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
   admin.initializeApp({
     credential: admin.credential.cert(serviceAccount),
   });
@@ -29,37 +39,52 @@ module.exports = async (req, res) => {
     const decodedToken = await admin.auth().verifyIdToken(idToken);
     const buyerUid = decodedToken.uid;
 
-    const { transactionId, amount, email, productTitle, productId, sellerId } = req.body;
-    if (!transactionId || !amount || !email || !productId || !sellerId) {
+    const { productId, sellerId, amount, email, productTitle } = req.body;
+    if (!productId || !sellerId || !amount || !email || !productTitle) {
       return res.status(400).json({ error: 'Missing required fields' });
     }
 
-    // Fetch seller's bank details (Admin SDK has full access)
+    // 1. Create transaction
+    const txRef = await db.collection('transactions').add({
+      productId,
+      buyerId: buyerUid,
+      sellerId,
+      amount: parseFloat(amount),
+      platformFee: parseFloat(amount) * 0.05,
+      sellerEarning: parseFloat(amount) * 0.95,
+      status: 'pending',
+      createdAt: admin.firestore.FieldValue.serverTimestamp(),
+      productTitle,
+    });
+    const transactionId = txRef.id;
+
+    // 2. Check seller's bank
     const sellerDoc = await db.collection('users').doc(sellerId).get();
-    if (!sellerDoc.exists) return res.status(404).json({ error: 'Seller not found' });
+    if (!sellerDoc.exists) {
+      await txRef.update({ status: 'failed', error: 'Seller not found' });
+      return res.status(404).json({ error: 'Seller not found' });
+    }
     const sellerData = sellerDoc.data();
     const bank = sellerData.bankAccount;
     if (!bank || !bank.accountNumber || !bank.bankName) {
+      await txRef.update({ status: 'failed', error: 'Seller has no bank account' });
       return res.status(400).json({ error: 'Seller has not set up a bank account' });
     }
 
-    // Prepare Flutterwave payment payload
-    const txRef = `ES-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`;
+    // 3. Flutterwave
+    const flutterwaveRef = `ES-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`;
     const payload = {
-      tx_ref: txRef,
-      amount: amount,
+      tx_ref: flutterwaveRef,
+      amount: parseFloat(amount),
       currency: 'NGN',
       redirect_url: `${process.env.BASE_URL}/payment-callback`,
       payment_options: 'card, banktransfer, ussd, qr',
       meta: { transactionId, productId, buyerId: buyerUid, sellerId },
-      customer: {
-        email: email,
-        name: decodedToken.name || 'Customer',
-      },
+      customer: { email, name: decodedToken.name || 'Customer' },
       customizations: {
         title: 'EasySell - Purchase',
         description: productTitle || 'Marketplace item',
-        logo: 'https://your-logo-url.com/logo.png', // Change this to your logo URL
+        logo: 'https://your-logo-url.com/logo.png',
       },
     };
 
@@ -70,30 +95,24 @@ module.exports = async (req, res) => {
     );
 
     if (response.data.status !== 'success') {
-      throw new Error(response.data.message || 'Flutterwave payment initialization failed');
+      throw new Error(response.data.message || 'Flutterwave error');
     }
 
     const paymentLink = response.data.data.link;
-    const flutterwaveRef = response.data.data.tx_ref;
-
-    await db.collection('transactions').doc(transactionId).update({
-      flutterwaveRef,
-      status: 'pending',
-      paymentLink,
-    });
+    await txRef.update({ flutterwaveRef, paymentLink });
 
     return res.status(200).json({ success: true, paymentLink, transactionId });
 
   } catch (error) {
-    console.error('Payment init error:', error);
+    console.error('Payment init error:', error.message);
     if (req.body.transactionId) {
       try {
         await db.collection('transactions').doc(req.body.transactionId).update({
           status: 'failed',
-          error: error.message || 'Unknown error',
+          error: error.message,
         });
-      } catch (e) { /* ignore */ }
+      } catch (e) {}
     }
-    return res.status(500).json({ error: error.message || 'Internal server error' });
+    return res.status(500).json({ error: error.message });
   }
 };
