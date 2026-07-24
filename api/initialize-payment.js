@@ -32,7 +32,7 @@ module.exports = async (req, res) => {
     const decodedToken = await admin.auth().verifyIdToken(idToken);
     const buyerUid = decodedToken.uid;
 
-    const { productId, sellerId, amount, email, productTitle } = req.body;
+    const { productId, sellerId, amount, email, productTitle, orderId } = req.body;
     if (!productId || !sellerId || !amount || !email || !productTitle) {
       return res.status(400).json({ error: 'Missing required fields' });
     }
@@ -45,26 +45,67 @@ module.exports = async (req, res) => {
       return res.status(400).json({ error: 'Seller has not set up a bank account' });
     }
 
-    // Create order
-    const orderRef = await db.collection('orders').add({
-      productId,
-      buyerId: buyerUid,
-      sellerId,
-      amount: parseFloat(amount),
-      commissionRate: COMMISSION,
-      commissionAmount: parseFloat(amount) * COMMISSION,
-      sellerEarning: parseFloat(amount) * (1 - COMMISSION),
-      status: 'pending',
-      deliveryStatus: 'pending',
-      released: false,
-      createdAt: admin.firestore.FieldValue.serverTimestamp(),
-      updatedAt: admin.firestore.FieldValue.serverTimestamp(),
-      productTitle,
-      buyerEmail: email,
-      flutterwaveRef: null,
-      paymentLink: null,
-    });
-    const orderId = orderRef.id;
+    // Use existing order or create new one
+    let orderRef;
+    let orderIdToUse = orderId;
+    
+    if (orderId) {
+      // Check if order exists
+      const existingOrder = await db.collection('orders').doc(orderId).get();
+      if (existingOrder.exists) {
+        orderRef = db.collection('orders').doc(orderId);
+        // Only update if it's still pending
+        if (existingOrder.data().status === 'pending') {
+          await orderRef.update({
+            updatedAt: admin.firestore.FieldValue.serverTimestamp()
+          });
+        }
+      } else {
+        // Order doesn't exist, create new
+        orderRef = await db.collection('orders').add({
+          productId,
+          buyerId: buyerUid,
+          sellerId,
+          amount: parseFloat(amount),
+          commissionRate: COMMISSION,
+          commissionAmount: parseFloat(amount) * COMMISSION,
+          sellerEarning: parseFloat(amount) * (1 - COMMISSION),
+          status: 'pending',
+          deliveryStatus: 'pending',
+          released: false,
+          createdAt: admin.firestore.FieldValue.serverTimestamp(),
+          updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+          productTitle,
+          buyerEmail: email,
+          flutterwaveRef: null,
+          paymentLink: null,
+        });
+        orderIdToUse = orderRef.id;
+        orderRef = db.collection('orders').doc(orderIdToUse);
+      }
+    } else {
+      // Create new order
+      orderRef = await db.collection('orders').add({
+        productId,
+        buyerId: buyerUid,
+        sellerId,
+        amount: parseFloat(amount),
+        commissionRate: COMMISSION,
+        commissionAmount: parseFloat(amount) * COMMISSION,
+        sellerEarning: parseFloat(amount) * (1 - COMMISSION),
+        status: 'pending',
+        deliveryStatus: 'pending',
+        released: false,
+        createdAt: admin.firestore.FieldValue.serverTimestamp(),
+        updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+        productTitle,
+        buyerEmail: email,
+        flutterwaveRef: null,
+        paymentLink: null,
+      });
+      orderIdToUse = orderRef.id;
+      orderRef = db.collection('orders').doc(orderIdToUse);
+    }
 
     // Initiate Flutterwave payment
     const txRef = `ES-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`;
@@ -74,7 +115,7 @@ module.exports = async (req, res) => {
       currency: 'NGN',
       redirect_url: `${process.env.BASE_URL}/payment-callback`,
       payment_options: 'card, banktransfer, ussd, qr',
-      meta: { orderId, productId, buyerId: buyerUid, sellerId },
+      meta: { orderId: orderIdToUse, productId, buyerId: buyerUid, sellerId },
       customer: { email, name: decodedToken.name || 'Customer' },
       customizations: {
         title: 'EasySell - Order',
@@ -94,17 +135,31 @@ module.exports = async (req, res) => {
     const paymentLink = response.data.data.link;
     const flutterwaveRef = response.data.data.tx_ref;
 
+    // Update order with payment reference (only if values are defined)
     await orderRef.update({
-      flutterwaveRef,
-      paymentLink,
+      flutterwaveRef: flutterwaveRef || null,
+      paymentLink: paymentLink || null,
       status: 'pending',
       updatedAt: admin.firestore.FieldValue.serverTimestamp(),
     });
 
-    return res.status(200).json({ success: true, paymentLink, orderId });
+    return res.status(200).json({ success: true, paymentLink, orderId: orderIdToUse });
 
   } catch (error) {
     console.error('Init payment error:', error.message);
-    return res.status(500).json({ error: error.message });
+    // If we have an order ID, mark it as failed (only if status is still pending)
+    if (req.body.orderId) {
+      try {
+        const orderSnap = await db.collection('orders').doc(req.body.orderId).get();
+        if (orderSnap.exists && orderSnap.data().status === 'pending') {
+          await db.collection('orders').doc(req.body.orderId).update({
+            status: 'failed',
+            error: error.message || 'Unknown error',
+            updatedAt: admin.firestore.FieldValue.serverTimestamp()
+          });
+        }
+      } catch (e) { /* ignore */ }
+    }
+    return res.status(500).json({ error: error.message || 'Internal server error' });
   }
 };
