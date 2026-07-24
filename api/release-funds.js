@@ -55,13 +55,13 @@ module.exports = async (req, res) => {
       return res.status(400).json({ error: 'Seller bank details missing' });
     }
 
-    const sellerAmount = order.sellerEarning;
+    const sellerAmount = order.sellerEarning || (order.amount * 0.9);
 
     // Initiate Flutterwave transfer
     const transferPayload = {
       account_bank: seller.bankAccount.bankCode,
       account_number: seller.bankAccount.accountNumber,
-      amount: sellerAmount,
+      amount: parseFloat(sellerAmount.toFixed(2)),
       narration: `Payment for order ${orderId}`,
       currency: 'NGN',
       reference: `TRF-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`,
@@ -84,7 +84,7 @@ module.exports = async (req, res) => {
       status: 'completed',
       deliveryStatus: 'delivered',
       releasedAt: admin.firestore.FieldValue.serverTimestamp(),
-      transferReference: transferResponse.data.data.id,
+      transferReference: transferResponse.data.data.id || null,
       updatedAt: admin.firestore.FieldValue.serverTimestamp(),
     });
 
@@ -92,6 +92,6 @@ module.exports = async (req, res) => {
 
   } catch (error) {
     console.error('Release funds error:', error.message);
-    return res.status(500).json({ error: error.message });
+    return res.status(500).json({ error: error.message || 'Internal server error' });
   }
 };
