@@ -1,0 +1,1893 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>EasySell - Marketplace</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js">
+    </script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js">
+    </script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js">
+    </script>
+    <style>
+        /* ===== COMPLETE CSS ===== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: Arial, sans-serif;
+            background: #0d0d0d;
+            color: #f0f0f0;
+            padding: 16px;
+            padding-bottom: 80px;
+        }
+        .header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 0;
+            border-bottom: 1px solid #333;
+            margin-bottom: 16px;
+        }
+        .logo {
+            font-size: 1.4rem;
+            font-weight: 900;
+        }
+        .logo span {
+            color: #00b16a;
+        }
+        .btn {
+            padding: 12px 24px;
+            border-radius: 10px;
+            font-weight: 600;
+            border: none;
+            cursor: pointer;
+            background: #2a2a2a;
+            color: #f0f0f0;
+            width: 100%;
+        }
+        .btn-primary {
+            background: #00b16a;
+            color: #fff;
+        }
+        .btn-primary:hover {
+            background: #00995a;
+        }
+        .btn-outline {
+            background: transparent;
+            border: 1px solid #333;
+        }
+        .btn-danger {
+            background: #e74c3c;
+            color: #fff;
+        }
+        .btn-sm {
+            padding: 8px 16px;
+            font-size: 0.8rem;
+            width: auto;
+        }
+        .card {
+            background: #242424;
+            border-radius: 16px;
+            padding: 16px;
+            margin-bottom: 12px;
+            border: 1px solid #333;
+        }
+        .input {
+            width: 100%;
+            padding: 12px;
+            background: #2a2a2a;
+            border: 1px solid #333;
+            border-radius: 10px;
+            color: #f0f0f0;
+            font-size: 0.95rem;
+        }
+        .input:focus {
+            border-color: #00b16a;
+            outline: none;
+        }
+        .form-group {
+            margin-bottom: 16px;
+        }
+        .form-group label {
+            display: block;
+            font-size: 0.8rem;
+            margin-bottom: 4px;
+            color: #aaa;
+        }
+        .hidden {
+            display: none !important;
+        }
+        .text-center {
+            text-align: center;
+        }
+        .mt-1 {
+            margin-top: 8px;
+        }
+        .mb-1 {
+            margin-bottom: 8px;
+        }
+        .flex {
+            display: flex;
+        }
+        .flex-col {
+            flex-direction: column;
+        }
+        .items-center {
+            align-items: center;
+        }
+        .gap-1 {
+            gap: 8px;
+        }
+        .w-full {
+            width: 100%;
+        }
+        .text-accent {
+            color: #00b16a;
+        }
+        .text-muted {
+            color: #666;
+        }
+        .text-sm {
+            font-size: 0.85rem;
+        }
+        .text-xs {
+            font-size: 0.75rem;
+        }
+        .text-danger {
+            color: #e74c3c;
+        }
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.7);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+            z-index: 999;
+        }
+        .modal-overlay.open {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        .modal {
+            background: #1a1a1a;
+            border-radius: 16px;
+            max-width: 400px;
+            width: 100%;
+            padding: 20px;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        .modal-handle {
+            width: 48px;
+            height: 4px;
+            background: #333;
+            border-radius: 4px;
+            margin: 0 auto 12px;
+        }
+        .modal-title {
+            font-size: 1.2rem;
+            font-weight: 700;
+            margin-bottom: 16px;
+        }
+        .modal-close {
+            float: right;
+            background: none;
+            border: none;
+            color: #aaa;
+            font-size: 1.2rem;
+            cursor: pointer;
+        }
+        .toast {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #242424;
+            border: 1px solid #333;
+            border-left: 4px solid #00b16a;
+            padding: 12px 20px;
+            border-radius: 10px;
+            z-index: 9999;
+            color: #f0f0f0;
+            display: none;
+            max-width: 90%;
+        }
+        .toast.show {
+            display: block;
+        }
+        .toast.error {
+            border-left-color: #e74c3c;
+        }
+        .toast.warning {
+            border-left-color: #f39c12;
+        }
+        .spinner {
+            width: 36px;
+            height: 36px;
+            border: 3px solid #2a2a2a;
+            border-top: 3px solid #00b16a;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin: 24px auto;
+        }
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+        .loading-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9998;
+            backdrop-filter: blur(8px);
+        }
+        .loading-overlay.hidden {
+            display: none;
+        }
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: #1a1a1a;
+            border-top: 1px solid #333;
+            display: flex;
+            justify-content: space-around;
+            padding: 8px 0;
+            z-index: 100;
+        }
+        .bottom-nav button {
+            background: none;
+            border: none;
+            color: #666;
+            font-size: 0.6rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 2px;
+            padding: 4px 12px;
+            cursor: pointer;
+        }
+        .bottom-nav button i {
+            font-size: 1.4rem;
+        }
+        .bottom-nav button.active {
+            color: #00b16a;
+        }
+        .sell-btn {
+            background: #00b16a !important;
+            color: #fff !important;
+            width: 52px;
+            height: 52px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.6rem;
+            margin-top: -18px;
+            box-shadow: 0 4px 20px rgba(0, 177, 106, 0.25);
+        }
+        .auth-tabs {
+            display: flex;
+            gap: 4px;
+            background: #2a2a2a;
+            border-radius: 10px;
+            padding: 4px;
+            margin-bottom: 16px;
+        }
+        .auth-tabs button {
+            flex: 1;
+            padding: 10px;
+            border-radius: 10px;
+            background: none;
+            border: none;
+            color: #666;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        .auth-tabs button.active {
+            background: #00b16a;
+            color: #fff;
+        }
+        .bank-setup-box {
+            background: #1a1a1a;
+            border: 2px dashed #e74c3c;
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 16px;
+            text-align: center;
+        }
+        .bank-setup-box h4 {
+            color: #e74c3c;
+            margin-bottom: 8px;
+        }
+        .bank-setup-box p {
+            color: #aaa;
+            font-size: 0.85rem;
+            margin-bottom: 12px;
+        }
+        .profile-pic-upload {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+        .profile-pic-upload .avatar-large {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background: #00b16a;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #fff;
+            overflow: hidden;
+            cursor: pointer;
+            border: 3px solid #00b16a;
+            position: relative;
+        }
+        .profile-pic-upload .avatar-large img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .profile-pic-upload .avatar-large .upload-overlay {
+            position: absolute;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.6);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            border-radius: 50%;
+        }
+        .profile-pic-upload .avatar-large:hover .upload-overlay {
+            opacity: 1;
+        }
+        .file-upload-area {
+            border: 2px dashed #333;
+            border-radius: 10px;
+            padding: 16px;
+            text-align: center;
+            color: #666;
+            cursor: pointer;
+            background: #1a1a1a;
+            transition: border-color 0.3s ease;
+        }
+        .file-upload-area:hover {
+            border-color: #00b16a;
+        }
+        .file-preview-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(70px, 1fr));
+            gap: 8px;
+            margin-top: 8px;
+        }
+        .file-preview-grid .preview-item {
+            position: relative;
+            aspect-ratio: 1;
+            border-radius: 8px;
+            overflow: hidden;
+            background: #1a1a1a;
+            border: 1px solid #333;
+        }
+        .file-preview-grid .preview-item img,
+        .file-preview-grid .preview-item video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .file-preview-grid .preview-item .remove-file {
+            position: absolute;
+            top: 2px;
+            right: 2px;
+            background: rgba(0, 0, 0, 0.7);
+            color: #fff;
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            font-size: 0.6rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: none;
+            cursor: pointer;
+        }
+        .product-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+            margin-top: 8px;
+        }
+        @media (min-width: 500px) {
+            .product-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+        @media (min-width: 768px) {
+            .product-grid {
+                grid-template-columns: repeat(4, 1fr);
+            }
+        }
+        .profile-header {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding: 16px 0;
+            border-bottom: 1px solid #333;
+            margin-bottom: 16px;
+        }
+        .profile-header .avatar {
+            width: 64px;
+            height: 64px;
+            border-radius: 50%;
+            background: #00b16a;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #fff;
+            overflow: hidden;
+            cursor: pointer;
+        }
+        .profile-header .avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .profile-header .info h2 {
+            font-size: 1.2rem;
+            font-weight: 700;
+        }
+        .profile-header .info p {
+            color: #666;
+            font-size: 0.85rem;
+        }
+        .profile-menu {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        .profile-menu .menu-item {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 14px 16px;
+            border-radius: 10px;
+            background: #242424;
+            border: 1px solid #333;
+            transition: all 0.3s ease;
+            color: #f0f0f0;
+            font-weight: 500;
+            cursor: pointer;
+            width: 100%;
+            text-align: left;
+        }
+        .profile-menu .menu-item:hover {
+            border-color: #00b16a;
+            background: #2a2a2a;
+        }
+        .profile-menu .menu-item i {
+            width: 24px;
+            color: #00b16a;
+            font-size: 1.1rem;
+        }
+        .profile-menu .menu-item .arrow {
+            margin-left: auto;
+            color: #666;
+            font-size: 0.8rem;
+        }
+        .profile-menu .menu-item.danger {
+            color: #e74c3c;
+        }
+        .profile-menu .menu-item.danger i {
+            color: #e74c3c;
+        }
+        .order-card {
+            background: #242424;
+            border-radius: 16px;
+            padding: 14px;
+            margin-bottom: 12px;
+            border: 1px solid #333;
+        }
+        .order-card .status {
+            font-size: 0.85rem;
+            margin-top: 4px;
+        }
+        .order-actions {
+            margin-top: 10px;
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        .detail-carousel {
+            position: relative;
+            border-radius: 10px;
+            overflow: hidden;
+            background: #1a1a1a;
+            aspect-ratio: 1;
+            margin-bottom: 16px;
+        }
+        .detail-carousel .carousel-track {
+            display: flex;
+            transition: transform 0.4s ease;
+            height: 100%;
+        }
+        .detail-carousel .carousel-track img,
+        .detail-carousel .carousel-track video {
+            flex-shrink: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .detail-carousel .carousel-dots {
+            position: absolute;
+            bottom: 12px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 6px;
+        }
+        .detail-carousel .carousel-dots span {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.4);
+            transition: background 0.3s ease;
+        }
+        .detail-carousel .carousel-dots span.active {
+            background: #00b16a;
+        }
+        .detail-carousel .carousel-arrow {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(0, 0, 0, 0.5);
+            color: #fff;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+            border: none;
+            cursor: pointer;
+            z-index: 2;
+        }
+        .detail-carousel .carousel-arrow.prev {
+            left: 8px;
+        }
+        .detail-carousel .carousel-arrow.next {
+            right: 8px;
+        }
+        .whatsapp-btn {
+            background: #25D366;
+            color: #fff;
+            padding: 8px 16px;
+            border-radius: 10px;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+        .whatsapp-btn:hover {
+            background: #1da851;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ===== TOAST ===== -->
+    <div id="toast" class="toast"></div>
+
+    <!-- ===== LOADING ===== -->
+    <div id="loading" class="loading-overlay hidden"><div class="spinner"></div></div>
+
+    <!-- ===== HEADER ===== -->
+    <div class="header">
+        <div class="logo">Easy<span>Sell</span></div>
+        <div>
+            <button id="authBtn" class="btn btn-outline" style="width:auto;padding:8px 16px;font-size:0.8rem;">
+                <i class="fas fa-user"></i> Sign In
+            </button>
+        </div>
+    </div>
+
+    <!-- ===== HOME PAGE ===== -->
+    <div id="pageHome">
+        <div id="productGrid" class="product-grid"></div>
+        <div id="scrollTrigger" style="text-align:center;padding:16px;color:#666;">—</div>
+    </div>
+
+    <!-- ===== BOTTOM NAV ===== -->
+    <nav class="bottom-nav">
+        <button class="active" data-page="home"><i class="fas fa-home"></i><span>Home</span></button>
+        <button data-page="wishlist"><i class="fas fa-heart"></i><span>Wishlist</span><span id="wishlistBadge" style="font-size:0.5rem;">0</span></button>
+        <button class="sell-btn" id="sellBtn"><i class="fas fa-plus"></i></button>
+        <button data-page="orders"><i class="fas fa-shopping-bag"></i><span>Orders</span></button>
+        <button data-page="profile"><i class="fas fa-user"></i><span>Profile</span></button>
+    </nav>
+
+    <!-- ===== MODAL: AUTH ===== -->
+    <div class="modal-overlay" id="authModal">
+        <div class="modal">
+            <button class="modal-close" id="authModalClose"><i class="fas fa-times"></i></button>
+            <div class="modal-handle"></div>
+            <div class="modal-title"><i class="fas fa-user-circle" style="color:#00b16a;"></i> Account</div>
+            <div class="auth-tabs" id="authTabs">
+                <button class="active" data-tab="login">Login</button>
+                <button data-tab="signup">Sign Up</button>
+            </div>
+            <form id="authForm">
+                <div id="loginForm">
+                    <div class="form-group">
+                        <label>Email</label>
+                        <input type="email" id="loginEmail" class="input" placeholder="you@example.com" required />
+                    </div>
+                    <div class="form-group">
+                        <label>Password</label>
+                        <input type="password" id="loginPassword" class="input" placeholder="••••••••" required minlength="6" />
+                    </div>
+                    <button type="submit" class="btn btn-primary" id="loginBtn">Login</button>
+                </div>
+                <div id="signupForm" class="hidden">
+                    <div class="form-group">
+                        <label>Full Name</label>
+                        <input type="text" id="signupName" class="input" placeholder="John Doe" required />
+                    </div>
+                    <div class="form-group">
+                        <label>Email</label>
+                        <input type="email" id="signupEmail" class="input" placeholder="you@example.com" required />
+                    </div>
+                    <div class="form-group">
+                        <label>Password</label>
+                        <input type="password" id="signupPassword" class="input" placeholder="Min 6 chars" required minlength="6" />
+                    </div>
+                    <button type="submit" class="btn btn-primary" id="signupBtn">Create Account</button>
+                </div>
+                <div style="text-align:center;margin:12px 0;color:#666;">or</div>
+                <button type="button" class="btn btn-outline" id="googleBtn"><i class="fab fa-google"></i> Continue with Google</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- ===== MODAL: SELL ===== -->
+    <div class="modal-overlay" id="sellModal">
+        <div class="modal">
+            <button class="modal-close" id="sellModalClose"><i class="fas fa-times"></i></button>
+            <div class="modal-handle"></div>
+            <div class="modal-title"><i class="fas fa-plus-circle" style="color:#00b16a;"></i> Sell Item</div>
+            <form id="sellForm">
+                <!-- Bank warning -->
+                <div id="bankWarning" class="bank-setup-box hidden">
+                    <h4><i class="fas fa-exclamation-triangle"></i> Bank Details Required</h4>
+                    <p>You need to add your bank account before you can sell items.</p>
+                    <button type="button" class="btn btn-primary" onclick="showBankSetup(true)">
+                        <i class="fas fa-university"></i> Add Bank Account
+                    </button>
+                    <button type="button" class="btn btn-outline mt-1" onclick="closeSellModal()" style="width:auto;padding:8px 16px;">Cancel</button>
+                </div>
+
+                <!-- Sell form -->
+                <div id="sellFormFields">
+                    <div class="form-group">
+                        <label>Title *</label>
+                        <input type="text" id="sellTitle" class="input" placeholder="e.g. iPhone 13 Pro" required />
+                    </div>
+                    <div class="form-group">
+                        <label>Price (₦) *</label>
+                        <input type="number" id="sellPrice" class="input" placeholder="50000" required min="0" />
+                    </div>
+                    <div class="form-group">
+                        <label>Category</label>
+                        <select id="sellCategory" class="input">
+                            <option value="electronics">Electronics</option>
+                            <option value="fashion">Fashion</option>
+                            <option value="furniture">Furniture</option>
+                            <option value="vehicles">Vehicles</option>
+                            <option value="property">Property</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Condition</label>
+                        <select id="sellCondition" class="input">
+                            <option value="new">New</option>
+                            <option value="like-new">Like New</option>
+                            <option value="used">Used</option>
+                            <option value="refurbished">Refurbished</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Location</label>
+                        <input type="text" id="sellLocation" class="input" placeholder="Lagos, Nigeria" />
+                    </div>
+                    <div class="form-group">
+                        <label>WhatsApp Number *</label>
+                        <input type="text" id="sellWhatsApp" class="input" placeholder="08012345678" required />
+                    </div>
+                    <div class="form-group">
+                        <label>Description</label>
+                        <textarea id="sellDescription" class="input" rows="3"></textarea>
+                    </div>
+                    <!-- Image upload -->
+                    <div class="form-group">
+                        <label>Images (up to 10)</label>
+                        <div class="file-upload-area" id="imageUploadArea">
+                            <i class="fas fa-cloud-upload-alt"></i>
+                            <span>Tap to upload images</span>
+                            <input type="file" id="imageInput" accept="image/*" multiple style="display:none;" />
+                        </div>
+                        <div class="file-preview-grid" id="imagePreviewGrid"></div>
+                    </div>
+                    <!-- Video upload -->
+                    <div class="form-group">
+                        <label>Video (optional)</label>
+                        <div class="file-upload-area" id="videoUploadArea">
+                            <i class="fas fa-video"></i>
+                            <span>Tap to upload a video</span>
+                            <input type="file" id="videoInput" accept="video/*" style="display:none;" />
+                        </div>
+                        <div class="file-preview-grid" id="videoPreviewGrid"></div>
+                    </div>
+                    <button type="submit" class="btn btn-primary" id="sellSubmitBtn"><i class="fas fa-cloud-upload-alt"></i> Post Ad</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ===== MODAL: DETAIL ===== -->
+    <div id="detailModal" class="modal-overlay">
+        <div class="modal">
+            <button class="modal-close" id="detailModalClose"><i class="fas fa-times"></i></button>
+            <div class="modal-handle"></div>
+            <div id="detailContent"></div>
+        </div>
+    </div>
+
+    <!-- ===== MODAL: PROFILE PICTURE ===== -->
+    <div id="profilePicModal" class="modal-overlay">
+        <div class="modal">
+            <button class="modal-close" id="profilePicModalClose"><i class="fas fa-times"></i></button>
+            <div class="modal-handle"></div>
+            <div class="modal-title"><i class="fas fa-camera" style="color:#00b16a;"></i> Profile Picture</div>
+            <div class="profile-pic-upload">
+                <div class="avatar-large" id="profilePicPreview">
+                    <span id="profilePicInitials">U</span>
+                    <div class="upload-overlay"><i class="fas fa-camera"></i></div>
+                </div>
+                <input type="file" id="profilePicInput" accept="image/*" style="display:none;" />
+                <button class="btn btn-outline btn-sm" onclick="document.getElementById('profilePicInput').click()">
+                    <i class="fas fa-upload"></i> Upload Photo
+                </button>
+                <button class="btn btn-danger btn-sm" id="removeProfilePicBtn">
+                    <i class="fas fa-trash-alt"></i> Remove
+                </button>
+            </div>
+            <button class="btn btn-primary" id="saveProfilePicBtn">Save Picture</button>
+        </div>
+    </div>
+
+    <!-- ===== PAGE: WISHLIST ===== -->
+    <div id="pageWishlist" style="display:none;">
+        <div id="wishlistGrid" class="product-grid"></div>
+        <div id="wishlistEmpty" style="text-align:center;padding:60px 20px;color:#666;display:none;">
+            <i class="fas fa-heart" style="font-size:3rem;color:#333;"></i>
+            <h3 style="margin-top:12px;">No saved items</h3>
+        </div>
+    </div>
+
+    <!-- ===== PAGE: ORDERS ===== -->
+    <div id="pageOrders" style="display:none;">
+        <div id="ordersList"></div>
+        <div id="ordersEmpty" style="text-align:center;padding:60px 20px;color:#666;display:none;">
+            <i class="fas fa-shopping-bag" style="font-size:3rem;color:#333;"></i>
+            <h3 style="margin-top:12px;">No orders yet</h3>
+        </div>
+    </div>
+
+    <!-- ===== PAGE: PROFILE ===== -->
+    <div id="pageProfile" style="display:none;">
+        <div id="profileContent"></div>
+    </div>
+
+    <script>
+        // ================================================================
+        //  FIREBASE CONFIG
+        // ================================================================
+        const firebaseConfig = {
+            apiKey: "AIzaSyAAWF9XukiN4nuA7LlbsaU2qiZgzTGM3FE",
+            authDomain: "easysell-75318.firebaseapp.com",
+            projectId: "easysell-75318",
+            storageBucket: "easysell-75318.firebasestorage.app",
+            messagingSenderId: "81916821182",
+            appId: "1:81916821182:web:46064186708cec62eba8ef"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+
+        // ================================================================
+        //  BACKEND BASE URL (Vercel production)
+        // ================================================================
+        const BACKEND_BASE = 'https://easy-sell-sooty.vercel.app/api';
+
+        // ================================================================
+        //  CLOUDINARY CONFIG — YOUR CREDENTIALS
+        // ================================================================
+        const CLOUDINARY = {
+            cloudName: "fiemwocf",
+            apiKey: "212326",
+            apiSecret: "bWF1ifbv--0QM2PN_ufbFwiveqc",
+            uploadPreset: "easysell_preset",
+            url: "https://api.cloudinary.com/v1_1/fiemwocf/image/upload",
+            videoUrl: "https://api.cloudinary.com/v1_1/fiemwocf/video/upload"
+        };
+
+        // ================================================================
+        //  STATE
+        // ================================================================
+        const state = {
+            products: [],
+            wishlist: [],
+            orders: [],
+            currentUser: null,
+            currentPage: 'home',
+            uploadedImages: [],
+            uploadedVideo: null,
+            profilePicFile: null,
+            tempProfilePic: null
+        };
+
+        // ================================================================
+        //  DOM REFS
+        // ================================================================
+        const $ = (id) => document.getElementById(id);
+        const qs = (sel) => document.querySelector(sel);
+        const qsa = (sel) => document.querySelectorAll(sel);
+
+        // ================================================================
+        //  TOAST & LOADER
+        // ================================================================
+        function showToast(msg, type = 'success') {
+            const toast = $('toast');
+            toast.textContent = msg;
+            toast.className = 'toast show ' + type;
+            clearTimeout(toast._timer);
+            toast._timer = setTimeout(() => { toast.className = 'toast'; }, 4000);
+        }
+
+        function showLoader(show) {
+            $('loading').classList.toggle('hidden', !show);
+        }
+
+        // ================================================================
+        //  CLOUDINARY UPLOAD
+        // ================================================================
+        async function uploadToCloudinary(file, isVideo = false) {
+            const url = isVideo ? CLOUDINARY.videoUrl : CLOUDINARY.url;
+            const formData = new FormData();
+            formData.append('file', file);
+            formData.append('api_key', CLOUDINARY.apiKey);
+            formData.append('upload_preset', CLOUDINARY.uploadPreset);
+            formData.append('folder', 'easysell_products');
+
+            try {
+                const response = await fetch(url, { method: 'POST', body: formData });
+                const data = await response.json();
+                if (!response.ok) throw new Error(data.error?.message || 'Upload failed');
+                return data.secure_url;
+            } catch (err) {
+                console.error('Cloudinary error:', err);
+                throw new Error(`Upload failed: ${err.message}`);
+            }
+        }
+
+        // ================================================================
+        //  BANK SETUP
+        // ================================================================
+        async function checkBankDetails(userId) {
+            try {
+                const doc = await db.collection('users').doc(userId).get();
+                if (doc.exists) {
+                    const data = doc.data();
+                    return data.bankAccount && data.bankAccount.accountNumber && data.bankAccount.bankCode;
+                }
+                return false;
+            } catch (err) {
+                console.warn('Check bank error:', err);
+                return false;
+            }
+        }
+
+        window.showBankSetup = async function(returnToSell = false) {
+            if (!state.currentUser) {
+                showToast('Sign in first', 'error');
+                return;
+            }
+
+            const bankName = prompt('Enter bank name (e.g. GTBank):');
+            if (!bankName) return;
+            const accountNumber = prompt('Enter account number:');
+            if (!accountNumber) return;
+            const accountName = prompt('Enter account holder name:');
+            if (!accountName) return;
+            const bankCode = prompt('Enter bank code (e.g. 058 for GTBank, 999992 for OPay):');
+            if (!bankCode) return;
+
+            try {
+                showLoader(true);
+                await db.collection('users').doc(state.currentUser.uid).set({
+                    bankAccount: {
+                        bankName: bankName.trim(),
+                        accountNumber: accountNumber.trim().replace(/\D/g, ''),
+                        accountName: accountName.trim(),
+                        bankCode: bankCode.trim()
+                    }
+                }, { merge: true });
+                showToast('✅ Bank details saved!');
+                renderProfile();
+
+                if (returnToSell && $('sellModal').classList.contains('open')) {
+                    await refreshSellModal();
+                }
+            } catch (err) {
+                showToast('Error: ' + err.message, 'error');
+            } finally {
+                showLoader(false);
+            }
+        };
+
+        // ================================================================
+        //  SELL MODAL
+        // ================================================================
+        async function refreshSellModal() {
+            if (!state.currentUser) return;
+            const hasBank = await checkBankDetails(state.currentUser.uid);
+            const warning = $('bankWarning');
+            const fields = $('sellFormFields');
+            if (!hasBank) {
+                warning.classList.remove('hidden');
+                fields.classList.add('hidden');
+                warning.innerHTML = `
+                    <h4><i class="fas fa-exclamation-triangle"></i> Bank Details Required</h4>
+                    <p>You need to add your bank account before you can sell items. This is where buyers will send payment.</p>
+                    <button type="button" class="btn btn-primary" onclick="showBankSetup(true)">
+                        <i class="fas fa-university"></i> Add Bank Account
+                    </button>
+                    <button type="button" class="btn btn-outline mt-1" onclick="closeSellModal()" style="width:auto;padding:8px 16px;">Cancel</button>
+                `;
+            } else {
+                warning.classList.add('hidden');
+                fields.classList.remove('hidden');
+            }
+        }
+
+        async function openSellModal() {
+            if (!state.currentUser) {
+                showToast('Sign in to sell', 'error');
+                $('authModal').classList.add('open');
+                return;
+            }
+            await refreshSellModal();
+            $('sellModal').classList.add('open');
+        }
+
+        function closeSellModal() {
+            $('sellModal').classList.remove('open');
+            $('sellForm').reset();
+            state.uploadedImages = [];
+            state.uploadedVideo = null;
+            $('imagePreviewGrid').innerHTML = '';
+            $('videoPreviewGrid').innerHTML = '';
+        }
+
+        $('sellBtn').addEventListener('click', openSellModal);
+        $('sellModalClose').addEventListener('click', closeSellModal);
+        $('sellModal').addEventListener('click', (e) => {
+            if (e.target === $('sellModal')) closeSellModal();
+        });
+
+        // Image upload
+        $('imageUploadArea').addEventListener('click', () => $('imageInput').click());
+        $('imageInput').addEventListener('change', (e) => {
+            const files = Array.from(e.target.files);
+            const remaining = 10 - state.uploadedImages.length;
+            const toAdd = files.slice(0, remaining);
+            toAdd.forEach(file => {
+                state.uploadedImages.push(file);
+                const reader = new FileReader();
+                reader.onload = (ev) => {
+                    const grid = $('imagePreviewGrid');
+                    const item = document.createElement('div');
+                    item.className = 'preview-item';
+                    item.innerHTML = `
+                        <img src="${ev.target.result}" alt="Preview" />
+                        <button class="remove-file" onclick="removeImage(${state.uploadedImages.length - 1})"><i class="fas fa-times"></i></button>
+                    `;
+                    grid.appendChild(item);
+                };
+                reader.readAsDataURL(file);
+            });
+            $('imageInput').value = '';
+            if (state.uploadedImages.length >= 10) showToast('Maximum 10 images reached', 'warning');
+        });
+
+        window.removeImage = function(index) {
+            state.uploadedImages.splice(index, 1);
+            $('imagePreviewGrid').innerHTML = '';
+            state.uploadedImages.forEach((file, i) => {
+                const reader = new FileReader();
+                reader.onload = (ev) => {
+                    const grid = $('imagePreviewGrid');
+                    const item = document.createElement('div');
+                    item.className = 'preview-item';
+                    item.innerHTML = `
+                        <img src="${ev.target.result}" alt="Preview" />
+                        <button class="remove-file" onclick="removeImage(${i})"><i class="fas fa-times"></i></button>
+                    `;
+                    grid.appendChild(item);
+                };
+                reader.readAsDataURL(file);
+            });
+        };
+
+        // Video upload
+        $('videoUploadArea').addEventListener('click', () => $('videoInput').click());
+        $('videoInput').addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+            if (state.uploadedVideo) { showToast('Only one video allowed', 'warning'); return; }
+            state.uploadedVideo = file;
+            const reader = new FileReader();
+            reader.onload = (ev) => {
+                const grid = $('videoPreviewGrid');
+                grid.innerHTML = '';
+                const item = document.createElement('div');
+                item.className = 'preview-item';
+                item.innerHTML = `
+                    <video src="${ev.target.result}" muted playsinline></video>
+                    <button class="remove-file" onclick="removeVideo()"><i class="fas fa-times"></i></button>
+                `;
+                grid.appendChild(item);
+            };
+            reader.readAsDataURL(file);
+            $('videoInput').value = '';
+        });
+
+        window.removeVideo = function() {
+            state.uploadedVideo = null;
+            $('videoPreviewGrid').innerHTML = '';
+        };
+
+        // ================================================================
+        //  SELL FORM SUBMIT
+        // ================================================================
+        $('sellForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            if (!state.currentUser) {
+                showToast('Sign in to post', 'error');
+                return;
+            }
+
+            const hasBank = await checkBankDetails(state.currentUser.uid);
+            if (!hasBank) {
+                showToast('Please add your bank details first', 'warning');
+                await refreshSellModal();
+                return;
+            }
+
+            const title = $('sellTitle').value.trim();
+            const price = parseFloat($('sellPrice').value);
+            const category = $('sellCategory').value;
+            const condition = $('sellCondition').value;
+            const location = $('sellLocation').value.trim() || 'N/A';
+            const whatsapp = $('sellWhatsApp').value.trim();
+            const description = $('sellDescription').value.trim();
+
+            if (!title || !price || price <= 0 || !whatsapp) {
+                showToast('Please fill in all required fields', 'error');
+                return;
+            }
+
+            $('sellSubmitBtn').disabled = true;
+            $('sellSubmitBtn').innerHTML = '<i class="fas fa-spinner fa-spin"></i> Uploading...';
+
+            try {
+                let imageUrls = [];
+                let videoUrl = '';
+
+                if (state.uploadedImages.length > 0) {
+                    showToast(`Uploading ${state.uploadedImages.length} images...`, 'info');
+                    const uploadPromises = state.uploadedImages.map(file => uploadToCloudinary(file, false));
+                    imageUrls = await Promise.all(uploadPromises);
+                }
+
+                if (state.uploadedVideo) {
+                    showToast('Uploading video...', 'info');
+                    videoUrl = await uploadToCloudinary(state.uploadedVideo, true);
+                }
+
+                await db.collection('products').add({
+                    title,
+                    price,
+                    category,
+                    condition,
+                    location,
+                    whatsapp,
+                    description,
+                    sellerId: state.currentUser.uid,
+                    sellerName: state.currentUser.displayName || 'User',
+                    sellerEmail: state.currentUser.email,
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                    imageUrls,
+                    videoUrl
+                });
+
+                showToast('✅ Product posted successfully!');
+                closeSellModal();
+                loadProducts();
+            } catch (err) {
+                showToast('Error: ' + err.message, 'error');
+            } finally {
+                $('sellSubmitBtn').disabled = false;
+                $('sellSubmitBtn').innerHTML = '<i class="fas fa-cloud-upload-alt"></i> Post Ad';
+            }
+        });
+
+        // ================================================================
+        //  PROFILE PICTURE
+        // ================================================================
+        $('profilePicInput').addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+            state.profilePicFile = file;
+            const reader = new FileReader();
+            reader.onload = (ev) => {
+                state.tempProfilePic = ev.target.result;
+                const preview = $('profilePicPreview');
+                preview.innerHTML = `
+                    <img src="${ev.target.result}" alt="Profile" />
+                    <div class="upload-overlay"><i class="fas fa-camera"></i></div>
+                `;
+            };
+            reader.readAsDataURL(file);
+        });
+
+        $('removeProfilePicBtn').addEventListener('click', () => {
+            state.profilePicFile = null;
+            state.tempProfilePic = null;
+            const user = state.currentUser;
+            if (user) {
+                const initial = (user.displayName || user.email || 'User').charAt(0).toUpperCase();
+                $('profilePicPreview').innerHTML = `
+                    <span id="profilePicInitials">${initial}</span>
+                    <div class="upload-overlay"><i class="fas fa-camera"></i></div>
+                `;
+                $('profilePicInput').value = '';
+            }
+        });
+
+        $('saveProfilePicBtn').addEventListener('click', async () => {
+            if (!state.currentUser) { showToast('Please sign in first', 'error'); return; }
+            try {
+                showLoader(true);
+                let profilePicUrl = '';
+                if (state.profilePicFile) {
+                    profilePicUrl = await uploadToCloudinary(state.profilePicFile, false);
+                } else if (state.tempProfilePic === null) {
+                    profilePicUrl = '';
+                } else {
+                    const userData = await db.collection('users').doc(state.currentUser.uid).get();
+                    profilePicUrl = userData.exists ? (userData.data().profilePic || '') : '';
+                }
+                await db.collection('users').doc(state.currentUser.uid).set({ profilePic: profilePicUrl }, { merge: true });
+                $('profilePicModal').classList.remove('open');
+                showToast('Profile picture updated!', 'success');
+                renderProfile();
+                updateUI(state.currentUser);
+            } catch (err) {
+                showToast('Error: ' + err.message, 'error');
+            } finally {
+                showLoader(false);
+            }
+        });
+
+        function openProfilePicModal() {
+            if (!state.currentUser) { showToast('Please sign in first', 'error'); return; }
+            const user = state.currentUser;
+            const initial = (user.displayName || user.email || 'User').charAt(0).toUpperCase();
+            $('profilePicPreview').innerHTML = `
+                <span id="profilePicInitials">${initial}</span>
+                <div class="upload-overlay"><i class="fas fa-camera"></i></div>
+            `;
+            state.profilePicFile = null;
+            state.tempProfilePic = null;
+            $('profilePicInput').value = '';
+            $('profilePicModal').classList.add('open');
+        }
+
+        $('profilePicModalClose').addEventListener('click', () => $('profilePicModal').classList.remove('open'));
+        $('profilePicModal').addEventListener('click', (e) => {
+            if (e.target === $('profilePicModal')) $('profilePicModal').classList.remove('open');
+        });
+
+        // ================================================================
+        //  AUTH
+        // ================================================================
+        let userDataCache = {};
+
+        function updateUI(user) {
+            state.currentUser = user;
+            const btn = $('authBtn');
+            if (user) {
+                const name = user.displayName || user.email || 'User';
+                const initial = name.charAt(0).toUpperCase();
+                const userData = userDataCache[user.uid];
+                if (userData && userData.profilePic) {
+                    btn.innerHTML = `<img src="${userData.profilePic}" style="width:20px;height:20px;border-radius:50%;object-fit:cover;margin-right:4px;" /> ${initial}`;
+                } else {
+                    btn.innerHTML = `<i class="fas fa-user"></i> ${initial}`;
+                }
+                btn.style.borderColor = '#00b16a';
+            } else {
+                btn.innerHTML = `<i class="fas fa-user"></i> Sign In`;
+                btn.style.borderColor = '';
+            }
+            if ($('authModal').classList.contains('open')) $('authModal').classList.remove('open');
+            loadProducts();
+            renderProfile();
+            if (user) {
+                loadWishlist();
+                loadOrders();
+            }
+        }
+
+        auth.onAuthStateChanged(user => {
+            if (user) {
+                db.collection('users').doc(user.uid).get().then(doc => {
+                    if (doc.exists) {
+                        userDataCache[user.uid] = doc.data();
+                        updateUI(user);
+                    }
+                });
+            } else {
+                userDataCache = {};
+                updateUI(null);
+            }
+            showLoader(false);
+        });
+
+        // Auth tabs
+        qsa('#authTabs button').forEach(tab => {
+            tab.addEventListener('click', () => {
+                qsa('#authTabs button').forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+                const isLogin = tab.dataset.tab === 'login';
+                $('loginForm').classList.toggle('hidden', !isLogin);
+                $('signupForm').classList.toggle('hidden', isLogin);
+            });
+        });
+
+        // Login
+        $('loginBtn').addEventListener('click', async (e) => {
+            e.preventDefault();
+            const email = $('loginEmail').value.trim();
+            const pass = $('loginPassword').value;
+            if (!email || !pass) { showToast('Enter email and password', 'error'); return; }
+            try {
+                showLoader(true);
+                await auth.signInWithEmailAndPassword(email, pass);
+                showToast('Welcome back!');
+            } catch (err) { showToast(err.message, 'error'); } finally { showLoader(false); }
+        });
+
+        // Signup
+        $('signupBtn').addEventListener('click', async (e) => {
+            e.preventDefault();
+            const name = $('signupName').value.trim();
+            const email = $('signupEmail').value.trim();
+            const pass = $('signupPassword').value;
+            if (!name || !email || !pass) { showToast('Fill all fields', 'error'); return; }
+            try {
+                showLoader(true);
+                const cred = await auth.createUserWithEmailAndPassword(email, pass);
+                await cred.user.updateProfile({ displayName: name });
+                await db.collection('users').doc(cred.user.uid).set({
+                    displayName: name,
+                    email: email,
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                showToast('Account created!');
+                $('authModal').classList.remove('open');
+                setTimeout(() => {
+                    if (confirm('Would you like to add your bank account details now?')) {
+                        showBankSetup();
+                    }
+                }, 1000);
+            } catch (err) { showToast(err.message, 'error'); } finally { showLoader(false); }
+        });
+
+        // Google
+        $('googleBtn').addEventListener('click', async () => {
+            try {
+                showLoader(true);
+                const provider = new firebase.auth.GoogleAuthProvider();
+                const result = await auth.signInWithPopup(provider);
+                const user = result.user;
+                const doc = await db.collection('users').doc(user.uid).get();
+                if (!doc.exists) {
+                    await db.collection('users').doc(user.uid).set({
+                        displayName: user.displayName || 'User',
+                        email: user.email,
+                        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                    });
+                }
+                showToast('Signed in!');
+            } catch (err) { showToast(err.message, 'error'); } finally { showLoader(false); }
+        });
+
+        // Auth modal
+        $('authBtn').addEventListener('click', () => {
+            if (state.currentUser) {
+                navigateTo('profile');
+                return;
+            }
+            $('authModal').classList.add('open');
+        });
+        $('authModalClose').addEventListener('click', () => $('authModal').classList.remove('open'));
+        $('authModal').addEventListener('click', (e) => {
+            if (e.target === $('authModal')) $('authModal').classList.remove('open');
+        });
+
+        // Logout
+        window.logout = function() {
+            auth.signOut().then(() => {
+                showToast('Logged out');
+                state.wishlist = [];
+                renderWishlist();
+                renderProfile();
+            });
+        };
+
+        // ================================================================
+        //  NAVIGATION
+        // ================================================================
+        function navigateTo(page) {
+            state.currentPage = page;
+            const pages = ['pageHome', 'pageWishlist', 'pageOrders', 'pageProfile'];
+            pages.forEach(id => {
+                const el = $(id);
+                if (el) el.style.display = id === `page${page.charAt(0).toUpperCase() + page.slice(1)}` ? 'block' : 'none';
+            });
+            qsa('.bottom-nav button[data-page]').forEach(b => {
+                b.classList.toggle('active', b.dataset.page === page);
+            });
+            if (page === 'wishlist') renderWishlist();
+            if (page === 'profile') renderProfile();
+            if (page === 'orders') loadOrders();
+            if (page === 'home') loadProducts();
+        }
+
+        qsa('.bottom-nav button[data-page]').forEach(btn => {
+            btn.addEventListener('click', () => navigateTo(btn.dataset.page));
+        });
+
+        // ================================================================
+        //  PRODUCTS
+        // ================================================================
+        async function loadProducts() {
+            try {
+                showLoader(true);
+                const snap = await db.collection('products')
+                    .orderBy('createdAt', 'desc')
+                    .limit(50)
+                    .get();
+                state.products = [];
+                snap.forEach(doc => {
+                    state.products.push({ id: doc.id, ...doc.data() });
+                });
+                renderProducts(state.products);
+            } catch (err) {
+                showToast('Error loading products: ' + err.message, 'error');
+            } finally {
+                showLoader(false);
+            }
+        }
+
+        function renderProducts(products) {
+            const grid = $('productGrid');
+            if (!products || products.length === 0) {
+                grid.innerHTML =
+                    `<div style="text-align:center;padding:60px 20px;color:#666;grid-column:1/-1;"><i class="fas fa-box-open" style="font-size:3rem;color:#333;"></i><h3 style="margin-top:12px;">No products yet</h3></div>`;
+                return;
+            }
+            let html = '';
+            products.forEach(p => {
+                const img = p.imageUrls && p.imageUrls.length > 0 ? p.imageUrls[0] : '';
+                const isLiked = state.wishlist.includes(p.id);
+                const price = (p.price || 0).toFixed(2);
+                html += `
+                    <div style="background:#242424;border-radius:16px;overflow:hidden;border:1px solid #333;cursor:pointer;" onclick="openDetail('${p.id}')">
+                        <div style="position:relative;padding-top:100%;background:#1a1a1a;">
+                            ${img ? `<img src="${img}" style="position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;" />` : `<div style="position:absolute;top:0;left:0;width:100%;height:100%;display:flex;align-items:center;justify-content:center;color:#666;font-size:2.5rem;"><i class="fas fa-image"></i></div>`}
+                            <button onclick="event.stopPropagation();toggleWishlist('${p.id}')" style="position:absolute;top:10px;right:10px;background:rgba(0,0,0,0.6);border:none;color:${isLiked ? '#e74c3c' : '#fff'};width:34px;height:34px;border-radius:50%;font-size:0.9rem;cursor:pointer;">
+                                <i class="fas fa-heart"></i>
+                            </button>
+                            ${p.whatsapp ? `<a href="https://wa.me/${p.whatsapp.replace(/\D/g,'')}" target="_blank" onclick="event.stopPropagation();" style="position:absolute;bottom:12px;right:12px;background:#25D366;color:#fff;width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.2rem;text-decoration:none;"><i class="fab fa-whatsapp"></i></a>` : ''}
+                        </div>
+                        <div style="padding:12px 14px 14px;">
+                            <div style="font-weight:700;font-size:0.95rem;">${p.title || 'Untitled'}</div>
+                            <div style="font-weight:800;font-size:1.15rem;color:#00b16a;margin-top:4px;">₦${price}</div>
+                            <div style="display:flex;justify-content:space-between;margin-top:8px;font-size:0.7rem;color:#666;">
+                                <span><i class="fas fa-map-marker-alt"></i> ${p.location || 'N/A'}</span>
+                                <span><i class="fas fa-clock"></i> ${p.createdAt ? 'recent' : 'N/A'}</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+            grid.innerHTML = html;
+        }
+
+        // ================================================================
+        //  DETAIL
+        // ================================================================
+        let carouselIndex = 0;
+
+        function openDetail(productId) {
+            const p = state.products.find(x => x.id === productId);
+            if (!p) { showToast('Product not found', 'error'); return; }
+
+            const isOwner = state.currentUser && p.sellerId === state.currentUser.uid;
+            const price = (p.price || 0).toFixed(2);
+            const images = p.imageUrls || [];
+            const video = p.videoUrl || '';
+            const allMedia = [...images];
+            if (video) allMedia.push(video);
+
+            let carouselHtml = '';
+            if (allMedia.length > 0) {
+                carouselHtml = `
+                    <div class="detail-carousel" id="detailCarousel">
+                        <div class="carousel-track" id="carouselTrack">
+                            ${allMedia.map((url, i) => {
+                                const isVideo = url === video && video;
+                                return isVideo
+                                    ? `<video src="${url}" controls muted playsinline></video>`
+                                    : `<img src="${url}" alt="Product image ${i+1}" loading="lazy" />`;
+                            }).join('')}
+                        </div>
+                        ${allMedia.length > 1 ? `
+                            <button class="carousel-arrow prev" onclick="slideCarousel(-1)"><i class="fas fa-chevron-left"></i></button>
+                            <button class="carousel-arrow next" onclick="slideCarousel(1)"><i class="fas fa-chevron-right"></i></button>
+                            <div class="carousel-dots" id="carouselDots">
+                                ${allMedia.map((_, i) => `<span class="${i === 0 ? 'active' : ''}"></span>`).join('')}
+                            </div>
+                        ` : ''}
+                    </div>
+                `;
+            } else {
+                carouselHtml = `<div class="detail-carousel" style="display:flex;align-items:center;justify-content:center;color:#666;font-size:3rem;"><i class="fas fa-image"></i></div>`;
+            }
+
+            const content = $('detailContent');
+            content.innerHTML = `
+                ${carouselHtml}
+                <div style="font-size:1.8rem;font-weight:800;color:#00b16a;">₦${price}</div>
+                <div style="font-size:1.3rem;font-weight:700;margin:4px 0 8px;">${p.title || 'Untitled'}</div>
+                <div style="display:flex;flex-wrap:wrap;gap:12px;font-size:0.85rem;color:#666;margin-bottom:12px;">
+                    <span><i class="fas fa-tag" style="color:#00b16a;"></i> ${p.category || 'Other'}</span>
+                    <span><i class="fas fa-box" style="color:#00b16a;"></i> ${p.condition || 'N/A'}</span>
+                    <span><i class="fas fa-map-marker-alt" style="color:#00b16a;"></i> ${p.location || 'N/A'}</span>
+                    <span><i class="fas fa-user" style="color:#00b16a;"></i> ${p.sellerName || 'Anonymous'}</span>
+                </div>
+                ${p.description ? `<div style="color:#aaa;line-height:1.6;font-size:0.95rem;margin-bottom:16px;">${p.description}</div>` : ''}
+                <div style="display:flex;gap:10px;flex-wrap:wrap;">
+                    ${!isOwner && state.currentUser ? `<button class="btn btn-primary" onclick="handleBuyNow('${p.id}')" style="flex:1;min-width:100px;"><i class="fas fa-shopping-cart"></i> Buy Now</button>` : ''}
+                    ${!isOwner && !state.currentUser ? `<button class="btn btn-primary" onclick="$('authModal').classList.add('open')" style="flex:1;min-width:100px;"><i class="fas fa-sign-in-alt"></i> Sign in to Buy</button>` : ''}
+                    ${isOwner ? `<button class="btn btn-danger" onclick="deleteProduct('${p.id}')" style="flex:1;min-width:100px;"><i class="fas fa-trash"></i> Delete</button>` : ''}
+                    ${p.whatsapp ? `<a href="https://wa.me/${p.whatsapp.replace(/\D/g,'')}" target="_blank" class="whatsapp-btn" style="flex:1;min-width:100px;text-align:center;justify-content:center;"><i class="fab fa-whatsapp"></i> WhatsApp</a>` : ''}
+                </div>
+            `;
+
+            carouselIndex = 0;
+            $('detailModal').classList.add('open');
+        }
+
+        function slideCarousel(direction) {
+            const track = $('carouselTrack');
+            const dots = document.querySelectorAll('#carouselDots span');
+            if (!track || !dots.length) return;
+            const total = dots.length;
+            carouselIndex = (carouselIndex + direction + total) % total;
+            track.style.transform = `translateX(-${carouselIndex * 100}%)`;
+            dots.forEach((d, i) => d.classList.toggle('active', i === carouselIndex));
+        }
+
+        $('detailModalClose').addEventListener('click', () => $('detailModal').classList.remove('open'));
+        $('detailModal').addEventListener('click', (e) => {
+            if (e.target === $('detailModal')) $('detailModal').classList.remove('open');
+        });
+
+        // ================================================================
+        //  WISHLIST
+        // ================================================================
+        async function loadWishlist() {
+            if (!state.currentUser) return;
+            try {
+                const doc = await db.collection('users').doc(state.currentUser.uid).get();
+                state.wishlist = doc.exists ? (doc.data().wishlist || []) : [];
+                renderWishlist();
+            } catch (err) { console.warn(err); }
+        }
+
+        window.toggleWishlist = async function(productId) {
+            if (!state.currentUser) {
+                showToast('Sign in to save items', 'error');
+                $('authModal').classList.add('open');
+                return;
+            }
+            const idx = state.wishlist.indexOf(productId);
+            if (idx > -1) state.wishlist.splice(idx, 1);
+            else state.wishlist.push(productId);
+            try {
+                await db.collection('users').doc(state.currentUser.uid).set({ wishlist: state.wishlist }, { merge: true });
+                renderWishlist();
+                renderProducts(state.products);
+                showToast(idx > -1 ? 'Removed from wishlist' : 'Added to wishlist');
+            } catch (err) { showToast(err.message, 'error'); }
+        };
+
+        function renderWishlist() {
+            const grid = $('wishlistGrid');
+            const empty = $('wishlistEmpty');
+            const items = state.products.filter(p => state.wishlist.includes(p.id));
+            const badge = $('wishlistBadge');
+            badge.textContent = state.wishlist.length;
+            badge.style.display = state.wishlist.length > 0 ? 'block' : 'none';
+            if (items.length === 0) {
+                grid.innerHTML = '';
+                empty.style.display = 'block';
+                return;
+            }
+            empty.style.display = 'none';
+            let html = '';
+            items.forEach(p => {
+                const img = p.imageUrls && p.imageUrls.length > 0 ? p.imageUrls[0] : '';
+                const price = (p.price || 0).toFixed(2);
+                html += `
+                    <div style="background:#242424;border-radius:16px;overflow:hidden;border:1px solid #333;cursor:pointer;" onclick="openDetail('${p.id}')">
+                        <div style="position:relative;padding-top:100%;background:#1a1a1a;">
+                            ${img ? `<img src="${img}" style="position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;" />` : `<div style="position:absolute;top:0;left:0;width:100%;height:100%;display:flex;align-items:center;justify-content:center;color:#666;font-size:2.5rem;"><i class="fas fa-image"></i></div>`}
+                            <button onclick="event.stopPropagation();toggleWishlist('${p.id}')" style="position:absolute;top:10px;right:10px;background:rgba(0,0,0,0.6);border:none;color:#e74c3c;width:34px;height:34px;border-radius:50%;font-size:0.9rem;cursor:pointer;">
+                                <i class="fas fa-heart"></i>
+                            </button>
+                        </div>
+                        <div style="padding:12px 14px 14px;">
+                            <div style="font-weight:700;font-size:0.95rem;">${p.title || 'Untitled'}</div>
+                            <div style="font-weight:800;font-size:1.15rem;color:#00b16a;margin-top:4px;">₦${price}</div>
+                        </div>
+                    </div>
+                `;
+            });
+            grid.innerHTML = html;
+        }
+
+        // ================================================================
+        //  ORDERS
+        // ================================================================
+        async function loadOrders() {
+            if (!state.currentUser) return;
+            try {
+                const snap = await db.collection('orders')
+                    .where('buyerId', '==', state.currentUser.uid)
+                    .get();
+                const orders = [];
+                snap.forEach(doc => orders.push({ id: doc.id, ...doc.data() }));
+                orders.sort((a, b) => (b.createdAt?.toDate?.() || 0) - (a.createdAt?.toDate?.() || 0));
+                state.orders = orders;
+                renderOrders();
+            } catch (err) { showToast('Error loading orders: ' + err.message, 'error'); }
+        }
+
+        function renderOrders() {
+            const container = $('ordersList');
+            const empty = $('ordersEmpty');
+            if (!state.orders || state.orders.length === 0) {
+                container.innerHTML = '';
+                empty.style.display = 'block';
+                return;
+            }
+            empty.style.display = 'none';
+            let html = '';
+            state.orders.forEach(order => {
+                const statusText = order.status === 'paid' ? '✅ Paid – Awaiting delivery' :
+                    order.status === 'completed' ? '✅ Completed – Funds released' :
+                    order.status === 'pending' ? '⏳ Pending payment' :
+                    order.status === 'failed' ? '❌ Failed' : order.status;
+                const canConfirm = order.status === 'paid' && !order.released;
+                html += `
+                    <div class="order-card">
+                        <div><strong>${order.productTitle || 'Item'}</strong></div>
+                        <div style="color:#666;font-size:0.85rem;">₦${(order.amount || 0).toFixed(2)} (incl. ₦${(order.platformFee || 0).toFixed(2)} fee)</div>
+                        <div class="status">${statusText}</div>
+                        ${canConfirm ? `
+                            <div class="order-actions">
+                                <button class="btn btn-primary btn-sm" onclick="confirmDelivery('${order.id}')"><i class="fas fa-check-circle"></i> I received it</button>
+                                <button class="btn btn-danger btn-sm" onclick="disputeOrder('${order.id}')"><i class="fas fa-flag"></i> I didn't receive</button>
+                            </div>
+                        ` : ''}
+                        ${order.status === 'completed' ? `<div style="color:#00b16a;font-size:0.85rem;margin-top:4px;">✅ Payment released to seller</div>` : ''}
+                    </div>
+                `;
+            });
+            container.innerHTML = html;
+        }
+
+        window.confirmDelivery = async function(orderId) {
+            if (!confirm('Confirm you received the item? Payment will be released to the seller.')) return;
+            try {
+                showLoader(true);
+                const token = await auth.currentUser.getIdToken();
+                const response = await fetch(`${BACKEND_BASE}/release-funds`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                    body: JSON.stringify({ orderId })
+                });
+                const result = await response.json();
+                if (!response.ok) throw new Error(result.error || 'Failed to release funds');
+                showToast(result.message || '✅ Payment released to seller!', 'success');
+                loadOrders();
+            } catch (err) { showToast('Error: ' + err.message, 'error'); } finally { showLoader(false); }
+        };
+
+        window.disputeOrder = async function(orderId) {
+            const reason = prompt('Why did you not receive the item?');
+            if (!reason) return;
+            try {
+                await db.collection('orders').doc(orderId).update({
+                    status: 'disputed',
+                    disputeReason: reason,
+                    disputedAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                showToast('Dispute filed. Admin will investigate.', 'info');
+                loadOrders();
+            } catch (err) { showToast('Error: ' + err.message, 'error'); }
+        };
+
+        // ================================================================
+        //  BUY NOW (ESCROW)
+        // ================================================================
+        window.handleBuyNow = async function(productId) {
+            if (!state.currentUser) {
+                showToast('Sign in to buy', 'error');
+                $('authModal').classList.add('open');
+                return;
+            }
+            const product = state.products.find(p => p.id === productId);
+            if (!product) return;
+
+            // Check seller has bank account
+            try {
+                const sellerDoc = await db.collection('users').doc(product.sellerId).get();
+                const seller = sellerDoc.data();
+                if (!seller || !seller.bankAccount || !seller.bankAccount.accountNumber) {
+                    showToast('Seller has not set up a bank account.', 'error');
+                    return;
+                }
+            } catch (err) {
+                showToast('Error checking seller: ' + err.message, 'error');
+                return;
+            }
+
+            if (!confirm(`Buy this item for ₦${(product.price || 0).toFixed(2)}? Payment will be held until you confirm delivery.`)) return;
+
+            try {
+                showLoader(true);
+                const token = await auth.currentUser.getIdToken();
+
+                // Create order
+                const orderRef = await db.collection('orders').add({
+                    productId: product.id,
+                    buyerId: state.currentUser.uid,
+                    sellerId: product.sellerId,
+                    amount: product.price,
+                    platformFee: product.price * 0.1,
+                    sellerEarning: product.price * 0.9,
+                    status: 'pending',
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                    productTitle: product.title
+                });
+
+                // Call backend to initialize Flutterwave payment
+                const response = await fetch(`${BACKEND_BASE}/initialize-payment`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({
+                        productId: product.id,
+                        sellerId: product.sellerId,
+                        amount: product.price,
+                        email: state.currentUser.email,
+                        productTitle: product.title,
+                        orderId: orderRef.id
+                    })
+                });
+
+                const result = await response.json();
+                if (!response.ok) throw new Error(result.error || 'Payment initialization failed');
+
+                if (result.paymentLink) {
+                    window.open(result.paymentLink, '_blank');
+                    showToast('Payment window opened. Complete the payment.', 'info');
+                    $('detailModal').classList.remove('open');
+                }
+
+                // Poll for order status
+                let pollCount = 0;
+                const pollInterval = setInterval(async () => {
+                    try {
+                        const snap = await db.collection('orders').doc(orderRef.id).get();
+                        if (snap.exists) {
+                            const data = snap.data();
+                            if (data.status === 'paid') {
+                                clearInterval(pollInterval);
+                                showToast('✅ Payment confirmed! Order is paid.', 'success');
+                                navigateTo('orders');
+                                loadOrders();
+                            } else if (data.status === 'failed') {
+                                clearInterval(pollInterval);
+                                showToast('❌ Payment failed.', 'error');
+                            }
+                        }
+                        pollCount++;
+                        if (pollCount > 60) {
+                            clearInterval(pollInterval);
+                            showToast('Payment confirmation timed out. Check orders later.', 'info');
+                        }
+                    } catch (e) { /* ignore */ }
+                }, 3000);
+
+            } catch (err) {
+                console.error('Payment error:', err);
+                showToast('Payment error: ' + err.message, 'error');
+            } finally {
+                showLoader(false);
+            }
+        };
+
+        // ================================================================
+        //  DELETE PRODUCT
+        // ================================================================
+        window.deleteProduct = async function(productId) {
+            if (!confirm('Delete this listing permanently?')) return;
+            try {
+                showLoader(true);
+                await db.collection('products').doc(productId).delete();
+                showToast('Product deleted');
+                $('detailModal').classList.remove('open');
+                loadProducts();
+            } catch (err) {
+                showToast('Error deleting: ' + err.message, 'error');
+            } finally {
+                showLoader(false);
+            }
+        };
+
+        // ================================================================
+        //  PROFILE
+        // ================================================================
+        function renderProfile() {
+            const container = $('profileContent');
+            if (!container) return;
+            if (!state.currentUser) {
+                container.innerHTML = `
+                    <div style="text-align:center;padding:60px 20px;color:#666;">
+                        <i class="fas fa-user-circle" style="font-size:3.5rem;color:#333;"></i>
+                        <h3 style="margin-top:12px;">Not signed in</h3>
+                        <button class="btn btn-primary" onclick="$('authModal').classList.add('open')" style="max-width:200px;margin:16px auto 0;">Sign In</button>
+                    </div>
+                `;
+                return;
+            }
+            const user = state.currentUser;
+            const name = user.displayName || user.email || 'User';
+            const email = user.email || '';
+            const userData = userDataCache[user.uid] || {};
+            const profilePic = userData.profilePic || '';
+            const productCount = state.products.filter(p => p.sellerId === user.uid).length;
+
+            container.innerHTML = `
+                <div class="profile-header">
+                    <div class="avatar" onclick="openProfilePicModal()">
+                        ${profilePic ? `<img src="${profilePic}" alt="${name}" />` : name.charAt(0).toUpperCase()}
+                    </div>
+                    <div class="info">
+                        <h2>${name}</h2>
+                        <p>${email}</p>
+                        <p style="font-size:0.85rem;color:#666;"><i class="fas fa-store-alt"></i> ${productCount} listings</p>
+                        <button class="btn btn-sm btn-outline" onclick="openProfilePicModal()" style="width:auto;padding:4px 12px;font-size:0.7rem;margin-top:4px;">
+                            <i class="fas fa-camera"></i> Change Photo
+                        </button>
+                    </div>
+                </div>
+                <div class="profile-menu">
+                    <button class="menu-item" onclick="navigateTo('home')">
+                        <i class="fas fa-store-alt"></i> My Listings
+                        <span class="arrow"><i class="fas fa-chevron-right"></i></span>
+                    </button>
+                    <button class="menu-item" onclick="navigateTo('wishlist')">
+                        <i class="fas fa-heart"></i> Wishlist
+                        <span class="arrow"><i class="fas fa-chevron-right"></i></span>
+                    </button>
+                    <button class="menu-item" onclick="navigateTo('orders')">
+                        <i class="fas fa-shopping-bag"></i> Orders
+                        <span class="arrow"><i class="fas fa-chevron-right"></i></span>
+                    </button>
+                    <button class="menu-item" onclick="showBankSetup()">
+                        <i class="fas fa-university"></i> Bank Account
+                        <span class="arrow"><i class="fas fa-chevron-right"></i></span>
+                    </button>
+                    <button class="menu-item danger" onclick="logout()">
+                        <i class="fas fa-sign-out-alt"></i> Sign Out
+                        <span class="arrow"><i class="fas fa-chevron-right"></i></span>
+                    </button>
+                </div>
+            `;
+        }
+
+        // ================================================================
+        //  INIT
+        // ================================================================
+        document.addEventListener('DOMContentLoaded', function() {
+            loadProducts();
+            if (auth.currentUser) {
+                loadWishlist();
+                loadOrders();
+                renderProfile();
+            }
+        });
+
+        // ================================================================
+        //  EXPOSE GLOBALS
+        // ================================================================
+        window.openDetail = openDetail;
+        window.slideCarousel = slideCarousel;
+        window.toggleWishlist = toggleWishlist;
+        window.deleteProduct = deleteProduct;
+        window.handleBuyNow = handleBuyNow;
+        window.confirmDelivery = confirmDelivery;
+        window.disputeOrder = disputeOrder;
+        window.showBankSetup = showBankSetup;
+        window.openProfilePicModal = openProfilePicModal;
+        window.navigateTo = navigateTo;
+        window.logout = logout;
+    </script>
+
+</body>
+</html>
