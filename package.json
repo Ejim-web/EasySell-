@@ -1,8 +1,23 @@
 {
-  "name": "easysell-backend",
-  "version": "1.0.0",
-  "dependencies": {
-    "firebase-admin": "^11.11.1",
-    "axios": "^1.6.2"
-  }
+    "name": "easysell-backend",
+    "version": "1.0.0",
+    "description": "EasySell Marketplace Backend",
+    "main": "index.js",
+    "scripts": {
+        "test": "jest",
+        "start": "node index.js"
+    },
+    "dependencies": {
+        "firebase-admin": "^11.11.1",
+        "axios": "^1.6.2",
+        "crypto": "^1.0.1"
+    },
+    "devDependencies": {
+        "jest": "^29.7.0",
+        "supertest": "^6.3.3",
+        "nock": "^13.4.0"
+    },
+    "engines": {
+        "node": "18.x"
+    }
 }
