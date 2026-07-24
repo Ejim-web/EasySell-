@@ -1,0 +1,62 @@
+{
+    "indexes": [
+        {
+            "collectionId": "orders",
+            "fields": [
+                { "fieldPath": "buyerId", "mode": "ASCENDING" },
+                { "fieldPath": "createdAt", "mode": "DESCENDING" }
+            ]
+        },
+        {
+            "collectionId": "orders",
+            "fields": [
+                { "fieldPath": "sellerId", "mode": "ASCENDING" },
+                { "fieldPath": "createdAt", "mode": "DESCENDING" }
+            ]
+        },
+        {
+            "collectionId": "orders",
+            "fields": [
+                { "fieldPath": "status", "mode": "ASCENDING" },
+                { "fieldPath": "createdAt", "mode": "DESCENDING" }
+            ]
+        },
+        {
+            "collectionId": "orders",
+            "fields": [
+                { "fieldPath": "status", "mode": "ASCENDING" },
+                { "fieldPath": "released", "mode": "ASCENDING" },
+                { "fieldPath": "createdAt", "mode": "DESCENDING" }
+            ]
+        },
+        {
+            "collectionId": "payout_jobs",
+            "fields": [
+                { "fieldPath": "status", "mode": "ASCENDING" },
+                { "fieldPath": "scheduledFor", "mode": "ASCENDING" }
+            ]
+        },
+        {
+            "collectionId": "payout_jobs",
+            "fields": [
+                { "fieldPath": "status", "mode": "ASCENDING" },
+                { "fieldPath": "priority", "mode": "DESCENDING" },
+                { "fieldPath": "createdAt", "mode": "ASCENDING" }
+            ]
+        },
+        {
+            "collectionId": "products",
+            "fields": [
+                { "fieldPath": "category", "mode": "ASCENDING" },
+                { "fieldPath": "createdAt", "mode": "DESCENDING" }
+            ]
+        },
+        {
+            "collectionId": "products",
+            "fields": [
+                { "fieldPath": "sellerId", "mode": "ASCENDING" },
+                { "fieldPath": "createdAt", "mode": "DESCENDING" }
+            ]
+        }
+    ]
+}
